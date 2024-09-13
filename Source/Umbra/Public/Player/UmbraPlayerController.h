@@ -3,22 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "UmbraGameplayTags.h"
 #include "GameFramework/PlayerController.h"
 #include "UmbraPlayerController.generated.h"
 
+class UPlayerCharacterInfo;
+struct FGameplayTag;
 class AUmbraBaseCharacter;
 class AUmbraPlayerCharacter;
 class UInputMappingContext;
 class UInputAction;
-
-UENUM(BlueprintType)
-enum EUmbraCharacters
-{
-	Assassin,
-	Trapper,
-	Sniper,
-	Faceless
-};
 
 /**
  * 
@@ -42,8 +36,15 @@ private:
 	TObjectPtr<UInputAction> SwitchCharacterAction;
 
 	UPROPERTY(EditAnywhere, Category = "Characters")
-	TArray<TSubclassOf<AUmbraBaseCharacter>> PlayerCharacters;
+	TArray<TSubclassOf<AUmbraBaseCharacter>> OwnedCharacters;
 
-	void SwitchCharacter(EUmbraCharacters NewCharacter);
-	
+	UPROPERTY(EditDefaultsOnly, Category = "Characters")
+	TObjectPtr<UPlayerCharacterInfo> PlayerCharactersInfo;
+
+	void SwitchCharacter(FGameplayTag CharacterTag);
+
+	void SwitchToAssassin() { SwitchCharacter(FUmbraGameplayTags::Get().Character_Assassin); }
+	void SwtichToTrapper() { SwitchCharacter(FUmbraGameplayTags::Get().Character_Trapper); }
+
+
 };

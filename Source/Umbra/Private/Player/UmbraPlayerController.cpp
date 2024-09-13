@@ -5,6 +5,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "Character/UmbraPlayerCharacter.h"
+#include "Character/Data/PlayerCharacterInfo.h"
 #include "Kismet/GameplayStatics.h"
 
 void AUmbraPlayerController::BeginPlay()
@@ -27,12 +28,22 @@ void AUmbraPlayerController::SetupInputComponent()
 
 	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent);
 	if (EnhancedInputComponent) UE_LOG(LogTemp, Warning, TEXT("Enhanced Input Compoent was set!"));
-	EnhancedInputComponent->BindAction(SwitchCharacterAction, ETriggerEvent::Started, this, &AUmbraPlayerController::SwitchCharacter, );
+	//EnhancedInputComponent->BindAction(SwitchCharacterAction, ETriggerEvent::Started, this, &AUmbraPlayerController::SwitchCharacter);
 }
 
-void AUmbraPlayerController::SwitchCharacter()
+void AUmbraPlayerController::SwitchCharacter(FGameplayTag CharacterTag)
 {
-	if 
+	TSubclassOf<AUmbraPlayerCharacter> NewCharacterBlueprint = PlayerCharactersInfo->FindPlayerCharacterBlueprintByTag(CharacterTag);
+	if (OwnedCharacters.Contains(NewCharacterBlueprint))
+	{
+		AActor* NewCharacter = UGameplayStatics::GetActorOfClass(GetWorld(), NewCharacterBlueprint);
+		Possess(Cast<APawn>(NewCharacter));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Character [%s] not found in OwnedCharacter of [%s]"),
+			*CharacterTag.ToString(), *GetNameSafe(this));
+	}
 }
 
 
