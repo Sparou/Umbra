@@ -11,7 +11,7 @@
 void AUmbraPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	check(InputContext);
 
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
@@ -27,23 +27,61 @@ void AUmbraPlayerController::SetupInputComponent()
 	Super::SetupInputComponent();
 
 	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent);
-	if (EnhancedInputComponent) UE_LOG(LogTemp, Warning, TEXT("Enhanced Input Compoent was set!"));
-	//EnhancedInputComponent->BindAction(SwitchCharacterAction, ETriggerEvent::Started, this, &AUmbraPlayerController::SwitchCharacter);
+
+	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::Move);
+	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::Look);
+	
+	EnhancedInputComponent->BindAction(SwitchToAssassinAction, ETriggerEvent::Started, this,
+		&AUmbraPlayerController::SwitchCharacter, FUmbraGameplayTags::Get().Character_Assassin);
+
+	EnhancedInputComponent->BindAction(SwitchToTrapperAction, ETriggerEvent::Started, this,
+		&AUmbraPlayerController::SwitchCharacter, FUmbraGameplayTags::Get().Character_Trapper);
 }
 
 void AUmbraPlayerController::SwitchCharacter(FGameplayTag CharacterTag)
 {
+	if (OwnedCharacters.Num() == 0) return;
+
+	//TODO: Добавить защиту от переключение на уже используемого персонажа
+	
 	TSubclassOf<AUmbraPlayerCharacter> NewCharacterBlueprint = PlayerCharactersInfo->FindPlayerCharacterBlueprintByTag(CharacterTag);
-	if (OwnedCharacters.Contains(NewCharacterBlueprint))
+	if (IsValid(NewCharacterBlueprint) && OwnedCharacters.Contains(NewCharacterBlueprint))
 	{
-		AActor* NewCharacter = UGameplayStatics::GetActorOfClass(GetWorld(), NewCharacterBlueprint);
-		Possess(Cast<APawn>(NewCharacter));
+		if (AActor* NewCharacter = UGameplayStatics::GetActorOfClass(GetWorld(), NewCharacterBlueprint))
+		{
+			Possess(Cast<APawn>(NewCharacter));
+		}
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Character [%s] not found in OwnedCharacter of [%s]"),
+		UE_LOG(LogTemp, Warning, TEXT("Character [%s] not found in OwnedCharacters of [%s]"),
 			*CharacterTag.ToString(), *GetNameSafe(this));
 	}
 }
+
+void AUmbraPlayerController::Move(const FInputActionValue& InputActionValue)
+{
+	const FVector2D InputAxisVector = InputActionValue.Get<FVector2D>();
+	const FRotator YawRotation(0.f, GetControlRotation().Yaw, 0.f);
+
+	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+
+	if (APawn* ControlledPawn = GetPawn<APawn>()) {
+		ControlledPawn->AddMovementInput(ForwardDirection, InputAxisVector.Y);
+		ControlledPawn->AddMovementInput(RightDirection, InputAxisVector.X);
+	}
+}
+
+void AUmbraPlayerController::Look(const FInputActionValue& InputActionValue)
+{
+	const FVector2D LookAxisVector = InputActionValue.Get<FVector2D>();
+	APawn* CurrentPawn = GetPawn();
+	CurrentPawn->AddControllerYawInput(LookAxisVector.X);
+	CurrentPawn->AddControllerPitchInput(LookAxisVector.Y);
+}
+
+
+
 
 
