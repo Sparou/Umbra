@@ -30,9 +30,11 @@ void AUmbraPlayerController::SetupInputComponent()
 
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::Move);
 	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::Look);
-	
+	EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AUmbraPlayerController::Interact, true);
+	EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::Interact, false);
+
 	EnhancedInputComponent->BindAction(SwitchToAssassinAction, ETriggerEvent::Started, this,
-		&AUmbraPlayerController::SwitchCharacter, FUmbraGameplayTags::Get().Character_Assassin);
+	                                   &AUmbraPlayerController::SwitchCharacter, FUmbraGameplayTags::Get().Character_Assassin);
 
 	EnhancedInputComponent->BindAction(SwitchToTrapperAction, ETriggerEvent::Started, this,
 		&AUmbraPlayerController::SwitchCharacter, FUmbraGameplayTags::Get().Character_Trapper);
@@ -79,6 +81,11 @@ void AUmbraPlayerController::Look(const FInputActionValue& InputActionValue)
 	APawn* CurrentPawn = GetPawn();
 	CurrentPawn->AddControllerYawInput(LookAxisVector.X);
 	CurrentPawn->AddControllerPitchInput(LookAxisVector.Y);
+}
+
+void AUmbraPlayerController::Interact(bool WantsToInteract)
+{
+	bWantsToInteract = WantsToInteract;
 }
 
 

@@ -24,6 +24,10 @@ class UMBRA_API AUmbraPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
+public:
+	UPROPERTY(BlueprintReadOnly)
+	bool bWantsToInteract = false;
+	
 protected:
 
 	virtual void BeginPlay() override;
@@ -39,6 +43,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Input|Basic")
 	TObjectPtr<UInputAction> LookAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input|Basic")
+	TObjectPtr<UInputAction> InteractAction;
 
 	UPROPERTY(EditAnywhere, Category = "Input|Characters")
 	TObjectPtr<UInputAction> SwitchToAssassinAction;
@@ -61,4 +68,7 @@ private:
 	void SwitchCharacter(FGameplayTag CharacterTag);
 	void Move(const FInputActionValue& InputActionValue);
 	void Look(const FInputActionValue& InputActionValue);
+	void Interact(bool WantsToInteract);
+
+
 };
