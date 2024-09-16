@@ -25,8 +25,8 @@ class UMBRA_API AUmbraPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(BlueprintReadOnly)
-	bool bWantsToInteract = false;
+	UPROPERTY(BlueprintReadWrite)
+	TObjectPtr<AActor> OverlapedActor = nullptr;
 	
 protected:
 
@@ -64,11 +64,11 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Characters")
 	TObjectPtr<UPlayerCharacterInfo> PlayerCharactersInfo;
-
+	
 	void SwitchCharacter(FGameplayTag CharacterTag);
 	void Move(const FInputActionValue& InputActionValue);
 	void Look(const FInputActionValue& InputActionValue);
-	void Interact(bool WantsToInteract);
+	void Interact();
 
 
 };

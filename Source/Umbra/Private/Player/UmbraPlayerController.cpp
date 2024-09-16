@@ -4,7 +4,9 @@
 #include "Player/UmbraPlayerController.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "Character/UmbraEnemyCharacter.h"
 #include "Character/UmbraPlayerCharacter.h"
+#include "Character/Component/InteractionComponent.h"
 #include "Character/Data/PlayerCharacterInfo.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -30,8 +32,7 @@ void AUmbraPlayerController::SetupInputComponent()
 
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::Move);
 	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::Look);
-	EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AUmbraPlayerController::Interact, true);
-	EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::Interact, false);
+	EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AUmbraPlayerController::Interact);
 
 	EnhancedInputComponent->BindAction(SwitchToAssassinAction, ETriggerEvent::Started, this,
 	                                   &AUmbraPlayerController::SwitchCharacter, FUmbraGameplayTags::Get().Character_Assassin);
@@ -83,9 +84,17 @@ void AUmbraPlayerController::Look(const FInputActionValue& InputActionValue)
 	CurrentPawn->AddControllerPitchInput(LookAxisVector.Y);
 }
 
-void AUmbraPlayerController::Interact(bool WantsToInteract)
+void AUmbraPlayerController::Interact()
 {
-	bWantsToInteract = WantsToInteract;
+	APawn* CurrentPawn = GetPawn();
+	AUmbraPlayerCharacter* CurrentPlayerCharacter = Cast<AUmbraPlayerCharacter>(CurrentPawn);
+	UInteractionComponent* InteractionComponent = CurrentPlayerCharacter->GetComponentByClass<UInteractionComponent>();
+	IInteractionInterface* InteractableActor = Cast<IInteractionInterface>(InteractionComponent->OverlappedActor);
+
+	if (InteractableActor)
+	{
+		InteractableActor->Interact(CurrentPlayerCharacter);
+	}
 }
 
 
