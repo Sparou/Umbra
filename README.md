@@ -1,5 +1,6 @@
 <p align="center">
   <img width="256" height="256" src="https://raw.githubusercontent.com/Sparou/Umbra/a8cdf609e0b19ff76eb7d45f2341d92ff1974655/Project%20Umbra%20Logo.svg">
+  <img width="534" height="200" src="https://keystoneacademic-res.cloudinary.com/image/upload/element/15/157257_HSE_University_blue1.png">
 </p>
 
 # Описание проекта
