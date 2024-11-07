@@ -3,32 +3,36 @@
 
 #include "Character/UmbraBaseCharacter.h"
 
-// Sets default values
+#include "AbilitySystemComponent.h"
+#include "MotionWarpingComponent.h"
+#include "Components/CapsuleComponent.h"
+
 AUmbraBaseCharacter::AUmbraBaseCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
+	PrimaryActorTick.bCanEverTick = false;
+	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>("Motion Warping");
+	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
+	WeaponMesh->SetupAttachment(GetMesh(), FName("WeaponHandSocket"));
 }
 
-// Called when the game starts or when spawned
 void AUmbraBaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
-// Called every frame
-void AUmbraBaseCharacter::Tick(float DeltaTime)
+void AUmbraBaseCharacter::MulticastHandleDeath_Implementation()
 {
-	Super::Tick(DeltaTime);
+	PrimaryActorTick.bCanEverTick = false;
 
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
+  
+	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	GetMesh()->SetGenerateOverlapEvents(true);
+
+	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>("Motion Warping");
+  
+	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
+	WeaponMesh->SetupAttachment(GetMesh(), FName("WeaponHandSocket"));
+	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
-
-// Called to bind functionality to input
-void AUmbraBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-}
-
