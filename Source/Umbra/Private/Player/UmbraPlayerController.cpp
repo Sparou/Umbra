@@ -8,6 +8,7 @@
 #include "Character/UmbraPlayerCharacter.h"
 #include "Character/Component/InteractionComponent.h"
 #include "Character/Data/PlayerCharacterInfo.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 void AUmbraPlayerController::BeginPlay()
@@ -19,7 +20,6 @@ void AUmbraPlayerController::BeginPlay()
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 	if (Subsystem)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Subsystem as found"));
 		Subsystem->AddMappingContext(InputContext, 0);
 	}
 }
@@ -29,9 +29,7 @@ void AUmbraPlayerController::SetupInputComponent()
 	Super::SetupInputComponent();
 
 	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent);
-
-	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::Move);
-	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::Look);
+	
 	EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AUmbraPlayerController::Interact);
 
 	EnhancedInputComponent->BindAction(SwitchToAssassinAction, ETriggerEvent::Started, this,
@@ -62,28 +60,6 @@ void AUmbraPlayerController::SwitchCharacter(FGameplayTag CharacterTag)
 	}
 }
 
-void AUmbraPlayerController::Move(const FInputActionValue& InputActionValue)
-{
-	const FVector2D InputAxisVector = InputActionValue.Get<FVector2D>();
-	const FRotator YawRotation(0.f, GetControlRotation().Yaw, 0.f);
-
-	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-
-	if (APawn* ControlledPawn = GetPawn<APawn>()) {
-		ControlledPawn->AddMovementInput(ForwardDirection, InputAxisVector.Y);
-		ControlledPawn->AddMovementInput(RightDirection, InputAxisVector.X);
-	}
-}
-
-void AUmbraPlayerController::Look(const FInputActionValue& InputActionValue)
-{
-	const FVector2D LookAxisVector = InputActionValue.Get<FVector2D>();
-	APawn* CurrentPawn = GetPawn();
-	CurrentPawn->AddControllerYawInput(LookAxisVector.X);
-	CurrentPawn->AddControllerPitchInput(LookAxisVector.Y);
-}
-
 void AUmbraPlayerController::Interact()
 {
 	APawn* CurrentPawn = GetPawn();
@@ -96,8 +72,6 @@ void AUmbraPlayerController::Interact()
 		InteractableActor->Interact(CurrentPlayerCharacter);
 	}
 }
-
-
 
 
 

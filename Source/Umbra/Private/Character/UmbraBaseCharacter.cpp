@@ -1,10 +1,11 @@
 // Copyrighted by Vorona Games
 
-
 #include "Character/UmbraBaseCharacter.h"
 
-#include "AbilitySystemComponent.h"
+#include "CharacterTrajectoryComponent.h"
 #include "MotionWarpingComponent.h"
+#include "AbilitySystem/UmbraAbilitySystemComponent.h"
+#include "AbilitySystem/UmbraAttributeSet.h"
 #include "Components/CapsuleComponent.h"
 
 AUmbraBaseCharacter::AUmbraBaseCharacter()
@@ -13,6 +14,9 @@ AUmbraBaseCharacter::AUmbraBaseCharacter()
 	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>("Motion Warping");
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
 	WeaponMesh->SetupAttachment(GetMesh(), FName("WeaponHandSocket"));
+	AbilitySystemComponent = CreateDefaultSubobject<UUmbraAbilitySystemComponent>("Ability System");
+	AttributeSet = CreateDefaultSubobject<UUmbraAttributeSet>("Attribute Set");
+	TrajectoryComponent = CreateDefaultSubobject<UCharacterTrajectoryComponent>("Character Trajectory");
 }
 
 void AUmbraBaseCharacter::BeginPlay()

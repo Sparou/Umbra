@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "UmbraBaseCharacter.generated.h"
 
+class UCharacterTrajectoryComponent;
 class UAbilitySystemComponent;
 class UMotionWarpingComponent;
 class UAttributeSet;
@@ -22,6 +23,15 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastHandleDeath();
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
+	float BaseWalkSpeed = 300.f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
+	float BaseRunSpeed = 600.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
+	float BaseCrouchSpeed = 300.f;
+	
 protected:
   
 	virtual void BeginPlay() override;
@@ -40,5 +50,9 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<UAttributeSet> AttributeSet;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
+	TObjectPtr<UCharacterTrajectoryComponent> TrajectoryComponent;
+
 
 };
