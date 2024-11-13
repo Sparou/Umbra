@@ -2,12 +2,17 @@
 
 
 #include "Player/UmbraPlayerController.h"
+
+#include "AbilitySystemBlueprintLibrary.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "AbilitySystem/UmbraAbilitySystemComponent.h"
 #include "Character/UmbraEnemyCharacter.h"
 #include "Character/UmbraPlayerCharacter.h"
 #include "Character/Component/InteractionComponent.h"
 #include "Character/Data/PlayerCharacterInfo.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Input/UmbraInputComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 void AUmbraPlayerController::BeginPlay()
@@ -19,7 +24,6 @@ void AUmbraPlayerController::BeginPlay()
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 	if (Subsystem)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Subsystem as found"));
 		Subsystem->AddMappingContext(InputContext, 0);
 	}
 }
@@ -28,17 +32,27 @@ void AUmbraPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
-	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent);
+	UUmbraInputComponent* UmbraInputComponent = CastChecked<UUmbraInputComponent>(InputComponent);
+	
+	UmbraInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AUmbraPlayerController::Interact);
+	UmbraInputComponent->BindAbilityActions(InputConfig, this, &AUmbraPlayerController::AbilityInputTagPressed,
+	                                        &AUmbraPlayerController::AbilityInputTagReleased, &AUmbraPlayerController::AbilityInputTagHeld);
 
-	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::Move);
-	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::Look);
-	EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AUmbraPlayerController::Interact);
-
-	EnhancedInputComponent->BindAction(SwitchToAssassinAction, ETriggerEvent::Started, this,
+	UmbraInputComponent->BindAction(SwitchToAssassinAction, ETriggerEvent::Started, this,
 	                                   &AUmbraPlayerController::SwitchCharacter, FUmbraGameplayTags::Get().Character_Assassin);
 
-	EnhancedInputComponent->BindAction(SwitchToTrapperAction, ETriggerEvent::Started, this,
+	UmbraInputComponent->BindAction(SwitchToTrapperAction, ETriggerEvent::Started, this,
 		&AUmbraPlayerController::SwitchCharacter, FUmbraGameplayTags::Get().Character_Trapper);
+}
+
+UUmbraAbilitySystemComponent* AUmbraPlayerController::GetAbilitySystemComponent()
+{
+	if (AbilitySystemComponent == nullptr)
+	{
+		AbilitySystemComponent = Cast<UUmbraAbilitySystemComponent>(UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn<APawn>()));
+	}
+
+	return AbilitySystemComponent;
 }
 
 void AUmbraPlayerController::SwitchCharacter(FGameplayTag CharacterTag)
@@ -62,28 +76,6 @@ void AUmbraPlayerController::SwitchCharacter(FGameplayTag CharacterTag)
 	}
 }
 
-void AUmbraPlayerController::Move(const FInputActionValue& InputActionValue)
-{
-	const FVector2D InputAxisVector = InputActionValue.Get<FVector2D>();
-	const FRotator YawRotation(0.f, GetControlRotation().Yaw, 0.f);
-
-	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-
-	if (APawn* ControlledPawn = GetPawn<APawn>()) {
-		ControlledPawn->AddMovementInput(ForwardDirection, InputAxisVector.Y);
-		ControlledPawn->AddMovementInput(RightDirection, InputAxisVector.X);
-	}
-}
-
-void AUmbraPlayerController::Look(const FInputActionValue& InputActionValue)
-{
-	const FVector2D LookAxisVector = InputActionValue.Get<FVector2D>();
-	APawn* CurrentPawn = GetPawn();
-	CurrentPawn->AddControllerYawInput(LookAxisVector.X);
-	CurrentPawn->AddControllerPitchInput(LookAxisVector.Y);
-}
-
 void AUmbraPlayerController::Interact()
 {
 	APawn* CurrentPawn = GetPawn();
@@ -97,7 +89,22 @@ void AUmbraPlayerController::Interact()
 	}
 }
 
+void AUmbraPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
+{
+	//GEngine->AddOnScreenDebugMessage(1, 2.f, FColor::Green, InputTag.ToString());
+}
 
+void AUmbraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
+{
+	if (GetAbilitySystemComponent() == nullptr) return;
+	GetAbilitySystemComponent()->AbilityInputTagReleased(InputTag);
+}
+
+void AUmbraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
+{
+	if (GetAbilitySystemComponent() == nullptr) return;
+	GetAbilitySystemComponent()->AbilityInputTagHeld(InputTag);
+}
 
 
 

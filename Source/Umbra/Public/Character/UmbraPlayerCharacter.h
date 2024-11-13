@@ -20,4 +20,6 @@ public:
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components");
 	TObjectPtr<UInteractionComponent> InteractionComponent;
+
+	virtual void InitAbilityActorInfo() override;
 };
