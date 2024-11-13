@@ -53,6 +53,11 @@
 		{
 			"Name": "DeformerGraph",
 			"Enabled": true
+		},
+		{
+			"Name": "SmoothSyncPlugin",
+			"Enabled": true,
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/c8f61b007fb44f4abcb7b0974cebff6b"
 		}
 	]
 }
