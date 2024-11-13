@@ -6,42 +6,6 @@
 #include "Character/UmbraBaseCharacter.h"
 #include "UmbraPlayerCharacter.generated.h"
 
-UENUM(BlueprintType)
-enum EMovementStatus
-{
-	OnGround,
-	InAir
-};
-
-UENUM(BlueprintType)
-enum ERotationMode
-{
-	OrientToMovement,
-	Strafe
-};
-
-UENUM(BlueprintType)
-enum EMovementGait
-{
-	Walk,
-	Run,
-	Sprint
-};
-
-UENUM(BlueprintType)
-enum EMovementState
-{
-	Idle,
-	Moving
-};
-
-UENUM(BlueprintType)
-enum EMovementStance
-{
-	Crouch,
-	Stand
-};
-
 class UInteractionComponent;
 /**
  * 
@@ -56,4 +20,6 @@ public:
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components");
 	TObjectPtr<UInteractionComponent> InteractionComponent;
+
+	virtual void InitAbilityActorInfo() override;
 };

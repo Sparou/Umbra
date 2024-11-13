@@ -54,5 +54,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
 	TObjectPtr<UCharacterTrajectoryComponent> TrajectoryComponent;
 
-
+	virtual void InitAbilityActorInfo();
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Abilities")
+	TArray<TSubclassOf<class UGameplayAbility>> StartingAbilities;
 };

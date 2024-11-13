@@ -7,6 +7,8 @@
 #include "GameFramework/PlayerController.h"
 #include "UmbraPlayerController.generated.h"
 
+class UUmbraAbilitySystemComponent;
+class UUmbraInputConfig;
 struct FInputActionValue;
 struct FUmbraPlayerCharacterInfo;
 class UPlayerCharacterInfo;
@@ -46,13 +48,25 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Input|Characters")
 	TObjectPtr<UInputAction> SwitchToTrapperAction;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input|Abilities")
+	TObjectPtr<UUmbraInputConfig> InputConfig;
 	
 	UPROPERTY(EditAnywhere, Category = "Characters")
 	TArray<TSubclassOf<AUmbraPlayerCharacter>> OwnedCharacters;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Characters")
 	TObjectPtr<UPlayerCharacterInfo> PlayerCharactersInfo;
+
+	UPROPERTY()
+	TObjectPtr<UUmbraAbilitySystemComponent> AbilitySystemComponent;
+
+	UUmbraAbilitySystemComponent* GetAbilitySystemComponent();
 	
 	void SwitchCharacter(FGameplayTag CharacterTag);
 	void Interact();
+
+	void AbilityInputTagPressed(FGameplayTag InputTag);
+	void AbilityInputTagReleased(FGameplayTag InputTag);
+	void AbilityInputTagHeld(FGameplayTag InputTag);
 };

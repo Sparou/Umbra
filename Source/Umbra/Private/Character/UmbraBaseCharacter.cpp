@@ -22,6 +22,15 @@ AUmbraBaseCharacter::AUmbraBaseCharacter()
 void AUmbraBaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	InitAbilityActorInfo();
+}
+
+void AUmbraBaseCharacter::InitAbilityActorInfo()
+{
+	if (UUmbraAbilitySystemComponent* UmbraASC = Cast<UUmbraAbilitySystemComponent>(AbilitySystemComponent))
+	{
+		UmbraASC->AddCharacterAbilities(StartingAbilities);
+	}
 }
 
 void AUmbraBaseCharacter::MulticastHandleDeath_Implementation()

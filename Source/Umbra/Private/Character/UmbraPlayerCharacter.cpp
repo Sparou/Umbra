@@ -10,3 +10,8 @@ AUmbraPlayerCharacter::AUmbraPlayerCharacter(const FObjectInitializer& ObjInit)
 {
 	InteractionComponent = CreateDefaultSubobject<UInteractionComponent>("Interaction Component");
 }
+
+void AUmbraPlayerCharacter::InitAbilityActorInfo()
+{
+	Super::InitAbilityActorInfo();
+}
