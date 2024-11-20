@@ -35,6 +35,15 @@ void AUmbraPlayerController::SetupInputComponent()
 	UUmbraInputComponent* UmbraInputComponent = CastChecked<UUmbraInputComponent>(InputComponent);
 	
 	UmbraInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AUmbraPlayerController::Interact);
+	UmbraInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::Move);
+	UmbraInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::Look);
+	UmbraInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AUmbraPlayerController::OnStartJumping);
+	UmbraInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::OnStopJumping);
+	UmbraInputComponent->BindAction(WalkAction, ETriggerEvent::Started, this, &AUmbraPlayerController::OnStartWalking);
+	UmbraInputComponent->BindAction(WalkAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::OnStopWalking);
+	UmbraInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &AUmbraPlayerController::OnStartCrouch);
+	UmbraInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::OnStopCrouch);
+	
 	UmbraInputComponent->BindAbilityActions(InputConfig, this, &AUmbraPlayerController::AbilityInputTagPressed,
 	                                        &AUmbraPlayerController::AbilityInputTagReleased, &AUmbraPlayerController::AbilityInputTagHeld);
 
@@ -86,6 +95,78 @@ void AUmbraPlayerController::Interact()
 	if (InteractableActor)
 	{
 		InteractableActor->Interact(CurrentPlayerCharacter);
+	}
+}
+
+void AUmbraPlayerController::Move(const FInputActionValue& InputActionValue)
+{
+	const FVector2D InputAxisVector = InputActionValue.Get<FVector2D>();
+	const FRotator YawRotation(0.f, GetControlRotation().Yaw, 0.f);
+
+	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+
+	if (APawn* ControlledPawn = GetPawn<APawn>()) {
+		ControlledPawn->AddMovementInput(ForwardDirection, InputAxisVector.Y);
+		ControlledPawn->AddMovementInput(RightDirection, InputAxisVector.X);
+	}
+}
+
+void AUmbraPlayerController::Look(const FInputActionValue& InputActionValue)
+{
+	const FVector2D LookAxisVector = InputActionValue.Get<FVector2D>();
+	APawn* CurrentPawn = GetPawn();
+	CurrentPawn->AddControllerYawInput(LookAxisVector.X);
+	CurrentPawn->AddControllerPitchInput(LookAxisVector.Y);
+}
+
+void AUmbraPlayerController::OnStartWalking()
+{
+	bWantsToWalk = true;
+	if (AUmbraBaseCharacter* ControlledCharacter = Cast<AUmbraBaseCharacter>(GetCharacter()))
+	{
+		ControlledCharacter->GetCharacterMovement()->MaxWalkSpeed = ControlledCharacter->BaseWalkSpeed;
+	}
+}
+
+void AUmbraPlayerController::OnStopWalking()
+{
+	bWantsToWalk = false;
+	if (AUmbraBaseCharacter* ControlledCharacter = Cast<AUmbraBaseCharacter>(GetCharacter()))
+	{
+		ControlledCharacter->GetCharacterMovement()->MaxWalkSpeed = ControlledCharacter->BaseRunSpeed;
+	}
+}
+
+void AUmbraPlayerController::OnStartJumping()
+{
+	bWantsToJump = true;
+	if (AUmbraBaseCharacter* ControlledCharacter = Cast<AUmbraBaseCharacter>(GetCharacter()))
+	{
+		ControlledCharacter->Jump();
+	}
+}
+
+void AUmbraPlayerController::OnStopJumping()
+{
+	bWantsToJump = false;
+}
+
+void AUmbraPlayerController::OnStartCrouch()
+{
+	bWantsToCrouch = true;
+	if (AUmbraBaseCharacter* ControlledCharacter = Cast<AUmbraBaseCharacter>(GetCharacter()))
+	{
+		ControlledCharacter->Crouch();
+	}
+}
+
+void AUmbraPlayerController::OnStopCrouch()
+{
+	bWantsToJump = false;
+	if (AUmbraBaseCharacter* ControlledCharacter = Cast<AUmbraBaseCharacter>(GetCharacter()))
+	{
+		ControlledCharacter->UnCrouch();
 	}
 }
 

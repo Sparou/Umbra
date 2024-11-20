@@ -12,11 +12,39 @@ AUmbraBaseCharacter::AUmbraBaseCharacter()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>("Motion Warping");
-	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
-	WeaponMesh->SetupAttachment(GetMesh(), FName("WeaponHandSocket"));
+	WeaponMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("WeaponMesh");
+	WeaponMeshComponent->SetupAttachment(GetMesh(), FName("WeaponHandSocket"));
 	AbilitySystemComponent = CreateDefaultSubobject<UUmbraAbilitySystemComponent>("Ability System");
 	AttributeSet = CreateDefaultSubobject<UUmbraAttributeSet>("Attribute Set");
 	TrajectoryComponent = CreateDefaultSubobject<UCharacterTrajectoryComponent>("Character Trajectory");
+}
+
+FWeaponSocketLocations AUmbraBaseCharacter::GetWeaponSocketLocations_Implementation() const
+{
+	if (WeaponMeshComponent && WeaponMeshComponent->DoesSocketExist(WeaponBaseSocketName) && WeaponMeshComponent->DoesSocketExist(WeaponTipSocketName))
+	{
+		FWeaponSocketLocations SocketLocations;
+		SocketLocations.WeaponBase = WeaponMeshComponent->GetSocketLocation(WeaponBaseSocketName);
+		SocketLocations.WeaponTip = WeaponMeshComponent->GetSocketLocation(WeaponTipSocketName);
+		return SocketLocations;
+	} 
+	UE_LOG(LogTemp, Error, TEXT("Weapon sockets are not set up properly!"));
+	return FWeaponSocketLocations();
+}
+
+UAnimMontage* AUmbraBaseCharacter::GetHitReactMontage_Implementation()
+{
+	return nullptr;
+}
+
+UNiagaraSystem* AUmbraBaseCharacter::GetBloodEffect_Implementation() const
+{
+	return nullptr;
+}
+
+bool AUmbraBaseCharacter::IsDead_Implementation() const
+{
+	return bIsDead;
 }
 
 void AUmbraBaseCharacter::BeginPlay()
@@ -44,8 +72,5 @@ void AUmbraBaseCharacter::MulticastHandleDeath_Implementation()
 	GetMesh()->SetGenerateOverlapEvents(true);
 
 	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>("Motion Warping");
-  
-	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
-	WeaponMesh->SetupAttachment(GetMesh(), FName("WeaponHandSocket"));
-	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	WeaponMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }

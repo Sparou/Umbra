@@ -15,5 +15,6 @@ class UMBRA_API UUmbraBaseGameplayAbility : public UGameplayAbility
 	GENERATED_BODY()
 
 public:
-
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	FGameplayTag StartupInputTag;
 };

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Interface/CombatInterface.h"
 #include "UmbraBaseCharacter.generated.h"
 
 class UCharacterTrajectoryComponent;
@@ -12,7 +13,7 @@ class UMotionWarpingComponent;
 class UAttributeSet;
 
 UCLASS()
-class UMBRA_API AUmbraBaseCharacter : public ACharacter
+class UMBRA_API AUmbraBaseCharacter : public ACharacter, public ICombatInterface
 {
 	GENERATED_BODY()
 
@@ -31,6 +32,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
 	float BaseCrouchSpeed = 300.f;
+
+	/** ICombatInterface implementation */
+	virtual FWeaponSocketLocations GetWeaponSocketLocations_Implementation() const override;
+	virtual UAnimMontage* GetHitReactMontage_Implementation() override;
+	virtual UNiagaraSystem* GetBloodEffect_Implementation() const override;
+	virtual bool IsDead_Implementation() const override;
 	
 protected:
   
@@ -39,9 +46,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
 	TObjectPtr<UMotionWarpingComponent> MotionWarpingComponent;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Weapon")
-	TObjectPtr<USkeletalMeshComponent> WeaponMesh;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Weapon")
+	TObjectPtr<UStaticMeshComponent> WeaponMeshComponent;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Weapon")
+	FName WeaponBaseSocketName;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Weapon")
 	FName WeaponTipSocketName;
 
@@ -58,4 +68,8 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Abilities")
 	TArray<TSubclassOf<class UGameplayAbility>> StartingAbilities;
+
+private:
+
+	bool bIsDead = false;
 };

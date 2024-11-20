@@ -29,6 +29,15 @@ class UMBRA_API AUmbraPlayerController : public APlayerController
 public:
 	UPROPERTY(BlueprintReadWrite)
 	TObjectPtr<AActor> OverlapedActor = nullptr;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bWantsToWalk;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bWantsToJump;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bWantsToCrouch;
 	
 protected:
 
@@ -42,6 +51,21 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category = "Input|Basic")
 	TObjectPtr<UInputAction> InteractAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input|Basic")
+	TObjectPtr<UInputAction> MoveAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input|Basic")
+	TObjectPtr<UInputAction> LookAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input|Basic")
+	TObjectPtr<UInputAction> JumpAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input|Basic")
+	TObjectPtr<UInputAction> WalkAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input|Basic")
+	TObjectPtr<UInputAction> CrouchAction;
 	
 	UPROPERTY(EditAnywhere, Category = "Input|Characters")
 	TObjectPtr<UInputAction> SwitchToAssassinAction;
@@ -65,7 +89,19 @@ private:
 	
 	void SwitchCharacter(FGameplayTag CharacterTag);
 	void Interact();
+	
+	void Move(const FInputActionValue& InputActionValue);
+	void Look(const FInputActionValue& InputActionValue);
+	
+	void OnStartWalking();
+	void OnStopWalking();
 
+	void OnStartJumping();
+	void OnStopJumping();
+
+	void OnStartCrouch();
+	void OnStopCrouch();
+	
 	void AbilityInputTagPressed(FGameplayTag InputTag);
 	void AbilityInputTagReleased(FGameplayTag InputTag);
 	void AbilityInputTagHeld(FGameplayTag InputTag);

@@ -27,6 +27,10 @@ public:
 	FGameplayTag Input_3;
 	FGameplayTag Input_4;
 
+	FGameplayTag WeaponTrace_Start;
+	FGameplayTag WeaponTrace_Tick;
+	FGameplayTag WeaponTrace_End;
+
 private:
 	static FUmbraGameplayTags GameplayTags;
 };
