@@ -13,5 +13,6 @@ UCLASS()
 class UMBRA_API UUmbraAIPerceptionComponent : public UAIPerceptionComponent
 {
 	GENERATED_BODY()
+
 	
 };

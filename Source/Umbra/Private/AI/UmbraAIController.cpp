@@ -18,4 +18,12 @@ AUmbraAIController::AUmbraAIController()
 	UmbraAIPerceptionComponent = CreateDefaultSubobject<UUmbraAIPerceptionComponent>("UmbraAIPerceptionComponent");
 	check(UmbraAIPerceptionComponent);
 	SetPerceptionComponent(*UmbraAIPerceptionComponent);
+	
+	UmbraAIPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AUmbraAIController::OnPercepted);
+}
+
+void AUmbraAIController::OnPercepted(AActor* SourceActor, const FAIStimulus Stimulus)
+{
+	FString Message = "Stimuled by" + Stimulus.Type.Name.ToString() + "strength = " + FString::SanitizeFloat(Stimulus.Strength);
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, Message);
 }
