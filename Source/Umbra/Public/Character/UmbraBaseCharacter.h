@@ -11,6 +11,7 @@ class UCharacterTrajectoryComponent;
 class UAbilitySystemComponent;
 class UMotionWarpingComponent;
 class UAttributeSet;
+class UGameplayEffect;
 
 UCLASS()
 class UMBRA_API AUmbraBaseCharacter : public ACharacter, public ICombatInterface
@@ -60,6 +61,15 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<UAttributeSet> AttributeSet;
+
+	UPROPERTY(EditAnywhere, Category = "Attributes")
+	TSubclassOf<UGameplayEffect> DefaultPrimaryAttributes;
+
+	UPROPERTY(EditAnywhere, Category = "Attributes")
+	TSubclassOf<UGameplayEffect> DefaultVitalAttributes;
+	
+	void ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, const float Level) const;
+	virtual void InitializeDefaultAttributes() const;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
 	TObjectPtr<UCharacterTrajectoryComponent> TrajectoryComponent;

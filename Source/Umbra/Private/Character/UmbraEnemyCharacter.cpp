@@ -2,13 +2,14 @@
 
 
 #include "Character/UmbraEnemyCharacter.h"
-
+#include "AbilitySystem/UmbraEnemyAttributeSet.h"
 #include "AI/UmbraAIController.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
 
 AUmbraEnemyCharacter::AUmbraEnemyCharacter()
 {
+	AttributeSet = CreateDefaultSubobject<UUmbraEnemyAttributeSet>("Attribute Set");
 }
 
 void AUmbraEnemyCharacter::PossessedBy(AController* NewController)
@@ -65,4 +66,10 @@ void AUmbraEnemyCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	ChoosePath();
+}
+
+void AUmbraEnemyCharacter::InitializeDefaultAttributes() const
+{
+	Super::InitializeDefaultAttributes();
+	ApplyEffectToSelf(DefaultTemperamentalAttributes, 1.f);
 }

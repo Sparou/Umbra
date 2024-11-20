@@ -6,6 +6,7 @@
 #include "AIController.h"
 #include "UmbraAIController.generated.h"
 
+struct FAIStimulus;
 class UUmbraAIPerceptionComponent;
 class UBehaviorTreeComponent;
 /**
@@ -25,4 +26,8 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<UUmbraAIPerceptionComponent> UmbraAIPerceptionComponent;
+
+private:
+	UFUNCTION()
+	void OnPercepted(AActor* SourceActor, const FAIStimulus Stimulus);
 };

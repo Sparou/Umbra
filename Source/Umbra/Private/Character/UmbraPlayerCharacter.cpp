@@ -4,10 +4,11 @@
 #include "Character/UmbraPlayerCharacter.h"
 
 #include "Character/Component/InteractionComponent.h"
-#include "Components/BoxComponent.h"
+#include "AbilitySystem/UmbraAttributeSet.h"
 
 AUmbraPlayerCharacter::AUmbraPlayerCharacter(const FObjectInitializer& ObjInit)
 {
+	AttributeSet = CreateDefaultSubobject<UUmbraAttributeSet>("Attribute Set");
 	InteractionComponent = CreateDefaultSubobject<UInteractionComponent>("Interaction Component");
 }
 

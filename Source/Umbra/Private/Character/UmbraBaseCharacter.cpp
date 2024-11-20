@@ -2,10 +2,11 @@
 
 #include "Character/UmbraBaseCharacter.h"
 
+#include <string>
+
 #include "CharacterTrajectoryComponent.h"
 #include "MotionWarpingComponent.h"
 #include "AbilitySystem/UmbraAbilitySystemComponent.h"
-#include "AbilitySystem/UmbraAttributeSet.h"
 #include "Components/CapsuleComponent.h"
 
 AUmbraBaseCharacter::AUmbraBaseCharacter()
@@ -15,7 +16,6 @@ AUmbraBaseCharacter::AUmbraBaseCharacter()
 	WeaponMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("WeaponMesh");
 	WeaponMeshComponent->SetupAttachment(GetMesh(), FName("WeaponHandSocket"));
 	AbilitySystemComponent = CreateDefaultSubobject<UUmbraAbilitySystemComponent>("Ability System");
-	AttributeSet = CreateDefaultSubobject<UUmbraAttributeSet>("Attribute Set");
 	TrajectoryComponent = CreateDefaultSubobject<UCharacterTrajectoryComponent>("Character Trajectory");
 }
 
@@ -51,6 +51,25 @@ void AUmbraBaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	InitAbilityActorInfo();
+	InitializeDefaultAttributes();
+}
+
+void AUmbraBaseCharacter::ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, const float Level) const
+{
+	check(IsValid(AbilitySystemComponent));
+	check(GameplayEffectClass);
+	
+	FGameplayEffectContextHandle ContextHandle = AbilitySystemComponent->MakeEffectContext();
+	ContextHandle.AddSourceObject(this);
+	const FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(GameplayEffectClass, Level, ContextHandle);
+	AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), AbilitySystemComponent);
+}
+
+void AUmbraBaseCharacter::InitializeDefaultAttributes() const
+{
+	//TODO: Make Level variable
+	ApplyEffectToSelf(DefaultPrimaryAttributes, 1.f);
+	ApplyEffectToSelf(DefaultVitalAttributes, 1.f);
 }
 
 void AUmbraBaseCharacter::InitAbilityActorInfo()
