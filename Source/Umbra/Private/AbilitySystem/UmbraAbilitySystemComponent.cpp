@@ -2,8 +2,7 @@
 
 
 #include "AbilitySystem/UmbraAbilitySystemComponent.h"
-
-#include "AbilitySystem/Abilities/UmbraActiveGameplayAbility.h"
+#include "AbilitySystem/Abilities/UmbraBaseGameplayAbility.h"
 
 void UUmbraAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& Abilities)
 {
