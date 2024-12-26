@@ -76,6 +76,10 @@ public:
 	FGameplayAttributeData MaxHealth;
 	ATTRIBUTE_ACCESSORS(UUmbraAttributeSet, MaxHealth)
 
+	UPROPERTY(BlueprintReadOnly, Category = "Meta Attributes")
+	FGameplayAttributeData IncomingDamage;
+	ATTRIBUTE_ACCESSORS(UUmbraAttributeSet, IncomingDamage)
+
 	/* Replication Functions */
 	UFUNCTION()
 	void OnRep_Health(const FGameplayAttributeData& OldHealth) const { GAMEPLAYATTRIBUTE_REPNOTIFY(UUmbraAttributeSet, Health, OldHealth); }

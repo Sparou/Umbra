@@ -4,13 +4,14 @@
 #include "AbilitySystem/Abilities/UmbraDamageGameplayAbility.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "UmbraGameplayTags.h"
 
 void UUmbraDamageGameplayAbility::CauseDamage(AActor* TargetActor)
 {
 	FGameplayEffectSpecHandle DamageSpecHandle = MakeOutgoingGameplayEffectSpec(DamageEffectClass, 1.f);
 	const float ScaledDamage = Damage.GetValueAtLevel(GetAbilityLevel());
-	GetAbilitySystemComponentFromActorInfo()->ApplyGameplayEffectSpecToTarget(*DamageSpecHandle.Data.Get(),
-		UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor));
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(DamageSpecHandle, FUmbraGameplayTags::Get().Combat_Damage, ScaledDamage);
+	GetAbilitySystemComponentFromActorInfo()->ApplyGameplayEffectSpecToTarget(*DamageSpecHandle.Data.Get(), UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor));
 }
 
 void UUmbraDamageGameplayAbility::WeaponTrace(TArray<AActor*>& OutHitActors,
