@@ -7,7 +7,16 @@
 #include "Character/UmbraPlayerCharacter.h"
 #include "UmbraStealthKillAbility.generated.h"
 
-
+UENUM()
+enum EStealthKillPosition
+{
+	Behind,
+	Front,
+	Top,
+	Ledge,
+	Left,
+	Right
+};
 
 /**
  * 
@@ -38,6 +47,8 @@ private:
 	void OnMontageCancelled();
 	
 	void EnableMovement() const;
+
+	EStealthKillPosition CheckAvatarActorPosition() const;
 
 	FStealthKillMontages StealthKillMontages;
 	TObjectPtr<AActor> TargetActor;

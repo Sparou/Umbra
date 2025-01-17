@@ -2,13 +2,13 @@
 
 #include "AbilitySystem/Abilities/Stealth/UmbraStealthKillAbility.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
-#include "Abilities/Tasks/AbilityTask_MoveToLocation.h"
 #include "Abilities/Tasks/AbilityTask_ApplyRootMotionMoveToForce.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "UmbraGameplayTags.h"
 #include "Character/UmbraPlayerCharacter.h"
 #include "Components/CapsuleComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 void UUmbraStealthKillAbility::ActivateAbility(
 	const FGameplayAbilitySpecHandle Handle,
@@ -21,7 +21,13 @@ void UUmbraStealthKillAbility::ActivateAbility(
 	
 	if (!TargetActor)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Stealth Kill Ability: No target actor found!"));
+		UE_LOG(LogTemp, Error, TEXT("Stealth Kill Ability: No target actor found!"));
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+		return;
+	}
+	if (!CheckAvatarActorPosition())
+	{
+		UE_LOG(LogTemp, Error, TEXT("Avatar Actor has wrong postition. He must be behind the target!"));
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 		return;
 	}
@@ -30,7 +36,6 @@ void UUmbraStealthKillAbility::ActivateAbility(
 	FTransform StealthKillStartPoint = TargetCharacter->GetMesh()->GetSocketTransform("StealthKillSocket");
 	
 	StealthKillMontages = AvatarCharacter->GetRandomStealthKillMontages();
-
 	
 	if (APlayerController* AvatarController = Cast<APlayerController>(AvatarCharacter->GetController()))
 	{
@@ -44,7 +49,7 @@ void UUmbraStealthKillAbility::ActivateAbility(
 		this,
 		NAME_None,
 		StealthKillStartPoint.GetLocation(),
-		1.0f,
+		5.0f,
 		false,
 		EMovementMode::MOVE_Walking,
 		false,
@@ -67,6 +72,16 @@ void UUmbraStealthKillAbility::ActivateAbility(
 
 void UUmbraStealthKillAbility::OnMoveCompleted()
 {
+	FVector TargetLocation = TargetActor->GetActorLocation();
+	FVector CharacterLocation = GetAvatarActorFromActorInfo()->GetActorLocation();
+	FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(CharacterLocation, TargetLocation);
+	
+	AUmbraPlayerCharacter* AvatarCharacter = Cast<AUmbraPlayerCharacter>(GetAvatarActorFromActorInfo());
+	if (APlayerController* AvatarController = Cast<APlayerController>(AvatarCharacter->GetController()))
+	{
+		AvatarController->SetControlRotation(LookAtRotation);
+	}
+	
 	if (UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor))
 	{
 		FGameplayTag AbilityTag = FUmbraGameplayTags::Get().Ability_Stealth_Victim;
@@ -130,4 +145,18 @@ void UUmbraStealthKillAbility::EnableMovement() const
 	AvatarCharacter->GetMesh()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 	APlayerController* AvatarController = Cast<APlayerController>(AvatarCharacter->GetController());
 	AvatarController->EnableInput(AvatarController);
+}
+
+EStealthKillPosition UUmbraStealthKillAbility::CheckAvatarActorPosition() const
+{
+	AActor* AvatarActor = GetAvatarActorFromActorInfo();
+
+	FVector TargetForwardVector = TargetActor->GetActorForwardVector();
+	FVector Direction = AvatarActor->GetActorLocation() - TargetActor->GetActorLocation();
+	float Distance = Direction.Size();
+	Direction.Normalize();
+
+	float DotProduct = FVector::DotProduct(TargetForwardVector, Direction);
+	
+	return DotProduct < -0.7f;
 }
