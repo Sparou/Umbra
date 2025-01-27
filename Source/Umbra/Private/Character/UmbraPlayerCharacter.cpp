@@ -14,15 +14,43 @@ AUmbraPlayerCharacter::AUmbraPlayerCharacter(const FObjectInitializer& ObjInit)
 
 AActor* AUmbraPlayerCharacter::GetOverlappedActorFromInteractionComponent() const
 {
-	return InteractionComponent->OverlappedActor;
+	return InteractionComponent->GetCurrentTarget();
 }
 
-FStealthKillMontages AUmbraPlayerCharacter::GetRandomStealthKillMontages() const
+FStealthKillMontages AUmbraPlayerCharacter::GetRandomStealthKillMontages(TArray<FStealthKillMontages> KillMontages) const
 {
-	return StealthKillMontages.Num() > 0 ? StealthKillMontages[FMath::RandRange(0, StealthKillMontages.Num() - 1)] : FStealthKillMontages();
+	return KillMontages.Num() > 0 ? KillMontages[FMath::RandRange(0, KillMontages.Num() - 1)] : FStealthKillMontages();
 }
 
-void AUmbraPlayerCharacter::InitAbilityActorInfo()
+FStealthKillMontages AUmbraPlayerCharacter::GetStealthKillMontageForPosition(EStealthKillPosition KillPosition)
+{
+	switch (KillPosition)
+	{
+	case EStealthKillPosition::Behind:
+		return GetRandomStealthKillMontages(StealthKillMontagesFromBehind);
+	
+	case EStealthKillPosition::Front:
+		return GetRandomStealthKillMontages(StealthKillMontagesFromFront);
+	
+	case EStealthKillPosition::Top:
+		return GetRandomStealthKillMontages(StealthKillMontagesFromTop);
+	
+	case EStealthKillPosition::Ledge:
+		return GetRandomStealthKillMontages(StealthKillMontagesFromLedge);
+	
+	case EStealthKillPosition::Left:
+		return GetRandomStealthKillMontages(StealthKillMontagesFromLeft);
+	
+	case EStealthKillPosition::Right:
+		return GetRandomStealthKillMontages(StealthKillMontagesFromRight);
+	
+	default:
+		UE_LOG(LogTemp, Warning, TEXT("Unknown KillPosition: %d"), static_cast<int32>(KillPosition));
+		return FStealthKillMontages();
+	}
+}
+
+	void AUmbraPlayerCharacter::InitAbilityActorInfo()
 {
 	Super::InitAbilityActorInfo();
 }

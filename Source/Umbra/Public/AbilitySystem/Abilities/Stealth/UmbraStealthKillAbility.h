@@ -7,17 +7,6 @@
 #include "Character/UmbraPlayerCharacter.h"
 #include "UmbraStealthKillAbility.generated.h"
 
-UENUM()
-enum EStealthKillPosition
-{
-	Behind,
-	Front,
-	Top,
-	Ledge,
-	Left,
-	Right
-};
-
 /**
  * 
  */
@@ -31,8 +20,17 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UGameplayEffect> StealthKillEffect;
+
+	UPROPERTY(EditDefaultsOnly)
+	float HeightDifferenceThreshold = 100.f;
 	
 private:
+
+	EStealthKillPosition CheckAvatarActorPosition() const;
+	void RotateCharacterToTarget(const FVector& TargetLocation, float RotationInRate);
+	void UpdateRotation();
+	void MoveToKillPosition();
+	void StartStealthKill();
 
 	UFUNCTION()
 	void OnMoveCompleted();
@@ -48,8 +46,13 @@ private:
 	
 	void EnableMovement() const;
 
-	EStealthKillPosition CheckAvatarActorPosition() const;
-
 	FStealthKillMontages StealthKillMontages;
 	TObjectPtr<AActor> TargetActor;
+	AUmbraPlayerCharacter* AvatarCharacter;
+	
+	FRotator DesiredRotation;
+	FTimerHandle RotationTimerHandle;
+	TFunction<void()> TimerCallback;
+	FVector CameraOffset;
+	FVector CameraDesiredLocation;
 };

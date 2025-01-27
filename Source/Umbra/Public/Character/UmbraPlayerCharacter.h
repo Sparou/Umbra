@@ -3,20 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "UmbraCoreTypes.h"
 #include "Character/UmbraBaseCharacter.h"
 #include "UmbraPlayerCharacter.generated.h"
-
-USTRUCT(BlueprintType)
-struct FStealthKillMontages
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stealth Kill")
-	UAnimMontage* KillerMontage = nullptr;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stealth Kill")
-	UAnimMontage* VictimMontage = nullptr;
-};
 
 class UInteractionComponent;
 /**
@@ -33,14 +22,33 @@ public:
 	AActor* GetOverlappedActorFromInteractionComponent() const;
 
 	UFUNCTION(BlueprintCallable)
-	FStealthKillMontages GetRandomStealthKillMontages() const;
+	FStealthKillMontages GetRandomStealthKillMontages(TArray<FStealthKillMontages> KillMontages) const;
+
+	UFUNCTION(BlueprintCallable)
+	FStealthKillMontages GetStealthKillMontageForPosition(EStealthKillPosition KillPosition);
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components");
 	TObjectPtr<UInteractionComponent> InteractionComponent;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stealth")
-	TArray<FStealthKillMontages> StealthKillMontages;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stealth|Animations")
+	TArray<FStealthKillMontages> StealthKillMontagesFromBehind;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stealth|Animations")
+	TArray<FStealthKillMontages> StealthKillMontagesFromFront;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stealth|Animations")
+	TArray<FStealthKillMontages> StealthKillMontagesFromTop;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stealth|Animations")
+	TArray<FStealthKillMontages> StealthKillMontagesFromLedge;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stealth|Animations")
+	TArray<FStealthKillMontages> StealthKillMontagesFromLeft;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stealth|Animations")
+	TArray<FStealthKillMontages> StealthKillMontagesFromRight;
+	
 
 	virtual void InitAbilityActorInfo() override;
 };
