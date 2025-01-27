@@ -50,10 +50,6 @@
 		{
 			"Name": "PoseSearch",
 			"Enabled": true
-		},
-		{
-			"Name": "SmoothSyncPlugin",
-			"Enabled": true
 		}
 	]
 }
