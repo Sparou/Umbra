@@ -26,11 +26,20 @@ public:
 	FGameplayTag Input_2;
 	FGameplayTag Input_3;
 	FGameplayTag Input_4;
-
+	
+	/** Combat Tags */
 	FGameplayTag WeaponTrace_Start;
 	FGameplayTag WeaponTrace_Tick;
 	FGameplayTag WeaponTrace_End;
+	
+	FGameplayTag Combat_Damage;
+	FGameplayTag Combat_HitReact;
 
+	/** Ability Tags */
+	FGameplayTag Ability_Melee;
+	FGameplayTag Ability_Stealth_Kill;
+	FGameplayTag Ability_Stealth_Victim;
+	
 private:
 	static FUmbraGameplayTags GameplayTags;
 };

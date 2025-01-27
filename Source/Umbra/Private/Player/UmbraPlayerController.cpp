@@ -15,17 +15,32 @@
 #include "Input/UmbraInputComponent.h"
 #include "Kismet/GameplayStatics.h"
 
-void AUmbraPlayerController::BeginPlay()
+void AUmbraPlayerController::SwitchToDefaultContext()
 {
-	Super::BeginPlay();
-	
-	check(InputContext);
-
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 	if (Subsystem)
 	{
+		Subsystem->ClearAllMappings();
 		Subsystem->AddMappingContext(InputContext, 0);
 	}
+}
+
+void AUmbraPlayerController::SwitchToCameraOnlyContext()
+{
+	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
+	if (Subsystem)
+	{
+		Subsystem->ClearAllMappings();
+		Subsystem->AddMappingContext(CameraOnlyInputContext, 0);
+	}
+}
+
+void AUmbraPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+	check(InputContext);
+	check(CameraOnlyInputContext);
+	SwitchToDefaultContext();
 }
 
 void AUmbraPlayerController::SetupInputComponent()
@@ -90,12 +105,8 @@ void AUmbraPlayerController::Interact()
 	APawn* CurrentPawn = GetPawn();
 	AUmbraPlayerCharacter* CurrentPlayerCharacter = Cast<AUmbraPlayerCharacter>(CurrentPawn);
 	UInteractionComponent* InteractionComponent = CurrentPlayerCharacter->GetComponentByClass<UInteractionComponent>();
-	IInteractionInterface* InteractableActor = Cast<IInteractionInterface>(InteractionComponent->OverlappedActor);
-
-	if (InteractableActor)
-	{
-		InteractableActor->Interact(CurrentPlayerCharacter);
-	}
+	AActor* Target = InteractionComponent->GetCurrentTarget();
+	UE_LOG(LogTemp, Warning, TEXT("Target: %s"), *Target->GetName());
 }
 
 void AUmbraPlayerController::Move(const FInputActionValue& InputActionValue)
@@ -117,7 +128,7 @@ void AUmbraPlayerController::Look(const FInputActionValue& InputActionValue)
 	const FVector2D LookAxisVector = InputActionValue.Get<FVector2D>();
 	APawn* CurrentPawn = GetPawn();
 	CurrentPawn->AddControllerYawInput(LookAxisVector.X);
-	CurrentPawn->AddControllerPitchInput(LookAxisVector.Y);
+	CurrentPawn->AddControllerPitchInput(-LookAxisVector.Y);
 }
 
 void AUmbraPlayerController::OnStartWalking()

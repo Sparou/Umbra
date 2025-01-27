@@ -32,9 +32,9 @@ FWeaponSocketLocations AUmbraBaseCharacter::GetWeaponSocketLocations_Implementat
 	return FWeaponSocketLocations();
 }
 
-UAnimMontage* AUmbraBaseCharacter::GetHitReactMontage_Implementation()
+UAnimMontage* AUmbraBaseCharacter::GetRandomHitReactMontage_Implementation()
 {
-	return nullptr;
+	return HitReactMontages.Num() > 0 ? HitReactMontages[FMath::RandRange(0, HitReactMontages.Num() - 1)] : nullptr;
 }
 
 UNiagaraSystem* AUmbraBaseCharacter::GetBloodEffect_Implementation() const
@@ -47,11 +47,20 @@ bool AUmbraBaseCharacter::IsDead_Implementation() const
 	return bIsDead;
 }
 
+void AUmbraBaseCharacter::Die()
+{
+	WeaponMeshComponent->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
+	MulticastHandleDeath();
+}
+
 void AUmbraBaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	InitAbilityActorInfo();
-	InitializeDefaultAttributes();
+	if (HasAuthority())
+	{
+		InitAbilityActorInfo();
+		InitializeDefaultAttributes();
+	}
 }
 
 void AUmbraBaseCharacter::ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, const float Level) const
@@ -82,14 +91,17 @@ void AUmbraBaseCharacter::InitAbilityActorInfo()
 
 void AUmbraBaseCharacter::MulticastHandleDeath_Implementation()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	//UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation(), GetActorRotation());
+	
+	WeaponMeshComponent->SetSimulatePhysics(true);
+	WeaponMeshComponent->SetEnableGravity(true);
+	WeaponMeshComponent->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
-	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
-  
-	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
-	GetMesh()->SetGenerateOverlapEvents(true);
+	GetMesh()->SetSimulatePhysics(true);
+	GetMesh()->SetEnableGravity(true);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 
-	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>("Motion Warping");
-	WeaponMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	bIsDead = true;
 }

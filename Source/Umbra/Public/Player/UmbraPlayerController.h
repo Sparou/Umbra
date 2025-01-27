@@ -39,6 +39,9 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	bool bWantsToCrouch;
 	
+	void SwitchToDefaultContext();
+	void SwitchToCameraOnlyContext();
+	
 protected:
 
 	virtual void BeginPlay() override;
@@ -48,6 +51,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<UInputMappingContext> InputContext;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<UInputMappingContext> CameraOnlyInputContext;
 	
 	UPROPERTY(EditAnywhere, Category = "Input|Basic")
 	TObjectPtr<UInputAction> InteractAction;

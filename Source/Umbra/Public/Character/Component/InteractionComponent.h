@@ -7,9 +7,6 @@
 #include "InteractionComponent.generated.h"
 
 
-class IInteractionInterface;
-class UBoxComponent;
-
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class UMBRA_API UInteractionComponent : public UActorComponent
 {
@@ -17,20 +14,22 @@ class UMBRA_API UInteractionComponent : public UActorComponent
 
 public:	
 	UInteractionComponent();
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components");
-	TObjectPtr<UBoxComponent> InteractionCollisionComponent;
-	
-	UPROPERTY(BlueprintReadOnly)
-	AActor* OverlappedActor = nullptr;
+	AActor* GetCurrentTarget() const { return Target; }
 
 protected:
-	void BeginPlay() override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction")
+	float InteractionDistance = 1000.f;
 	
+	void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	void BeginPlay() override;
 
 private:
-	UFUNCTION()
-	void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	UFUNCTION()
-	void OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	TObjectPtr<AActor> Owner;
+	TObjectPtr<AActor> Target;
+	
+	void CheckForTarget(const FVector& TraceStart, const FVector&  TraceEnd);
+
 };
