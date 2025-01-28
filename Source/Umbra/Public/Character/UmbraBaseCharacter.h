@@ -7,6 +7,7 @@
 #include "Interface/CombatInterface.h"
 #include "UmbraBaseCharacter.generated.h"
 
+class UTraversalComponent;
 class UCharacterTrajectoryComponent;
 class UAbilitySystemComponent;
 class UMotionWarpingComponent;
@@ -45,8 +46,11 @@ protected:
   
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TObjectPtr<UMotionWarpingComponent> MotionWarpingComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TObjectPtr<UTraversalComponent> TraversalComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Weapon")
 	TObjectPtr<UStaticMeshComponent> WeaponMeshComponent;
@@ -75,9 +79,6 @@ protected:
 	void ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, const float Level) const;
 	virtual void InitializeDefaultAttributes() const;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
-	TObjectPtr<UCharacterTrajectoryComponent> TrajectoryComponent;
-
 	virtual void InitAbilityActorInfo();
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Abilities")

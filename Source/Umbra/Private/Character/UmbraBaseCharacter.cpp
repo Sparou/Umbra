@@ -7,16 +7,17 @@
 #include "CharacterTrajectoryComponent.h"
 #include "MotionWarpingComponent.h"
 #include "AbilitySystem/UmbraAbilitySystemComponent.h"
+#include "Character/Component/TraversalComponent.h"
 #include "Components/CapsuleComponent.h"
 
 AUmbraBaseCharacter::AUmbraBaseCharacter()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>("Motion Warping");
+	TraversalComponent = CreateDefaultSubobject<UTraversalComponent>("Traversal Component");
 	WeaponMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("WeaponMesh");
 	WeaponMeshComponent->SetupAttachment(GetMesh(), FName("WeaponHandSocket"));
 	AbilitySystemComponent = CreateDefaultSubobject<UUmbraAbilitySystemComponent>("Ability System");
-	TrajectoryComponent = CreateDefaultSubobject<UCharacterTrajectoryComponent>("Character Trajectory");
 }
 
 FWeaponSocketLocations AUmbraBaseCharacter::GetWeaponSocketLocations_Implementation() const
