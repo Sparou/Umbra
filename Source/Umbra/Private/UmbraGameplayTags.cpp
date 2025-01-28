@@ -32,4 +32,41 @@ void FUmbraGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Ability_Melee = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Melee"));
 	GameplayTags.Ability_Stealth_Kill = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Stealth.Kill"));
 	GameplayTags.Ability_Stealth_Victim = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Stealth.Victim"));
+
+	/** Traversal Tags */
+	GameplayTags.Traversal_State_FreeRoam = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.State.FreeRoam"));
+	GameplayTags.Traversal_State_ReadyToClimb = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.State.ReadyToClimb"));
+	GameplayTags.Traversal_State_Climb = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.State.Climb"));
+	GameplayTags.Traversal_State_Mantle = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.State.Mantle"));
+	GameplayTags.Traversal_State_Vault = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.State.Vault"));
+	GameplayTags.Traversal_Action_NoAction = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Action.NoAction"));
+	GameplayTags.Traversal_Action_BracedClimb = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Action.BracedClimb"));
+	GameplayTags.Traversal_Action_BracedClimb_FallingClimb = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Action.BracedClimb.FallingClimb"));
+	GameplayTags.Traversal_Action_BracedClimb_ClimbUp = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Action.BracedClimb.ClimbUp"));
+	GameplayTags.Traversal_Action_BracedClimb_HopUp = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Action.BracedClimb.HopUp"));
+	GameplayTags.Traversal_Action_BracedClimb_HopLeft = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Action.BracedClimb.HopLeft"));
+	GameplayTags.Traversal_Action_BracedClimb_HopRight = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Action.BracedClimb.HopeRight"));
+	GameplayTags.Traversal_Action_BracedClimb_HopLeftUp = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Action.BracedClimb.HopeLeftUp"));
+	GameplayTags.Traversal_Action_BracedClimb_HopRightUp = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Action.BracedClimb.HopRightUp"));
+	GameplayTags.Traversal_Action_BracedClimb_HopDown = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Action.BracedClimb.HopDown"));
+	GameplayTags.Traversal_Action_FreeHang = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Action.FreeHang"));
+	GameplayTags.Traversal_Action_FreeHang_FallingClimb = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Action.FreeHang.Cli"));
+	GameplayTags.Traversal_Action_FreeHang_ClimbUp = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Action.FreeHang.ClimbUp"));
+	GameplayTags.Traversal_Action_FreeHang_HopLeft = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Action.FreeHang.HopLeft"));
+	GameplayTags.Traversal_Action_FreeHang_HopRight = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Action.FreeHang.HopRight"));
+	GameplayTags.Traversal_Action_FreeHang_HopDown = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Action.FreeHang.HopDown"));
+	GameplayTags.Traversal_Action_CornerMove = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Action.CornerMove"));
+	GameplayTags.Traversal_Action_Mantle = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Action.Mantle"));
+	GameplayTags.Traversal_Action_Vault = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Action.Vault"));
+	GameplayTags.Traversal_Direction_NoDirection = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Direction.NoDirection"));
+	GameplayTags.Traversal_Direction_Left = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Direction.Left"));
+	GameplayTags.Traversal_Direction_Right = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Direction.Right"));
+	GameplayTags.Traversal_Direction_Forward = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Direction.Forward"));
+	GameplayTags.Traversal_Direction_Backward = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Direction.Backward"));
+	GameplayTags.Traversal_Direction_ForwardLeft = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Direction.ForwardLeft"));
+	GameplayTags.Traversal_Direction_ForwardRight = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Direction.ForwardRight"));
+	GameplayTags.Traversal_Direction_BackwardLeft = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Direction.BackwardLeft"));
+	GameplayTags.Traversal_Direction_BackwardRight = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Direction.BackwardRight"));
+	GameplayTags.Traversal_ClimbStyle_BracedClimb = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Direction.BracedClimb"));
+	GameplayTags.Traversal_ClimbStyle_FreeHang = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Direction.FreeHang"));
 }
