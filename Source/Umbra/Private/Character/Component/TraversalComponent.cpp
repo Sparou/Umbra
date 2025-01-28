@@ -3,6 +3,11 @@
 
 #include "Character/Component/TraversalComponent.h"
 
+#include "MotionWarpingComponent.h"
+#include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/Character.h"
+
 // Sets default values for this component's properties
 UTraversalComponent::UTraversalComponent()
 {
@@ -18,9 +23,7 @@ UTraversalComponent::UTraversalComponent()
 void UTraversalComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// ...
-	
+	InitializeReferences();
 }
 
 
@@ -30,5 +33,24 @@ void UTraversalComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
+}
+
+void UTraversalComponent::InitializeReferences()
+{
+	OwnerCharacter = Cast<ACharacter>(this->GetOwner());
+	CharacterMovement = OwnerCharacter->GetCharacterMovement();
+	MotionWarping = OwnerCharacter->FindComponentByClass<UMotionWarpingComponent>();
+	Camera = OwnerCharacter->FindComponentByClass<UCameraComponent>();
+	Capsule = OwnerCharacter->FindComponentByClass<UCapsuleComponent>();
+	SkeletalMesh = OwnerCharacter->GetMesh();
+	AnimInstance = SkeletalMesh->GetAnimInstance();
+
+	check(OwnerCharacter);
+	check(CharacterMovement);
+	check(MotionWarping);
+	check(Camera);
+	check(Capsule);
+	check(SkeletalMesh);
+	check(AnimInstance);
 }
 

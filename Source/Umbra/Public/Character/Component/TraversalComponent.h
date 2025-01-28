@@ -7,6 +7,11 @@
 #include "TraversalComponent.generated.h"
 
 
+class UCapsuleComponent;
+class UCameraComponent;
+class UCharacterMovementComponent;
+class UMotionWarpingComponent;
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class UMBRA_API UTraversalComponent : public UActorComponent
 {
@@ -24,5 +29,15 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+private:
+    void InitializeReferences();
+
+	TObjectPtr<ACharacter> OwnerCharacter;
+	TObjectPtr<UCharacterMovementComponent> CharacterMovement;
+	TObjectPtr<UMotionWarpingComponent> MotionWarping;
+	TObjectPtr<UCameraComponent> Camera;
+	TObjectPtr<UCapsuleComponent> Capsule;
+	TObjectPtr<USkeletalMeshComponent> SkeletalMesh;
+	TObjectPtr<UAnimInstance> AnimInstance;
 		
 };
