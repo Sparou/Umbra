@@ -67,6 +67,6 @@ void FUmbraGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Traversal_Direction_ForwardRight = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Direction.ForwardRight"));
 	GameplayTags.Traversal_Direction_BackwardLeft = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Direction.BackwardLeft"));
 	GameplayTags.Traversal_Direction_BackwardRight = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Direction.BackwardRight"));
-	GameplayTags.Traversal_ClimbStyle_BracedClimb = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Direction.BracedClimb"));
-	GameplayTags.Traversal_ClimbStyle_FreeHang = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Direction.FreeHang"));
+	GameplayTags.Traversal_ClimbStyle_BracedClimb = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.ClimbStyle.BracedClimb"));
+	GameplayTags.Traversal_ClimbStyle_FreeHang = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.ClimbStyle.FreeHang"));
 }
