@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "UmbraGameplayTags.h"
 #include "Components/ActorComponent.h"
 #include "TraversalComponent.generated.h"
 
@@ -21,17 +22,23 @@ public:
 	// Sets default values for this component's properties
 	UTraversalComponent();
 
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	
 
 private:
+	
     void InitializeReferences();
-
+	void SetTraversalStateSettings(ECollisionEnabled::Type CollisionType, EMovementMode MovementMode, const bool& StopMovementImmediately);
+	void SetTraversalState(const FGameplayTag& NewTraversalState);
+	
+	FGameplayTag TraversalState = FUmbraGameplayTags::Get().Traversal_State_FreeRoam;
+	
+	/** Components */
 	TObjectPtr<ACharacter> OwnerCharacter;
 	TObjectPtr<UCharacterMovementComponent> CharacterMovement;
 	TObjectPtr<UMotionWarpingComponent> MotionWarping;

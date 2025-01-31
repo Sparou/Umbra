@@ -7,6 +7,8 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Interface/TraversalInterface.h"
 
 // Sets default values for this component's properties
 UTraversalComponent::UTraversalComponent()
@@ -52,5 +54,57 @@ void UTraversalComponent::InitializeReferences()
 	check(Capsule);
 	check(SkeletalMesh);
 	check(AnimInstance);
+}
+
+void UTraversalComponent::SetTraversalStateSettings(ECollisionEnabled::Type CollisionType, EMovementMode MovementMode,
+	const bool& StopMovementImmediately)
+{
+	Capsule->SetCollisionEnabled(CollisionType);
+	CharacterMovement->SetMovementMode(MovementMode);
+	if (StopMovementImmediately)
+	{
+		CharacterMovement->StopMovementImmediately();
+	}
+}
+
+void UTraversalComponent::SetTraversalState(const FGameplayTag& NewTraversalState)
+{
+	if (NewTraversalState.MatchesTagExact(TraversalState))
+	{
+		return;
+	}
+
+	TraversalState = NewTraversalState;
+	
+	if (ITraversalInterface* TraversalAnimInstance = Cast<ITraversalInterface>(AnimInstance))
+	{
+		TraversalAnimInstance->SetTraversalState(NewTraversalState);
+	}
+
+	FUmbraGameplayTags UGT = FUmbraGameplayTags::Get(); 
+
+	//TODO: По идеи это можно сжать, но я не уверен, не понадобится в телах разная лоигка.
+	//TODO: Оптимизирвать после доведения системы до рабочего состояния.
+	if (NewTraversalState.MatchesTagExact(UGT.Traversal_State_FreeRoam))
+	{
+		SetTraversalStateSettings(ECollisionEnabled::Type::QueryAndPhysics, MOVE_Walking, false);
+	}
+	else if (NewTraversalState.MatchesTagExact(UGT.Traversal_State_ReadyToClimb))
+	{
+		SetTraversalStateSettings(ECollisionEnabled::Type::NoCollision, MOVE_Flying, false);
+	}
+	else if (NewTraversalState.MatchesTagExact(UGT.Traversal_State_Climb))
+	{
+		SetTraversalStateSettings(ECollisionEnabled::Type::NoCollision, MOVE_Flying, true);
+	}
+	else if (NewTraversalState.MatchesTagExact(UGT.Traversal_State_Mantle))
+	{
+		SetTraversalStateSettings(ECollisionEnabled::Type::NoCollision, MOVE_Flying, false);
+	}
+	else if (NewTraversalState.MatchesTagExact(UGT.Traversal_State_Vault))
+	{
+		SetTraversalStateSettings(ECollisionEnabled::Type::NoCollision, MOVE_Flying, false);
+	}
+	
 }
 
