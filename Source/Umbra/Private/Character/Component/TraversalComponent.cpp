@@ -9,32 +9,23 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Interface/TraversalInterface.h"
+#include "Kismet/KismetMathLibrary.h"
 
-// Sets default values for this component's properties
 UTraversalComponent::UTraversalComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
 }
 
 
-// Called when the game starts
 void UTraversalComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	InitializeReferences();
 }
 
-
-// Called every frame
 void UTraversalComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
 }
 
 void UTraversalComponent::InitializeReferences()
@@ -138,8 +129,48 @@ void UTraversalComponent::SetClimbDirection(const FGameplayTag& NewClimbDirectio
 	}
 }
 
-float UTraversalComponent::ClimbValues(const FGameplayTag& NewClimbStyle, const float& Braced, const float& FreeHang)
+float UTraversalComponent::ClimbValues(const FGameplayTag& NewClimbStyle, const float& Braced, const float& FreeHang) const
 {
 	return ClimbStyle.MatchesTagExact(FUmbraGameplayTags::Get().Traversal_ClimbStyle_BracedClimb) ? Braced : FreeHang;
 }
+
+FVector UTraversalComponent::VectorDirectionMove(const FVector& Source, const FGameplayTag& Direction, const float& MoveValue)
+{
+	FUmbraGameplayTags UGT = FUmbraGameplayTags::Get();
+
+	if (Direction.MatchesTagExact(UGT.Traversal_Direction_Up))
+	{
+		return Source + FVector(0.f, 0.f, MoveValue);
+	}
+	if (Direction.MatchesTagExact(UGT.Traversal_Direction_Down))
+	{
+		return Source - FVector(0.f, 0.f, MoveValue);
+	}
+	if (Direction.MatchesTagExact(UGT.Traversal_Direction_Right))
+	{
+		return Source + MoveValue * OwnerCharacter->GetActorRightVector();
+	}
+	if (Direction.MatchesTagExact(UGT.Traversal_Direction_Left))
+	{
+		return Source - MoveValue * OwnerCharacter->GetActorRightVector();
+	}
+	if (Direction.MatchesTagExact(UGT.Traversal_Direction_Forward))
+	{
+		return Source + MoveValue * OwnerCharacter->GetActorForwardVector();
+	}
+	if (Direction.MatchesTagExact(UGT.Traversal_Direction_Backward))
+	{
+		return Source - MoveValue * OwnerCharacter->GetActorForwardVector();
+	}
+	
+	return Source;
+}
+
+FRotator UTraversalComponent::ReverseNormal(const FVector& Normal)
+{
+	FRotator Rotator = UKismetMathLibrary::MakeRotFromX(Normal);
+	FRotator DeltaRotator = UKismetMathLibrary::NormalizedDeltaRotator(Rotator, FRotator(0.f, 0.f, 180.f));
+	return FRotator(0.f, 0.f, DeltaRotator.Yaw);
+}
+
 

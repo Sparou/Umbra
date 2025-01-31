@@ -66,6 +66,8 @@ public:
 	FGameplayTag Traversal_Action_Mantle;
 	FGameplayTag Traversal_Action_Vault;
 	FGameplayTag Traversal_Direction_NoDirection;
+	FGameplayTag Traversal_Direction_Up;
+	FGameplayTag Traversal_Direction_Down;
 	FGameplayTag Traversal_Direction_Left;
 	FGameplayTag Traversal_Direction_Right;
 	FGameplayTag Traversal_Direction_Forward;
