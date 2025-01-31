@@ -35,8 +35,13 @@ private:
     void InitializeReferences();
 	void SetTraversalStateSettings(ECollisionEnabled::Type CollisionType, EMovementMode MovementMode, const bool& StopMovementImmediately);
 	void SetTraversalState(const FGameplayTag& NewTraversalState);
+	void SetClimbStyle(const FGameplayTag& NewClimbStyle);
+	void SetClimbDirection (const FGameplayTag& NewClimbDirection);
+	float ClimbValues (const FGameplayTag& ClimbStyle, const float& Braced, const float& FreeHang);
 	
 	FGameplayTag TraversalState = FUmbraGameplayTags::Get().Traversal_State_FreeRoam;
+	FGameplayTag ClimbStyle = FUmbraGameplayTags::Get().Traversal_ClimbStyle_BracedClimb;
+	FGameplayTag ClimbDirection = FUmbraGameplayTags::Get().Traversal_Direction_NoDirection;
 	
 	/** Components */
 	TObjectPtr<ACharacter> OwnerCharacter;
