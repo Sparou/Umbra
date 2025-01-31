@@ -37,7 +37,7 @@ private:
 	void SetTraversalState(const FGameplayTag& NewTraversalState);
 	void SetClimbStyle(const FGameplayTag& NewClimbStyle);
 	void SetClimbDirection (const FGameplayTag& NewClimbDirection);
-	float ClimbValues (const FGameplayTag& ClimbStyle, const float& Braced, const float& FreeHang);
+	float ClimbValues (const FGameplayTag& NewClimbStyle, const float& Braced, const float& FreeHang);
 	
 	FGameplayTag TraversalState = FUmbraGameplayTags::Get().Traversal_State_FreeRoam;
 	FGameplayTag ClimbStyle = FUmbraGameplayTags::Get().Traversal_ClimbStyle_BracedClimb;

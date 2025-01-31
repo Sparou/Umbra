@@ -138,15 +138,8 @@ void UTraversalComponent::SetClimbDirection(const FGameplayTag& NewClimbDirectio
 	}
 }
 
-float UTraversalComponent::ClimbValues(const FGameplayTag& ClimbStyle, const float& Braced, const float& FreeHang)
+float UTraversalComponent::ClimbValues(const FGameplayTag& NewClimbStyle, const float& Braced, const float& FreeHang)
 {
-	if (ClimbStyle.MatchesTagExact(FUmbraGameplayTags::Get().Traversal_ClimbStyle_BracedClimb))
-	{
-		return Braced;
-	}
-	if (ClimbStyle.MatchesTagExact(FUmbraGameplayTags::Get().Traversal_ClimbStyle_FreeHang))
-	{
-		return FreeHang;
-	}
+	return ClimbStyle.MatchesTagExact(FUmbraGameplayTags::Get().Traversal_ClimbStyle_BracedClimb) ? Braced : FreeHang;
 }
 
