@@ -76,6 +76,19 @@ void UTraversalComponent::GridScan(int GridWidth, int GridHeight, const FVector&
 				5.f);
 			LineHitTraces.Add(LineHit);
 		}
+
+		 for (size_t j = 1; j < LineHitTraces.Num(); j++)
+		 {
+		 	FHitResult CurrentHitResult = LineHitTraces[j];
+		 	float CurrentDistance = CurrentHitResult.bBlockingHit ? CurrentHitResult.Distance : UKismetMathLibrary::Vector_Distance(CurrentHitResult.TraceStart, CurrentHitResult.TraceEnd);
+		 	FHitResult PreviousHitResult = LineHitTraces[j-1];
+		 	float PreviousDistance = PreviousHitResult.bBlockingHit ? PreviousHitResult.Distance : UKismetMathLibrary::Vector_Distance(PreviousHitResult.TraceStart, PreviousHitResult.TraceEnd);
+
+		 	if (CurrentDistance - PreviousDistance < 5)
+		 	{
+		 		WallHitTraces.Add(LineHitTraces[j-1]);
+		 	}
+		 }
 	}
 }
 
