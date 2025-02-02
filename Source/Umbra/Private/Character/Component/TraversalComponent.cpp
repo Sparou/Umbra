@@ -191,7 +191,6 @@ FHitResult UTraversalComponent::DetectWall()
 	for (size_t i = 0; i < iterations; ++i)
 	{
 		FVector CurrentLocation = OwnerCharacter->GetActorLocation();
-		FRotator CurrentRotation = OwnerCharacter->GetActorRotation();
 
 		FVector FirstStepVector = VectorDirectionMove(CurrentLocation, UGT.Traversal_Direction_Down, 60.f);
 		FVector SecondStepVector = VectorDirectionMove(FirstStepVector, UGT.Traversal_Direction_Up, i * 16.f);
@@ -208,7 +207,9 @@ FHitResult UTraversalComponent::DetectWall()
 		{
 			if (HitResult.bBlockingHit && !HitResult.bStartPenetrating)
 			{
-				DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 8.f, 32.f, FColor::Red, false, 3.f);
+#if WITH_EDITOR
+				DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 8.f, 4, FColor::Green, false, 3.f);
+#endif
 				return HitResult;
 			}
 		}
