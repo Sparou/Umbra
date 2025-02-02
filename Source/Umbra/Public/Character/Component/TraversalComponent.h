@@ -25,7 +25,8 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void TriggerTraversalAction(const bool& JumpAction);
-	
+	void GridScan(int GridWidth, int GridHeight, const FVector& ScanBaseLocation, const FRotator& ScanRotation);
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -41,6 +42,7 @@ private:
 	void SetClimbDirection (const FGameplayTag& NewClimbDirection);
 	float ClimbValues (const FGameplayTag& NewClimbStyle, const float& Braced, const float& FreeHang) const;
 	FVector VectorDirectionMove (const FVector& Source, const FGameplayTag& Direction, const float& MoveValue);
+	FVector VectorDirectionMoveWithRotation (const FVector& Source, const FGameplayTag& Direction, const float& MoveValue, const FRotator& Rotation);
 	FRotator ReverseNormal (const FVector& Normal);
 	FHitResult DetectWall();
 	

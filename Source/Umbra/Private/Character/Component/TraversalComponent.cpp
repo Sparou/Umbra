@@ -33,7 +33,49 @@ void UTraversalComponent::TriggerTraversalAction(const bool& JumpAction)
 {
 	if (TraversalAction.MatchesTagExact(FUmbraGameplayTags::Get().Traversal_Action_NoAction))
 	{
-		DetectWall();
+		FHitResult HitResult = DetectWall();
+		if (!HitResult.bBlockingHit)
+		{
+			OwnerCharacter->Jump();
+			return;
+		}
+
+		GridScan(4, 30, HitResult.ImpactPoint, ReverseNormal(HitResult.ImpactNormal));
+	}
+}
+
+void UTraversalComponent::GridScan(int GridWidth, int GridHeight, const FVector& ScanBaseLocation,
+	const FRotator& ScanRotation)
+{
+	TArray<FHitResult> WallHitTraces = TArray<FHitResult>();
+	TArray<FHitResult> LineHitTraces = TArray<FHitResult>();
+
+	WallHitTraces.Empty();
+
+	for (size_t i = 0; i < GridWidth; i++)
+	{
+		float MoveValue = i * 20.f - GridWidth * 10.f;
+		FVector First = VectorDirectionMoveWithRotation(ScanBaseLocation, FUmbraGameplayTags::Get().Traversal_Direction_Right, MoveValue, ScanRotation);
+		LineHitTraces.Empty();
+		for (size_t j = 0; j < GridHeight; j++)
+		{
+			FVector Second = VectorDirectionMove(First, FUmbraGameplayTags::Get().Traversal_Direction_Up, j * 8);
+			FHitResult LineHit;
+			UKismetSystemLibrary::LineTraceSingle(
+				this,
+				VectorDirectionMoveWithRotation(Second, FUmbraGameplayTags::Get().Traversal_Direction_Backward, 60.f, ScanRotation),
+				VectorDirectionMoveWithRotation(Second, FUmbraGameplayTags::Get().Traversal_Direction_Forward, 60.f, ScanRotation),
+				UEngineTypes::ConvertToTraceType(ECC_Visibility),
+				false,
+				TArray<AActor*>(),
+				EDrawDebugTrace::ForDuration,
+				LineHit,
+				true,
+				FLinearColor::Red,
+				FLinearColor::Green,
+				5.f);
+			LineHitTraces.Add(LineHit);
+		}
 	}
 }
 
@@ -175,11 +217,41 @@ FVector UTraversalComponent::VectorDirectionMove(const FVector& Source, const FG
 	return Source;
 }
 
+FVector UTraversalComponent::VectorDirectionMoveWithRotation(const FVector& Source, const FGameplayTag& Direction,
+	const float& MoveValue, const FRotator& Rotation)
+{
+	FUmbraGameplayTags UGT = FUmbraGameplayTags::Get();
+
+	//UE_LOG(LogTemp, Warning, TEXT("Direction: [%s], Value: [%f]"), *Direction.GetTagName().ToString(), MoveValue);
+	
+	if (Direction.MatchesTagExact(UGT.Traversal_Direction_Right))
+	{
+		return Source + MoveValue * FRotationMatrix(Rotation).GetScaledAxis(EAxis::Y);
+	}
+	if (Direction.MatchesTagExact(UGT.Traversal_Direction_Left))
+	{
+		return Source - MoveValue * FRotationMatrix(Rotation).GetScaledAxis(EAxis::Y);
+	}
+	if (Direction.MatchesTagExact(UGT.Traversal_Direction_Forward))
+	{
+		return Source + MoveValue * FRotationMatrix(Rotation).GetScaledAxis(EAxis::X);
+	}
+	if (Direction.MatchesTagExact(UGT.Traversal_Direction_Backward))
+	{
+		return Source - MoveValue * FRotationMatrix(Rotation).GetScaledAxis(EAxis::X);
+	}
+	return Source;
+}
+
 FRotator UTraversalComponent::ReverseNormal(const FVector& Normal)
 {
-	FRotator Rotator = UKismetMathLibrary::MakeRotFromX(Normal);
-	FRotator DeltaRotator = UKismetMathLibrary::NormalizedDeltaRotator(Rotator, FRotator(0.f, 0.f, 180.f));
-	return FRotator(0.f, 0.f, DeltaRotator.Yaw);
+	// FRotator Rotator = UKismetMathLibrary::MakeRotFromX(Normal);
+	// FRotator DeltaRotator = UKismetMathLibrary::NormalizedDeltaRotator(Rotator, FRotator(0.f, 0.f, 180.f));
+	// return FRotator(0.f, 0.f, DeltaRotator.Yaw);
+	
+	FRotator Rotator = Normal.Rotation();
+	FRotator DeltaRotator = Rotator - FRotator(0.f, 0.f, 180.f);
+	return DeltaRotator;
 }
 
 FHitResult UTraversalComponent::DetectWall()
@@ -217,5 +289,7 @@ FHitResult UTraversalComponent::DetectWall()
 
 	return HitResult;
 }
+
+
 
 
