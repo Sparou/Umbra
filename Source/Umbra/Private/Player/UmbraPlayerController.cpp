@@ -10,6 +10,7 @@
 #include "Character/UmbraEnemyCharacter.h"
 #include "Character/UmbraPlayerCharacter.h"
 #include "Character/Component/InteractionComponent.h"
+#include "Character/Component/TraversalComponent.h"
 #include "Character/Data/PlayerCharacterInfo.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Input/UmbraInputComponent.h"
@@ -41,6 +42,9 @@ void AUmbraPlayerController::BeginPlay()
 	check(InputContext);
 	check(CameraOnlyInputContext);
 	SwitchToDefaultContext();
+
+	TraversalComponent = GetPawn()->FindComponentByClass<UTraversalComponent>();
+	check(TraversalComponent);
 }
 
 void AUmbraPlayerController::SetupInputComponent()
@@ -152,10 +156,14 @@ void AUmbraPlayerController::OnStopWalking()
 void AUmbraPlayerController::OnStartJumping()
 {
 	bWantsToJump = true;
-	if (AUmbraBaseCharacter* ControlledCharacter = Cast<AUmbraBaseCharacter>(GetCharacter()))
+	if (TraversalComponent)
 	{
-		ControlledCharacter->Jump();
+		TraversalComponent->TriggerTraversalAction(true);
 	}
+	// if (AUmbraBaseCharacter* ControlledCharacter = Cast<AUmbraBaseCharacter>(GetCharacter()))
+	// {
+	// 	ControlledCharacter->Jump();
+	// }
 }
 
 void AUmbraPlayerController::OnStopJumping()

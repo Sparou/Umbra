@@ -10,6 +10,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Interface/TraversalInterface.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 UTraversalComponent::UTraversalComponent()
 {
@@ -26,6 +27,14 @@ void UTraversalComponent::BeginPlay()
 void UTraversalComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+}
+
+void UTraversalComponent::TriggerTraversalAction(const bool& JumpAction)
+{
+	if (TraversalAction.MatchesTagExact(FUmbraGameplayTags::Get().Traversal_Action_NoAction))
+	{
+		DetectWall();
+	}
 }
 
 void UTraversalComponent::InitializeReferences()
@@ -171,6 +180,41 @@ FRotator UTraversalComponent::ReverseNormal(const FVector& Normal)
 	FRotator Rotator = UKismetMathLibrary::MakeRotFromX(Normal);
 	FRotator DeltaRotator = UKismetMathLibrary::NormalizedDeltaRotator(Rotator, FRotator(0.f, 0.f, 180.f));
 	return FRotator(0.f, 0.f, DeltaRotator.Yaw);
+}
+
+FHitResult UTraversalComponent::DetectWall()
+{
+	FUmbraGameplayTags UGT = FUmbraGameplayTags::Get();
+	FHitResult HitResult;
+	size_t iterations = CharacterMovement->IsFalling() ? 8 : 15;
+
+	for (size_t i = 0; i < iterations; ++i)
+	{
+		FVector CurrentLocation = OwnerCharacter->GetActorLocation();
+		FRotator CurrentRotation = OwnerCharacter->GetActorRotation();
+
+		FVector FirstStepVector = VectorDirectionMove(CurrentLocation, UGT.Traversal_Direction_Down, 60.f);
+		FVector SecondStepVector = VectorDirectionMove(FirstStepVector, UGT.Traversal_Direction_Up, i * 16.f);
+		FVector ThirdStepVector = VectorDirectionMove(SecondStepVector, UGT.Traversal_Direction_Backward, 20.f);
+		FVector FourthStepVector = VectorDirectionMove(SecondStepVector, UGT.Traversal_Direction_Forward, 140.f);
+		
+		if (GetWorld()->SweepSingleByChannel(
+			HitResult,
+			ThirdStepVector,
+			FourthStepVector,
+			FQuat::Identity,
+			ECC_Visibility,
+			FCollisionShape::MakeSphere(10.f)))
+		{
+			if (HitResult.bBlockingHit && !HitResult.bStartPenetrating)
+			{
+				DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 8.f, 32.f, FColor::Red, false, 3.f);
+				return HitResult;
+			}
+		}
+	}
+
+	return HitResult;
 }
 
 

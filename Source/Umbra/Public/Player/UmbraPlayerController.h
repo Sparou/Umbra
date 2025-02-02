@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "UmbraPlayerController.generated.h"
 
+class UTraversalComponent;
 class UUmbraAbilitySystemComponent;
 class UUmbraInputConfig;
 struct FInputActionValue;
@@ -90,6 +91,9 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UUmbraAbilitySystemComponent> AbilitySystemComponent;
+
+	UPROPERTY()
+	TObjectPtr<UTraversalComponent> TraversalComponent;
 
 	UUmbraAbilitySystemComponent* GetAbilitySystemComponent();
 	

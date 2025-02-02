@@ -59,8 +59,8 @@ void FUmbraGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Traversal_Action_Mantle = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Action.Mantle"));
 	GameplayTags.Traversal_Action_Vault = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Action.Vault"));
 	GameplayTags.Traversal_Direction_NoDirection = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Direction.NoDirection"));
-	GameplayTags.Traversal_Direction_NoDirection = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Direction.Up"));
-	GameplayTags.Traversal_Direction_NoDirection = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Direction.Down"));
+	GameplayTags.Traversal_Direction_Up = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Direction.Up"));
+	GameplayTags.Traversal_Direction_Down = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Direction.Down"));
 	GameplayTags.Traversal_Direction_Left = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Direction.Left"));
 	GameplayTags.Traversal_Direction_Right = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Direction.Right"));
 	GameplayTags.Traversal_Direction_Forward = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Direction.Forward"));

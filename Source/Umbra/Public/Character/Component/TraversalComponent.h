@@ -23,6 +23,8 @@ public:
 	UTraversalComponent();
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	void TriggerTraversalAction(const bool& JumpAction);
 	
 protected:
 	// Called when the game starts
@@ -40,10 +42,12 @@ private:
 	float ClimbValues (const FGameplayTag& NewClimbStyle, const float& Braced, const float& FreeHang) const;
 	FVector VectorDirectionMove (const FVector& Source, const FGameplayTag& Direction, const float& MoveValue);
 	FRotator ReverseNormal (const FVector& Normal);
+	FHitResult DetectWall();
 	
 	FGameplayTag TraversalState = FUmbraGameplayTags::Get().Traversal_State_FreeRoam;
 	FGameplayTag ClimbStyle = FUmbraGameplayTags::Get().Traversal_ClimbStyle_BracedClimb;
 	FGameplayTag ClimbDirection = FUmbraGameplayTags::Get().Traversal_Direction_NoDirection;
+	FGameplayTag TraversalAction = FUmbraGameplayTags::Get().Traversal_Action_NoAction;
 	
 	/** Components */
 	TObjectPtr<ACharacter> OwnerCharacter;
