@@ -45,11 +45,21 @@ private:
 	FVector VectorDirectionMoveWithRotation (const FVector& Source, const FGameplayTag& Direction, const float& MoveValue, const FRotator& Rotation);
 	FRotator ReverseNormal (const FVector& Normal);
 	FHitResult DetectWall();
+	FHitResult FindWallEdge(int GridWidth, int GridHeight, const FVector& ScanBaseLocation, const FRotator& ScanRotation);
 	
 	FGameplayTag TraversalState = FUmbraGameplayTags::Get().Traversal_State_FreeRoam;
 	FGameplayTag ClimbStyle = FUmbraGameplayTags::Get().Traversal_ClimbStyle_BracedClimb;
 	FGameplayTag ClimbDirection = FUmbraGameplayTags::Get().Traversal_Direction_NoDirection;
 	FGameplayTag TraversalAction = FUmbraGameplayTags::Get().Traversal_Action_NoAction;
+
+	/** Wall Variables */ 
+	FRotator WallRotation = FRotator();
+	FHitResult WallHitResult = FHitResult();
+	FHitResult WallEdgeResult = FHitResult();
+	FHitResult WallTopResult = FHitResult();
+	FHitResult WallDepthResult = FHitResult();
+	FHitResult WallVaultResult = FHitResult();
+	
 	
 	/** Components */
 	TObjectPtr<ACharacter> OwnerCharacter;
@@ -59,5 +69,7 @@ private:
 	TObjectPtr<UCapsuleComponent> Capsule;
 	TObjectPtr<USkeletalMeshComponent> SkeletalMesh;
 	TObjectPtr<UAnimInstance> AnimInstance;
+
+	FUmbraGameplayTags UGT = FUmbraGameplayTags::Get();
 		
 };

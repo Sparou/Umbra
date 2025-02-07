@@ -84,12 +84,128 @@ void UTraversalComponent::GridScan(int GridWidth, int GridHeight, const FVector&
 		 	FHitResult PreviousHitResult = LineHitTraces[j-1];
 		 	float PreviousDistance = PreviousHitResult.bBlockingHit ? PreviousHitResult.Distance : UKismetMathLibrary::Vector_Distance(PreviousHitResult.TraceStart, PreviousHitResult.TraceEnd);
 
-		 	if (CurrentDistance - PreviousDistance < 5)
+		 	if (CurrentDistance - PreviousDistance > 5)
 		 	{
-		 		WallHitTraces.Add(LineHitTraces[j-1]);
+		 		WallHitTraces.Add(PreviousHitResult);
+		 		break;
 		 	}
 		 }
 	}
+	
+	if (WallHitTraces.Num() <= 0) return;
+
+	WallEdgeResult = WallHitTraces[0];
+	FVector OwnerLocation = OwnerCharacter->GetActorLocation();
+
+	for (size_t i = 1; i < WallHitTraces.Num(); i++)
+	{
+		float NewDistance = UKismetMathLibrary::Vector_Distance(OwnerLocation, WallHitTraces[i].ImpactPoint);
+		float CurrentDistance = UKismetMathLibrary::Vector_Distance(OwnerLocation, WallEdgeResult.ImpactPoint);
+		if (NewDistance <= CurrentDistance)
+		{
+			WallEdgeResult = WallHitTraces[i];
+		}
+	}
+
+	DrawDebugSphere(GetWorld(), WallEdgeResult.ImpactPoint, 10.f, 8, FColor::Blue, false, 3.f);
+
+	if (!WallEdgeResult.bBlockingHit || WallEdgeResult.bStartPenetrating) return;
+	if (!TraversalState.MatchesTagExact(FUmbraGameplayTags::Get().Traversal_State_Climb))
+	{
+		WallRotation = ReverseNormal(WallEdgeResult.ImpactNormal);
+	}
+	FHitResult LastTopHit = FHitResult();
+
+	for (size_t i = 0; i < 8; i++)
+	{
+		FVector First = VectorDirectionMoveWithRotation(WallEdgeResult.ImpactPoint, FUmbraGameplayTags::Get().Traversal_Direction_Forward, i * 30, WallRotation);
+		FVector Second = VectorDirectionMove(First, FUmbraGameplayTags::Get().Traversal_Direction_Up, 7.f);
+		FVector Third = VectorDirectionMove(Second, FUmbraGameplayTags::Get().Traversal_Direction_Down, 7.f);
+		FHitResult TopHit;
+
+		bool bHit = UKismetSystemLibrary::SphereTraceSingle(
+			this,
+			Second,
+			Third,
+			2.5f,
+			UEngineTypes::ConvertToTraceType(ECC_Visibility),
+			false,
+			TArray<AActor*>(),
+			EDrawDebugTrace::ForDuration,
+			TopHit,
+			true,
+			FLinearColor::Green,
+			FLinearColor::White,
+			5);
+
+		if (i == 0 && bHit)
+		{
+			WallTopResult = TopHit;
+			DrawDebugSphere(GetWorld(), WallTopResult.ImpactPoint, 8.f, 16, FColor::Orange, false, 6.f);
+		}
+
+		if (i != 0)
+		{
+			if (bHit)
+			{
+				LastTopHit = TopHit;
+				DrawDebugSphere(GetWorld(), LastTopHit.ImpactPoint, 8.f, 16, FColor::Orange, false, 6.f);
+			}
+			else
+			{
+				break;
+			}
+		}
+	}
+
+	if (!TraversalState.MatchesTagExact(UGT.Traversal_State_FreeRoam))
+	{
+		return;
+	}
+
+	FHitResult DepthResult = FHitResult();
+	bool bHit = UKismetSystemLibrary::SphereTraceSingle(
+	this,
+	VectorDirectionMoveWithRotation(LastTopHit.ImpactPoint, UGT.Traversal_Direction_Forward, 30.f, WallRotation),
+	LastTopHit.ImpactPoint,
+	10.f,
+	UEngineTypes::ConvertToTraceType(ECC_Visibility),
+	false,
+	TArray<AActor*>(),
+	EDrawDebugTrace::None,
+	DepthResult,
+	true,
+	FLinearColor::Green,
+	FLinearColor::White,
+	5);
+
+	if (!bHit) return;
+	
+	WallDepthResult = DepthResult;
+	DrawDebugSphere(GetWorld(), WallDepthResult.ImpactPoint, 10.f, 8, FColor::Blue, false, 6.f);
+	
+	FHitResult Vault = FHitResult();
+	FVector Start = VectorDirectionMoveWithRotation(WallDepthResult.ImpactPoint, UGT.Traversal_Direction_Forward, 70.f, WallRotation);
+	FVector End = VectorDirectionMove(Start, UGT.Traversal_Direction_Down, 200.f);
+	bHit = UKismetSystemLibrary::SphereTraceSingle(
+	this,
+	Start,
+	End,
+	10.f,
+	UEngineTypes::ConvertToTraceType(ECC_Visibility),
+	false,
+	TArray<AActor*>(),
+	EDrawDebugTrace::None,
+	Vault,
+	true,
+	FLinearColor::Green,
+	FLinearColor::White,
+	5);
+
+	if (!bHit) return;
+
+	WallVaultResult = Vault;
+	DrawDebugSphere(GetWorld(), WallVaultResult.ImpactPoint, 10.f, 8, FColor::White, false, 6.f);
 }
 
 void UTraversalComponent::InitializeReferences()
@@ -135,8 +251,6 @@ void UTraversalComponent::SetTraversalState(const FGameplayTag& NewTraversalStat
 	{
 		TraversalAnimInstance->SetTraversalState(NewTraversalState);
 	}
-
-	FUmbraGameplayTags UGT = FUmbraGameplayTags::Get(); 
 
 	//TODO: По идеи это можно сжать, но я не уверен, не понадобится в телах разная лоигка.
 	//TODO: Оптимизирвать после доведения системы до рабочего состояния.
@@ -200,8 +314,6 @@ float UTraversalComponent::ClimbValues(const FGameplayTag& NewClimbStyle, const 
 
 FVector UTraversalComponent::VectorDirectionMove(const FVector& Source, const FGameplayTag& Direction, const float& MoveValue)
 {
-	FUmbraGameplayTags UGT = FUmbraGameplayTags::Get();
-
 	if (Direction.MatchesTagExact(UGT.Traversal_Direction_Up))
 	{
 		return Source + FVector(0.f, 0.f, MoveValue);
@@ -233,8 +345,6 @@ FVector UTraversalComponent::VectorDirectionMove(const FVector& Source, const FG
 FVector UTraversalComponent::VectorDirectionMoveWithRotation(const FVector& Source, const FGameplayTag& Direction,
 	const float& MoveValue, const FRotator& Rotation)
 {
-	FUmbraGameplayTags UGT = FUmbraGameplayTags::Get();
-
 	//UE_LOG(LogTemp, Warning, TEXT("Direction: [%s], Value: [%f]"), *Direction.GetTagName().ToString(), MoveValue);
 	
 	if (Direction.MatchesTagExact(UGT.Traversal_Direction_Right))
@@ -258,18 +368,13 @@ FVector UTraversalComponent::VectorDirectionMoveWithRotation(const FVector& Sour
 
 FRotator UTraversalComponent::ReverseNormal(const FVector& Normal)
 {
-	// FRotator Rotator = UKismetMathLibrary::MakeRotFromX(Normal);
-	// FRotator DeltaRotator = UKismetMathLibrary::NormalizedDeltaRotator(Rotator, FRotator(0.f, 0.f, 180.f));
-	// return FRotator(0.f, 0.f, DeltaRotator.Yaw);
-	
-	FRotator Rotator = Normal.Rotation();
-	FRotator DeltaRotator = Rotator - FRotator(0.f, 0.f, 180.f);
-	return DeltaRotator;
+	FRotator Rotator = UKismetMathLibrary::MakeRotFromX(Normal);
+	FRotator DeltaRotator = UKismetMathLibrary::NormalizedDeltaRotator(Rotator, FRotator(0.f, 180.f, 0.f ));
+	return FRotator(0.f, DeltaRotator.Yaw, 0.f);
 }
 
 FHitResult UTraversalComponent::DetectWall()
 {
-	FUmbraGameplayTags UGT = FUmbraGameplayTags::Get();
 	FHitResult HitResult;
 	size_t iterations = CharacterMovement->IsFalling() ? 8 : 15;
 
@@ -301,6 +406,12 @@ FHitResult UTraversalComponent::DetectWall()
 	}
 
 	return HitResult;
+}
+
+FHitResult UTraversalComponent::FindWallEdge(int GridWidth, int GridHeight, const FVector& ScanBaseLocation,
+	const FRotator& ScanRotation)
+{
+	return FHitResult();
 }
 
 
