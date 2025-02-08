@@ -32,9 +32,9 @@ protected:
 	virtual void BeginPlay() override;
 
 	bool FindWallEdge(int GridWidth, int GridHeight, const FVector& ScanBaseLocation, const FRotator& ScanRotation, FHitResult& OutWallEdgeResult);
-	bool FindWallTop(const FHitResult& WallEdge, const FRotator& WallRot, FHitResult& OutWallTopResult, FHitResult& OutLastTopHit);
+	bool FindWallTop(const FHitResult& WallEdgeHit, const FRotator& WallRot, FHitResult& OutWallTopResult, FHitResult& OutLastTopHit, bool& OutEndOfWallFound);
 	bool FindWallDepth(const FHitResult& LastTopHit, const FRotator& WallRot, FHitResult& OutWallDepthResult);
-	bool FindWallVault(const FHitResult& WallDepth, const FRotator& WallRot, FHitResult& OutWallVaultResult);
+	bool FindWallVault(const FHitResult& WallDepthHit, const FRotator& WallRot, FHitResult& OutWallVaultResult);
 
 	/** Tracing Settings */
 
@@ -134,6 +134,12 @@ private:
 	FRotator ReverseNormal (const FVector& Normal);
 	FHitResult DetectWall();
 	FHitResult FindWallEdge(int GridWidth, int GridHeight, const FVector& ScanBaseLocation, const FRotator& ScanRotation);
+	void MeasureWall();
+	void DecideTraversalType(bool JumpAction);
+	void ResetTraversalResults();
+
+	/** Validate Functions */
+	void ValidateIsInLand();
 	
 	FGameplayTag TraversalState = FUmbraGameplayTags::Get().Traversal_State_FreeRoam;
 	FGameplayTag ClimbStyle = FUmbraGameplayTags::Get().Traversal_ClimbStyle_BracedClimb;
@@ -147,7 +153,12 @@ private:
 	FHitResult WallTopResult = FHitResult();
 	FHitResult WallDepthResult = FHitResult();
 	FHitResult WallVaultResult = FHitResult();
-	
+
+	float WallHeight;
+	float WallDepth;
+	float VaultHeight;
+
+	bool bInLand = true;
 	
 	/** Components */
 	TObjectPtr<ACharacter> OwnerCharacter;
