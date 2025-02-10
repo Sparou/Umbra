@@ -7,11 +7,43 @@
 #include "Components/ActorComponent.h"
 #include "TraversalComponent.generated.h"
 
-
 class UCapsuleComponent;
 class UCameraComponent;
 class UCharacterMovementComponent;
 class UMotionWarpingComponent;
+
+USTRUCT(BlueprintType)
+struct FTraversalActionData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* Montage = nullptr;
+	
+	UPROPERTY(EditAnywhere)
+	FGameplayTag InState = FUmbraGameplayTags::Get().Traversal_State_FreeRoam;
+	
+	UPROPERTY(EditAnywhere)
+	FGameplayTag OutState = FUmbraGameplayTags::Get().Traversal_State_FreeRoam;
+
+	UPROPERTY(EditAnywhere)
+	float Warp1XOffset = 0.f;
+
+	UPROPERTY(EditAnywhere)
+	float Warp1ZOffset = 0.f;
+	
+	UPROPERTY(EditAnywhere)
+	float Warp2XOffset = 0.f;
+
+	UPROPERTY(EditAnywhere)
+	float Warp2ZOffset = 0.f;
+
+	UPROPERTY(EditAnywhere)
+	float Warp3XOffset = 0.f;
+
+	UPROPERTY(EditAnywhere)
+	float Warp3ZOffset = 0.f;
+};
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class UMBRA_API UTraversalComponent : public UActorComponent
@@ -26,6 +58,7 @@ public:
 
 	void TriggerTraversalAction(bool JumpAction);
 	void GridScan(int GridWidth, int GridHeight, const FVector& ScanBaseLocation, const FRotator& ScanRotation);
+	void PlayTraversalMontage();
 
 protected:
 	// Called when the game starts
@@ -121,6 +154,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="Traversal|Tracing|Debug")
 	bool bDrawDetectWallDebug = true;
 
+	UPROPERTY(EditAnywhere, Category="Data")
+	TMap<FGameplayTag, FTraversalActionData> TraversalActionDataMap;
+
 private:
 	
     void InitializeReferences();
@@ -137,7 +173,10 @@ private:
 	void MeasureWall();
 	void DecideTraversalType(bool JumpAction);
 	void ResetTraversalResults();
-
+	void SetTraversalAction(const FGameplayTag& NewTraversalAction);
+	FVector FindWarpLocation(const FVector& Location, const FRotator& Rotation, float XOffset, float ZOffset);
+	void DecideClimbStyle(const FVector& Location, const FRotator& Rotation);
+	
 	/** Validate Functions */
 	void ValidateIsInLand();
 	
@@ -153,12 +192,15 @@ private:
 	FHitResult WallTopResult = FHitResult();
 	FHitResult WallDepthResult = FHitResult();
 	FHitResult WallVaultResult = FHitResult();
+	FHitResult NextClimbResult = FHitResult();
 
 	float WallHeight;
 	float WallDepth;
 	float VaultHeight;
 
 	bool bInLand = true;
+
+	FTraversalActionData CurrentActionData;
 	
 	/** Components */
 	TObjectPtr<ACharacter> OwnerCharacter;

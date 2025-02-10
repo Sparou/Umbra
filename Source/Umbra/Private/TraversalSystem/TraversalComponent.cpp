@@ -1,16 +1,15 @@
 // Copyrighted by Vorona Games
 
 
-#include "Character/Component/TraversalComponent.h"
+#include "TraversalSystem/TraversalComponent.h"
 
 #include "MotionWarpingComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Interface/TraversalInterface.h"
+#include "TraversalSystem/TraversalInterface.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "Kismet/KismetSystemLibrary.h"
 
 UTraversalComponent::UTraversalComponent()
 {
@@ -105,8 +104,33 @@ void UTraversalComponent::GridScan(int GridWidth, int GridHeight, const FVector&
 	}
 }
 
+void UTraversalComponent::PlayTraversalMontage()
+{
+	SetTraversalState(CurrentActionData.InState);
+
+	FVector TopResultWarpLocation = FindWarpLocation(WallTopResult.ImpactPoint, WallRotation, CurrentActionData.Warp1XOffset, CurrentActionData.Warp1ZOffset);
+	MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation("TopResultWarp", TopResultWarpLocation, WallRotation);
+
+	FVector BalanceWarpLocation = FindWarpLocation(WallTopResult.ImpactPoint, WallRotation, CurrentActionData.Warp2XOffset, CurrentActionData.Warp2ZOffset);
+	MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation("BalanceWarp", BalanceWarpLocation, WallRotation);
+
+	if (AnimInstance)
+	{
+		FOnMontageBlendingOutStarted BlendOutDelegate = FOnMontageBlendingOutStarted::CreateWeakLambda(this, 
+			[this](UAnimMontage*, bool) 
+			{
+				SetTraversalState(CurrentActionData.OutState);
+			}
+		);
+
+		AnimInstance->Montage_SetBlendingOutDelegate(BlendOutDelegate);
+		AnimInstance->Montage_Play(CurrentActionData.Montage);
+		SetTraversalAction(UGT.Traversal_Action_NoAction);
+	}
+}
+
 bool UTraversalComponent::FindWallEdge(int GridWidth, int GridHeight, const FVector& ScanBaseLocation,
-	const FRotator& ScanRotation, FHitResult& OutWallEdgeResult)
+                                       const FRotator& ScanRotation, FHitResult& OutWallEdgeResult)
 {
 	 TArray<FHitResult> WallHitTraces;
 
@@ -515,7 +539,8 @@ void UTraversalComponent::DecideTraversalType(bool JumpAction)
 {
 	if (!WallEdgeResult.bBlockingHit)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No action!"));
+		UE_LOG(LogTemp, Warning, TEXT("DecideTraversalType: [No Action]"))
+		SetTraversalAction(UGT.Traversal_Action_NoAction);
 		if (JumpAction) OwnerCharacter->Jump();
 	}
 
@@ -528,7 +553,7 @@ void UTraversalComponent::DecideTraversalType(bool JumpAction)
 	{
 		if (bInLand)
 		{
-			if (WallHeight >= 45.f && WallHeight <= 160.f)
+			if (WallHeight >= 90.f && WallHeight <= 160.f)
 			{
 				if (WallDepth >= 0.f && WallDepth <= 120.f)
 				{
@@ -558,10 +583,14 @@ void UTraversalComponent::DecideTraversalType(bool JumpAction)
 				if (WallHeight < 250.f)
 				{
 					UE_LOG(LogTemp, Warning, TEXT("DecideTraversalType: [Climb]"))
+					DecideClimbStyle(WallTopResult.ImpactPoint, WallRotation);
+					NextClimbResult = WallTopResult;
+					ClimbStyle.MatchesTagExact(UGT.Traversal_ClimbStyle_BracedClimb) ? SetTraversalAction(UGT.Traversal_Action_BracedClimb) : SetTraversalAction(UGT.Traversal_Action_FreeHang);
 				}
 				else
 				{
 					UE_LOG(LogTemp, Warning, TEXT("DecideTraversalType: [No Action]"))
+					SetTraversalAction(UGT.Traversal_Action_NoAction);
 				}
 			}
 		}
@@ -584,6 +613,59 @@ void UTraversalComponent::ResetTraversalResults()
 	WallDepth = 0;
 	VaultHeight = 0;
 	WallRotation = FRotator::ZeroRotator;
+}
+
+void UTraversalComponent::SetTraversalAction(const FGameplayTag& NewTraversalAction)
+{
+	if (NewTraversalAction.MatchesTagExact(TraversalAction))
+	{
+		return;
+	}
+
+	TraversalAction = NewTraversalAction;
+	if (ITraversalInterface *TraversalAnimInstance = Cast<ITraversalInterface>(AnimInstance))
+	{
+		TraversalAnimInstance->SetTraversalAction(NewTraversalAction);
+	}
+
+	if (TraversalAction.MatchesTagExact(UGT.Traversal_Action_NoAction))
+	{
+		ResetTraversalResults();
+	}
+	else
+	{
+		CurrentActionData = TraversalActionDataMap.FindRef(NewTraversalAction);
+		PlayTraversalMontage();
+	}
+}
+
+FVector UTraversalComponent::FindWarpLocation(const FVector& Location, const FRotator& Rotation, float XOffset,
+	float ZOffset)
+{
+	FVector FirstStepVector = VectorDirectionMoveWithRotation(Location, UGT.Traversal_Direction_Forward, XOffset, Rotation);
+	return VectorDirectionMove(FirstStepVector, UGT.Traversal_Direction_Up, ZOffset);
+}
+
+void UTraversalComponent::DecideClimbStyle(const FVector& Location, const FRotator& Rotation)
+{
+	FVector FirstStepVector = VectorDirectionMoveWithRotation(Location, UGT.Traversal_Direction_Forward, 125.f, Rotation);
+	FVector TraceStart = VectorDirectionMoveWithRotation(FirstStepVector, UGT.Traversal_Direction_Backward, 10.f, Rotation);
+	FVector TraceEnd = VectorDirectionMoveWithRotation(FirstStepVector, UGT.Traversal_Direction_Forward, 25.f, Rotation);
+
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(OwnerCharacter);
+	
+	FHitResult HitResult;
+	GetWorld()->SweepSingleByChannel(
+		HitResult,
+		TraceStart,
+		TraceEnd,
+		FQuat::Identity,
+		ECC_Visibility,
+		FCollisionShape::MakeSphere(10.f),
+		QueryParams);
+	
+	HitResult.bBlockingHit ? SetClimbStyle(FUmbraGameplayTags::Get().Traversal_ClimbStyle_BracedClimb) : SetClimbStyle(FUmbraGameplayTags::Get().Traversal_ClimbStyle_FreeHang);
 }
 
 void UTraversalComponent::ValidateIsInLand()

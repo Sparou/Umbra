@@ -1,13 +1,9 @@
 // Copyrighted by Vorona Games
 
 #include "Character/UmbraBaseCharacter.h"
-
-#include <string>
-
-#include "CharacterTrajectoryComponent.h"
 #include "MotionWarpingComponent.h"
 #include "AbilitySystem/UmbraAbilitySystemComponent.h"
-#include "Character/Component/TraversalComponent.h"
+#include "TraversalSystem/TraversalComponent.h"
 #include "Components/CapsuleComponent.h"
 
 AUmbraBaseCharacter::AUmbraBaseCharacter()
