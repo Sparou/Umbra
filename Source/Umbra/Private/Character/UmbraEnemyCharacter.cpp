@@ -68,8 +68,20 @@ void AUmbraEnemyCharacter::BeginPlay()
 	ChoosePath();
 }
 
+void AUmbraEnemyCharacter::InitAbilityActorInfo()
+{
+	AbilitySystemComponent->InitAbilityActorInfo(this, this);
+	//Cast<UmbraAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
+
+	if(HasAuthority())
+	{
+		InitializeDefaultAttributes();
+	}
+}
+
 void AUmbraEnemyCharacter::InitializeDefaultAttributes() const
 {
 	Super::InitializeDefaultAttributes();
 	ApplyEffectToSelf(DefaultTemperamentalAttributes, 1.f);
+	UmbraAIController->InitializeBlackboardDefaultValues(Cast<UUmbraEnemyAttributeSet>(AttributeSet));
 }
