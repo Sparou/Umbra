@@ -6,6 +6,7 @@
 #include "AIController.h"
 #include "UmbraAIController.generated.h"
 
+class UUmbraEnemyAttributeSet;
 struct FAIStimulus;
 class UUmbraAIPerceptionComponent;
 class UBehaviorTreeComponent;
@@ -19,6 +20,7 @@ class UMBRA_API AUmbraAIController : public AAIController
 
 public:
 	AUmbraAIController();
+	bool InitializeBlackboardDefaultValues(const UUmbraEnemyAttributeSet* AttributeSet) const;
 
 protected:
 	UPROPERTY()
@@ -27,6 +29,32 @@ protected:
 	UPROPERTY()
 	TObjectPtr<UUmbraAIPerceptionComponent> UmbraAIPerceptionComponent;
 
+#pragma region Blackboard value names
+	UPROPERTY(EditDefaultsOnly, Category = "Blackboard|Patrolling")
+	FName NextPatrollingPoint = "NextPatrollingPoint";
+
+	UPROPERTY(EditDefaultsOnly, Category = "Blackboard|Vision")
+	FName EnemyLocation = "EnemyLocation";
+
+	UPROPERTY(EditDefaultsOnly, Category = "Blackboard|Vision")
+	FName CurrentEnemy = "CurrentEnemy";
+
+	UPROPERTY(EditDefaultsOnly, Category = "Blackboard|Vision")
+	FName DistanceToTarget = "DistanceToTarget";
+
+	UPROPERTY(EditDefaultsOnly, Category = "Blackboard|Vision")
+	FName LostEnemy = "LostEnemy";
+
+	UPROPERTY(EditDefaultsOnly, Category = "Blackboard|MentalAttributes")
+	FName Fear = "Fear";
+
+	UPROPERTY(EditDefaultsOnly, Category = "Blackboard|MentalAttributes")
+	FName Belligerence = "Belligerence";
+
+	UPROPERTY(EditDefaultsOnly, Category = "Blackboard|MentalAttributes")
+	FName EstimatedWinChance = "EstimatedWinChance";
+#pragma endregion
+	
 private:
 	UFUNCTION()
 	void OnPercepted(AActor* SourceActor, const FAIStimulus Stimulus);
