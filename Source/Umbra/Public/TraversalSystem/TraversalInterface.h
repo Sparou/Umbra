@@ -36,4 +36,16 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Traversal")
 	bool SetClimbDirection(const FGameplayTag& NewClimbDirection);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Traversal")
+	bool SetLeftHandClimbLocation(const FVector& NewLeftHandClimbLocation);
+	
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Traversal")
+	bool SetRightHandClimbLocation(const FVector& NewRightHandClimbLocation);
+	
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Traversal")
+	bool SetLeftHandClimbRotation(const FRotator& NewLeftHandClimbRotation);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Traversal")
+	bool SetRightHandClimbRotation(const FRotator& NewRightHandClimbRotation);
 };

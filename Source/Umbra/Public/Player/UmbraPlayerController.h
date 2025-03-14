@@ -102,6 +102,8 @@ private:
 	
 	void Move(const FInputActionValue& InputActionValue);
 	void Look(const FInputActionValue& InputActionValue);
+
+	void OnStopMoving();
 	
 	void OnStartWalking();
 	void OnStopWalking();

@@ -54,6 +54,7 @@ void AUmbraPlayerController::SetupInputComponent()
 	
 	UmbraInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AUmbraPlayerController::Interact);
 	UmbraInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::Move);
+	UmbraInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::OnStopMoving);
 	UmbraInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::Look);
 	UmbraInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AUmbraPlayerController::OnStartJumping);
 	UmbraInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::OnStopJumping);
@@ -120,7 +121,12 @@ void AUmbraPlayerController::Move(const FInputActionValue& InputActionValue)
 	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-	if (APawn* ControlledPawn = GetPawn<APawn>()) {
+	if (TraversalComponent)
+	{
+		TraversalComponent->AddMovementInput(InputAxisVector.Y, true);
+		TraversalComponent->AddMovementInput(InputAxisVector.X, false);
+	}
+	else if (APawn* ControlledPawn = GetPawn<APawn>()) {
 		ControlledPawn->AddMovementInput(ForwardDirection, InputAxisVector.Y);
 		ControlledPawn->AddMovementInput(RightDirection, InputAxisVector.X);
 	}
@@ -132,6 +138,14 @@ void AUmbraPlayerController::Look(const FInputActionValue& InputActionValue)
 	APawn* CurrentPawn = GetPawn();
 	CurrentPawn->AddControllerYawInput(LookAxisVector.X);
 	CurrentPawn->AddControllerPitchInput(-LookAxisVector.Y);
+}
+
+void AUmbraPlayerController::OnStopMoving()
+{
+	if (TraversalComponent)
+	{
+		TraversalComponent->ResetMovement();
+	}
 }
 
 void AUmbraPlayerController::OnStartWalking()

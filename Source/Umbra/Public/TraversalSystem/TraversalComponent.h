@@ -59,6 +59,9 @@ public:
 	void TriggerTraversalAction(bool JumpAction);
 	void GridScan(int GridWidth, int GridHeight, const FVector& ScanBaseLocation, const FRotator& ScanRotation);
 	void PlayTraversalMontage();
+	void AddMovementInput(float ScaleValue, bool Front);
+	void ResetMovement();
+
 
 protected:
 	// Called when the game starts
@@ -157,6 +160,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Data")
 	TMap<FGameplayTag, FTraversalActionData> TraversalActionDataMap;
 
+	UPROPERTY()
+	float ClimbMoveCheckDistance = 10.f;
+
 private:
 	
     void InitializeReferences();
@@ -177,8 +183,20 @@ private:
 	FVector FindWarpLocation(const FVector& Location, const FRotator& Rotation, float XOffset, float ZOffset);
 	void DecideClimbStyle(const FVector& Location, const FRotator& Rotation);
 	
+	
 	/** Validate Functions */
 	void ValidateIsInLand();
+	bool ValidateClimbMovementSurface(const FVector& MovementImpactLocation);
+
+	/** Input Functions */
+	void ClimbMovement();
+	void StopClimbMovement();
+	bool ClimbCheckForSides(const FVector& ImpactPoint);
+	void SetNewClimbPosition(float NewLocationX, float NewLocationY, float NewLocationZ, FRotator NewRotation);
+
+	/** Input Variables */
+	float ForwardValue;
+	float RightValue;
 	
 	FGameplayTag TraversalState = FUmbraGameplayTags::Get().Traversal_State_FreeRoam;
 	FGameplayTag ClimbStyle = FUmbraGameplayTags::Get().Traversal_ClimbStyle_BracedClimb;

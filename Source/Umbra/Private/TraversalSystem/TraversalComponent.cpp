@@ -3,6 +3,7 @@
 
 #include "TraversalSystem/TraversalComponent.h"
 
+#include "KismetAnimationLibrary.h"
 #include "MotionWarpingComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -10,6 +11,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "TraversalSystem/TraversalInterface.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 UTraversalComponent::UTraversalComponent()
 {
@@ -38,7 +40,7 @@ void UTraversalComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Traversal System: Character is in air!"));
+		//UE_LOG(LogTemp, Warning, TEXT("Traversal System: Character is in air!"));
 		if (TraversalState.MatchesTagExact(UGT.Traversal_State_FreeRoam))
 		{
 			TriggerTraversalAction(false);
@@ -116,15 +118,16 @@ void UTraversalComponent::PlayTraversalMontage()
 
 	if (AnimInstance)
 	{
-		FOnMontageBlendingOutStarted BlendOutDelegate = FOnMontageBlendingOutStarted::CreateWeakLambda(this, 
-			[this](UAnimMontage*, bool) 
-			{
-				SetTraversalState(CurrentActionData.OutState);
-			}
-		);
 
-		AnimInstance->Montage_SetBlendingOutDelegate(BlendOutDelegate);
+		FOnMontageBlendingOutStarted BlendingOutStarted = FOnMontageBlendingOutStarted::CreateWeakLambda(this,
+			[this](UAnimMontage*, bool)
+		{
+				SetTraversalState(CurrentActionData.OutState);
+		}
+		);
+		
 		AnimInstance->Montage_Play(CurrentActionData.Montage);
+		AnimInstance->Montage_SetBlendingOutDelegate(BlendingOutStarted);
 		SetTraversalAction(UGT.Traversal_Action_NoAction);
 	}
 }
@@ -355,9 +358,9 @@ void UTraversalComponent::SetTraversalState(const FGameplayTag& NewTraversalStat
 
 	TraversalState = NewTraversalState;
 	
-	if (ITraversalInterface* TraversalAnimInstance = Cast<ITraversalInterface>(AnimInstance))
+	if (AnimInstance && AnimInstance->GetClass()->ImplementsInterface(UTraversalInterface::StaticClass()))
 	{
-		TraversalAnimInstance->SetTraversalState(NewTraversalState);
+		ITraversalInterface::Execute_SetTraversalState(AnimInstance, NewTraversalState);
 	}
 
 	//TODO: По идеи это можно сжать, но я не уверен, не понадобится в телах разная лоигка.
@@ -394,9 +397,9 @@ void UTraversalComponent::SetClimbStyle(const FGameplayTag& NewClimbStyle)
 
 	ClimbStyle = NewClimbStyle;
 
-	if (ITraversalInterface* TraversalAnimInstance = Cast<ITraversalInterface>(AnimInstance))
+	if (AnimInstance && AnimInstance->GetClass()->ImplementsInterface(UTraversalInterface::StaticClass()))
 	{
-		TraversalAnimInstance->SetClimbStyle(NewClimbStyle);
+		ITraversalInterface::Execute_SetClimbStyle(AnimInstance, NewClimbStyle);
 	}
 }
 
@@ -409,9 +412,9 @@ void UTraversalComponent::SetClimbDirection(const FGameplayTag& NewClimbDirectio
 
 	ClimbDirection = NewClimbDirection;
 
-	if (ITraversalInterface* TraversalAnimInstance = Cast<ITraversalInterface>(AnimInstance))
+	if (AnimInstance && AnimInstance->GetClass()->ImplementsInterface(UTraversalInterface::StaticClass()))
 	{
-		TraversalAnimInstance->SetClimbDirection(NewClimbDirection);
+		ITraversalInterface::Execute_SetClimbDirection(AnimInstance, NewClimbDirection);
 	}
 }
 
@@ -668,6 +671,7 @@ void UTraversalComponent::DecideClimbStyle(const FVector& Location, const FRotat
 	HitResult.bBlockingHit ? SetClimbStyle(FUmbraGameplayTags::Get().Traversal_ClimbStyle_BracedClimb) : SetClimbStyle(FUmbraGameplayTags::Get().Traversal_ClimbStyle_FreeHang);
 }
 
+
 void UTraversalComponent::ValidateIsInLand()
 {
 	if (TraversalState.MatchesTagExact(UGT.Traversal_State_Climb))
@@ -689,6 +693,207 @@ void UTraversalComponent::ValidateIsInLand()
 		FCollisionShape::MakeBox(FVector(10.f, 10.f, 4.f)),
 		QueryParams);
 }
+
+bool UTraversalComponent::ValidateClimbMovementSurface(const FVector& MovementImpactLocation)
+{
+	FRotator CharacterRotation = OwnerCharacter->GetActorRotation();
+	FVector FirstTempVector = VectorDirectionMoveWithRotation(MovementImpactLocation, UGT.Traversal_Direction_Right, RightValue * 13.f, CharacterRotation);
+	FVector SecondTempVector = VectorDirectionMove(FirstTempVector, UGT.Traversal_Direction_Down, 90.f);
+	FVector TraceStart = VectorDirectionMoveWithRotation(SecondTempVector, UGT.Traversal_Direction_Backward, 40.f, CharacterRotation);
+	FVector TraceEnd = VectorDirectionMoveWithRotation(SecondTempVector, UGT.Traversal_Direction_Backward, 25.f, CharacterRotation);
+
+	FHitResult HitResult;
+	UKismetSystemLibrary::CapsuleTraceSingle(
+		this,
+		TraceStart,
+		TraceEnd,
+		5.f,
+		82.f,
+		UEngineTypes::ConvertToTraceType(ECC_Visibility),
+		false,
+		TArray<AActor*>(),
+		EDrawDebugTrace::ForOneFrame,
+		HitResult,
+		true);
+
+	return !HitResult.bBlockingHit;
+}
+
+void UTraversalComponent::AddMovementInput(float ScaleValue, bool Front)
+{
+	Front ? ForwardValue = ScaleValue : RightValue = ScaleValue;
+
+	if (TraversalState.MatchesTagExact(UGT.Traversal_State_FreeRoam))
+	{
+		const FRotator YawRotation(0.f, OwnerCharacter->GetControlRotation().Yaw, 0.f);
+		FVector WorldLocation = Front ? FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X) : FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		OwnerCharacter->AddMovementInput(WorldLocation, ScaleValue, false);
+	}
+
+	else if (TraversalState.MatchesTagExact(UGT.Traversal_State_Climb))
+	{
+		AnimInstance->IsAnyMontagePlaying() ? StopClimbMovement() : ClimbMovement();
+	}
+}
+
+void UTraversalComponent::ResetMovement()
+{
+	ForwardValue = 0.f;
+	RightValue = 0.f;
+	SetClimbDirection(UGT.Traversal_Direction_NoDirection);
+}
+
+void UTraversalComponent::ClimbMovement()
+{
+	if (TraversalState.MatchesTagExact(UGT.Traversal_Action_CornerMove))
+	{
+		return;
+	}
+
+	if (FMath::Abs(RightValue) < 0.7f)
+	{
+		StopClimbMovement();
+		return;
+	}
+
+	SetClimbDirection(RightValue > 0.f ? UGT.Traversal_Direction_Right : UGT.Traversal_Direction_Left);
+
+	FHitResult ClimbWallHitResult;
+	FHitResult ClimbTopHitResult;
+	int32 Index = 0;
+	for (; Index <= 2; Index++)
+	{
+		FVector TempVector = VectorDirectionMoveWithRotation(
+		SkeletalMesh->GetComponentLocation() + FVector(0.f, 0.f, 195.f),
+			UGT.Traversal_Direction_Right,
+			ClimbMoveCheckDistance * RightValue,
+			OwnerCharacter->GetActorRotation());
+
+		FVector TraceStart = VectorDirectionMove(TempVector, UGT.Traversal_Direction_Down, Index * 10.f);
+		FVector TraceEnd = VectorDirectionMoveWithRotation(TraceStart, UGT.Traversal_Direction_Forward, 60.f, OwnerCharacter->GetActorRotation());
+
+		//UE_LOG(LogTemp, Display, TEXT("ClimbMovement: RightValue: [%f], Index: [%d]"), RightValue, Index);
+		//UE_LOG(LogTemp, Display, TEXT("ClimbMovement: TraceStart: [%s], TraceEnd: [%s]"), *TraceStart.ToString(), *TraceEnd.ToString());
+		
+		UKismetSystemLibrary::SphereTraceSingle(
+			this,
+			TraceStart,
+			TraceEnd,
+			5.f,
+			UEngineTypes::ConvertToTraceType(ECC_Visibility),
+			false,
+			TArray<AActor*>(),
+			EDrawDebugTrace::ForOneFrame,
+			ClimbWallHitResult,
+			true
+		);
+
+
+		if (!ClimbWallHitResult.bStartPenetrating)
+		{
+			if (!ClimbWallHitResult.bBlockingHit)
+			{
+				if (Index != 2) StopClimbMovement();
+			}
+			else
+			{
+				WallRotation = ReverseNormal(ClimbWallHitResult.ImpactNormal);
+		
+				for (int32 i = 0; i <= 6; i++)
+				{
+		
+					FVector FirstTempVector = VectorDirectionMoveWithRotation(ClimbWallHitResult.ImpactPoint, UGT.Traversal_Direction_Forward, 2.f, WallRotation);
+					FVector SecondTempVector = VectorDirectionMove(FirstTempVector, UGT.Traversal_Direction_Up,  5.f);
+					FVector InnerTraceStart = VectorDirectionMove(SecondTempVector, UGT.Traversal_Direction_Up, i * 5.f);
+					FVector InnerTraceEnd = VectorDirectionMove(InnerTraceStart, UGT.Traversal_Direction_Down, 100.f);
+		
+					UKismetSystemLibrary::SphereTraceSingle(
+						this,
+						InnerTraceStart,
+						InnerTraceEnd,
+						2.5f,
+						UEngineTypes::ConvertToTraceType(ECC_Visibility),
+						false,
+						TArray<AActor*>(),
+						EDrawDebugTrace::ForOneFrame,
+						ClimbTopHitResult,
+						true);
+		
+					if (ClimbTopHitResult.bStartPenetrating && Index == 2 && i == 6) StopClimbMovement();
+					else break;
+				}
+				
+				if (!ClimbTopHitResult.bBlockingHit) StopClimbMovement();
+				else break;
+			}
+		}
+	}
+	
+	if (ClimbCheckForSides(ClimbTopHitResult.ImpactPoint)) return;
+	if (!ValidateClimbMovementSurface(ClimbWallHitResult.ImpactPoint))
+	{
+		StopClimbMovement();
+		return;
+	}
+	
+	FVector HorizontalLocation = VectorDirectionMoveWithRotation(ClimbWallHitResult.ImpactPoint, UGT.Traversal_Direction_Backward, ClimbValues(ClimbStyle, 44.f, 7.f), WallRotation);
+	float NewLocationZ = ClimbTopHitResult.ImpactPoint.Z;
+	
+	SetNewClimbPosition(HorizontalLocation.X, HorizontalLocation.Y, NewLocationZ, WallRotation);
+	DecideClimbStyle(ClimbTopHitResult.ImpactPoint, WallRotation);
+}
+
+void UTraversalComponent::StopClimbMovement()
+{
+	CharacterMovement->StopMovementImmediately();
+	SetClimbDirection(UGT.Traversal_Direction_NoDirection);
+}
+
+bool UTraversalComponent::ClimbCheckForSides(const FVector& ImpactPoint)
+{
+	for (int32 i = 0; i <= 5; i++)
+	{
+
+		FVector TempVector = VectorDirectionMove(ImpactPoint, UGT.Traversal_Direction_Up, 2.f);
+		FVector TraceStart = VectorDirectionMove(TempVector, UGT.Traversal_Direction_Up, i * 5.f);
+		FVector TraceEnd = VectorDirectionMoveWithRotation(TraceStart, UGT.Traversal_Direction_Right, RightValue * 15.f, WallRotation);
+
+		FHitResult HitResult;
+		UKismetSystemLibrary::LineTraceSingle(
+			this,
+			TraceStart,
+			TraceEnd,
+			UEngineTypes::ConvertToTraceType(ECC_Visibility),
+			false,
+			TArray<AActor*>(),
+			EDrawDebugTrace::ForOneFrame,
+			HitResult,
+			true);
+
+		if (HitResult.bBlockingHit && i == 5)
+		{
+			StopClimbMovement();
+			return true;
+		}
+		if (!HitResult.bBlockingHit)
+		{
+			break;
+		}
+	}
+	return false;
+}
+
+void UTraversalComponent::SetNewClimbPosition(float NewLocationX, float NewLocationY, float NewLocationZ,
+	FRotator NewRotation)
+{
+	float X = FMath::FInterpTo(OwnerCharacter->GetActorLocation().X, NewLocationX, GetWorld()->GetDeltaSeconds(), 2.f);
+	float Y = FMath::FInterpTo(OwnerCharacter->GetActorLocation().Y, NewLocationY, GetWorld()->GetDeltaSeconds(), 2.f);
+	float Z = FMath::FInterpTo(OwnerCharacter->GetActorLocation().Z, NewLocationZ - ClimbValues(ClimbStyle, 107.f, 115.f), GetWorld()->GetDeltaSeconds(), 0.f);
+	FVector NewActorLocation = FVector(X, Y, Z);	
+	
+	OwnerCharacter->SetActorLocationAndRotation(NewActorLocation, NewRotation);
+}
+
 
 
 
