@@ -2,7 +2,6 @@
 
 
 #include "AI/BTTask_LookAround.h"
-
 #include "AIController.h"
 
 UBTTask_LookAround::UBTTask_LookAround()
@@ -12,7 +11,7 @@ UBTTask_LookAround::UBTTask_LookAround()
 }
 
 EBTNodeResult::Type UBTTask_LookAround::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
-{
+{	
 	const AAIController* AIController = OwnerComp.GetAIOwner();
 	if(!AIController) return EBTNodeResult::Failed;
 
@@ -53,13 +52,12 @@ void UBTTask_LookAround::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 		return;
 	}
-
 	if (SideTime >= OneSideAttentionTime)
 	{
 		SideTime = 0.f;
 		bLookingRight = !bLookingRight;
 
-		float Angle = RotationAngle * (bLookingRight ? 1 : -1);
+		const float Angle = RotationAngle * (bLookingRight ? 1 : -1);
 		TargetRotation = OriginalRotation + FRotator(0, Angle, 0);
 	}
 

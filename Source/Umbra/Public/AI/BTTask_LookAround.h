@@ -6,6 +6,7 @@
 #include "BehaviorTree/BTTaskNode.h"
 #include "BTTask_LookAround.generated.h"
 
+class UUmbraBlackboardComponent;
 /**
  * 
  */

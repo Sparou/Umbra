@@ -15,9 +15,9 @@ void UBTService_UpdateCurrentEnemyData::TickNode(UBehaviorTreeComponent& OwnerCo
 	UBlackboardComponent* BlackboardComponent = OwnerComp.GetBlackboardComponent();
 	if(!BlackboardComponent) return;
 
-	if(AActor* CurrentEnemy = Cast<AActor>(BlackboardComponent->GetValueAsObject(CurrentEnemySelector.SelectedKeyName)))
+	if(AActor* Enemy = Cast<AActor>(BlackboardComponent->GetValueAsObject(CurrentEnemy.SelectedKeyName)))
 	{
-		const float Distance = OwnerComp.GetAIOwner()->GetPawn()->GetDistanceTo(CurrentEnemy);
-		BlackboardComponent->SetValueAsFloat(DistanceToTargetSelector.SelectedKeyName, Distance);
+		const float Distance = OwnerComp.GetAIOwner()->GetPawn()->GetDistanceTo(Enemy);
+		BlackboardComponent->SetValueAsFloat(DistanceToTarget.SelectedKeyName, Distance);
 	}
 }

@@ -34,6 +34,6 @@ void UBTService_FindNearestPlayer::TickNode(UBehaviorTreeComponent& OwnerComp, u
 	UBlackboardComponent* BlackboardComponent = OwnerComp.GetBlackboardComponent();
 	if(!BlackboardComponent) return;
 
-	BlackboardComponent->SetValueAsObject(TargetToFollowSelector.SelectedKeyName, ClosestActor);
-	BlackboardComponent->SetValueAsFloat(DistanceToTargetSelector.SelectedKeyName, ClosestDistance);
+	BlackboardComponent->SetValueAsObject(TargetToFollow.SelectedKeyName, ClosestActor);
+	BlackboardComponent->SetValueAsFloat(DistanceToTarget.SelectedKeyName, ClosestDistance);
 }

@@ -24,6 +24,7 @@ void UInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 void UInteractionComponent::BeginPlay()
 {
+	Super::BeginPlay();
 	Owner = GetOwner();
 }
 

@@ -10,6 +10,7 @@ class UUmbraEnemyAttributeSet;
 struct FAIStimulus;
 class UUmbraAIPerceptionComponent;
 class UBehaviorTreeComponent;
+class UPawnNoiseEmitterComponent;
 /**
  * 
  */
@@ -28,6 +29,9 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<UUmbraAIPerceptionComponent> UmbraAIPerceptionComponent;
+	
+	// UPROPERTY(VisibleAnywhere, Category = "AI")
+	// TObjectPtr<UPawnNoiseEmitterComponent> NoiseEmitter;
 
 #pragma region Blackboard value names
 	UPROPERTY(EditDefaultsOnly, Category = "Blackboard|Patrolling")
@@ -53,6 +57,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Blackboard|MentalAttributes")
 	FName EstimatedWinChance = "EstimatedWinChance";
+
+	UPROPERTY(EditDefaultsOnly, Category = "Blackboard|Hear")
+	FName SoundLocation = "SoundLocation";
 #pragma endregion
 	
 private:

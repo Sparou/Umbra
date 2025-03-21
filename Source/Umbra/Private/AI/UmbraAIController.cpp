@@ -2,11 +2,11 @@
 
 
 #include "AI/UmbraAIController.h"
-
 #include "AbilitySystem/UmbraEnemyAttributeSet.h"
 #include "AI/UmbraAIPerceptionComponent.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Perception/AISense_Hearing.h"
 #include "Perception/AISense_Sight.h"
 
 AUmbraAIController::AUmbraAIController()
@@ -22,6 +22,9 @@ AUmbraAIController::AUmbraAIController()
 	SetPerceptionComponent(*UmbraAIPerceptionComponent);
 	
 	UmbraAIPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AUmbraAIController::OnPercepted);
+	
+	//NoiseEmitter = CreateDefaultSubobject<UPawnNoiseEmitterComponent>("NoiseEmitter");
+	//NoiseEmitter->bAutoActivate = true;
 }
 
 bool AUmbraAIController::InitializeBlackboardDefaultValues(const UUmbraEnemyAttributeSet* AttributeSet) const
@@ -55,4 +58,16 @@ void AUmbraAIController::OnPercepted(AActor* SourceActor, const FAIStimulus Stim
 			Blackboard->SetValueAsVector(EnemyLocation, Stimulus.StimulusLocation);
 		}
 	}
+
+	if(Stimulus.Type == UAISense::GetSenseID(UAISense_Hearing::StaticClass()))
+	{
+		if(Stimulus.WasSuccessfullySensed())
+		{
+			Blackboard->SetValueAsVector(SoundLocation, Stimulus.StimulusLocation);	
+		}
+		else
+		{
+		}
+	}
+	
 }

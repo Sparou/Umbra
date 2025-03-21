@@ -18,8 +18,8 @@ protected:
 	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 	
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	FBlackboardKeySelector CurrentEnemySelector;
+	FBlackboardKeySelector CurrentEnemy;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	FBlackboardKeySelector DistanceToTargetSelector;
+	FBlackboardKeySelector DistanceToTarget;
 };
