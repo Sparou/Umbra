@@ -46,6 +46,11 @@ void UTraversalComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 			TriggerTraversalAction(false);
 		}
 	}
+
+	//DrawDebugSphere(GetWorld(), SkeletalMesh->GetSocketLocation(FName("root")), 5.f, 8, FColor::Purple);
+	//DrawDebugSphere(GetWorld(), SkeletalMesh->GetSocketLocation(FName("ik_hand_l")), 5.f, 8, FColor::Purple);
+	//DrawDebugSphere(GetWorld(), SkeletalMesh->GetSocketLocation(FName("ik_hand_r")), 5.f, 8, FColor::Purple);
+	//ClimbMovementIK();
 }
 
 void UTraversalComponent::TriggerTraversalAction(bool JumpAction)
@@ -669,6 +674,224 @@ void UTraversalComponent::DecideClimbStyle(const FVector& Location, const FRotat
 		QueryParams);
 	
 	HitResult.bBlockingHit ? SetClimbStyle(FUmbraGameplayTags::Get().Traversal_ClimbStyle_BracedClimb) : SetClimbStyle(FUmbraGameplayTags::Get().Traversal_ClimbStyle_FreeHang);
+}
+
+void UTraversalComponent::NextClimbHandIK(const bool bLeftHand)
+{
+	if (!TraversalState.MatchesTagExact(UGT.Traversal_State_ReadyToClimb))
+	{
+		return;
+	}
+
+	if (!NextClimbResult.bBlockingHit)
+	{
+		return;
+	}
+
+	for (int32 i = 0; i < 5; ++i)
+	{
+		float MoveValue = bLeftHand ? (8 - i * 2) * -1.f : (8 - i * 2) * 1.f;
+		FVector TempVector = VectorDirectionMoveWithRotation(NextClimbResult.ImpactPoint, UGT.Traversal_Direction_Right, MoveValue, WallRotation);
+		FVector TraceStartVector = VectorDirectionMoveWithRotation(TempVector, UGT.Traversal_Direction_Backward, 20.f, WallRotation);
+		FVector TraceEndVector = VectorDirectionMoveWithRotation(TempVector, UGT.Traversal_Direction_Forward, 20.f, WallRotation);
+
+		FHitResult ClimbWallHitResult;
+		bool bHit = UKismetSystemLibrary::SphereTraceSingle(
+			GetWorld(),
+			TraceStartVector,
+			TraceEndVector,
+			5.f,
+			UEngineTypes::ConvertToTraceType(ECC_Visibility),
+			false,
+			TArray<AActor*>(),
+			EDrawDebugTrace::ForDuration,
+			ClimbWallHitResult,
+			true,
+			FLinearColor::Black,
+			FLinearColor::Black,
+			5.f);
+
+		if (!ClimbWallHitResult.bBlockingHit)
+		{
+			continue;
+		}
+		
+		WallRotation = ReverseNormal(ClimbWallHitResult.ImpactNormal);
+		FRotator ClimbHandRotation = bLeftHand ? WallRotation + FRotator(90.f, 0, 280.f) : WallRotation + FRotator(270.f, 0, 270.f);
+		
+		for (int32 j = 0; j < 6; j++)
+		{
+			TempVector = VectorDirectionMoveWithRotation(ClimbWallHitResult.ImpactPoint, UGT.Traversal_Direction_Forward, 2.f, WallRotation);
+			TraceStartVector = VectorDirectionMove(TempVector, UGT.Traversal_Direction_Up, j * 5);
+			TraceEndVector = VectorDirectionMove(TempVector, UGT.Traversal_Direction_Down, 75.f);
+
+			FHitResult ClimbTopHitResult;
+			bHit = UKismetSystemLibrary::SphereTraceSingle(
+				GetWorld(),
+				TraceStartVector,
+				TraceEndVector,
+				2.5f,
+				UEngineTypes::ConvertToTraceType(ECC_Visibility),
+				false,
+				TArray<AActor*>(),
+				EDrawDebugTrace::None,
+				ClimbTopHitResult,
+				true,
+				FLinearColor::Blue,
+				FLinearColor::Blue,
+				5.f);
+
+			if (!ClimbTopHitResult.bBlockingHit || ClimbTopHitResult.bStartPenetrating)
+			{
+				continue;
+			}
+
+			FVector ClimbHandLocation = FVector(
+				ClimbWallHitResult.ImpactPoint.X,
+				ClimbWallHitResult.ImpactPoint.Y,
+				VectorDirectionMove(ClimbTopHitResult.ImpactPoint, UGT.Traversal_Direction_Down, 9.f).Z);
+			
+			if (bLeftHand)
+			{
+				if (AnimInstance && AnimInstance->GetClass()->ImplementsInterface(UTraversalInterface::StaticClass()))
+				{
+					ITraversalInterface::Execute_SetLeftHandClimbLocation(AnimInstance, ClimbHandLocation);
+					ITraversalInterface::Execute_SetLeftHandClimbRotation(AnimInstance, ClimbHandRotation);
+				}
+			}
+			else
+			{
+				if (AnimInstance && AnimInstance->GetClass()->ImplementsInterface(UTraversalInterface::StaticClass()))
+				{
+					ITraversalInterface::Execute_SetRightHandClimbLocation(AnimInstance, ClimbHandLocation);
+					ITraversalInterface::Execute_SetRightHandClimbRotation(AnimInstance, ClimbHandRotation);
+				}
+			}
+			
+			return;
+		}
+	}
+}
+
+void UTraversalComponent::UpdateHandIK(const bool bLeftHand)
+{
+	if (!TraversalState.MatchesTagExact(UGT.Traversal_State_Climb))
+	{
+		return;
+	}
+	
+	FHitResult ClimbWallHitResult;
+	for (int32 i = 0; i < 5; i++)
+	{
+		float MoveValue = ClimbHandSpace + i * 2;
+		FVector Shift; 
+		if (bLeftHand)
+		{
+			Shift = VectorDirectionMoveWithRotation(
+				SkeletalMesh->GetSocketLocation(FName("ik_hand_l")),
+				UGT.Traversal_Direction_Right,
+				MoveValue,
+				OwnerCharacter->GetActorRotation());
+		}
+		else
+		{
+			Shift = VectorDirectionMoveWithRotation(
+				SkeletalMesh->GetSocketLocation(FName("ik_hand_r")),
+				UGT.Traversal_Direction_Left,
+				MoveValue,
+				OwnerCharacter->GetActorRotation());
+		}
+		
+		FVector TraceStart = VectorDirectionMoveWithRotation(Shift, UGT.Traversal_Direction_Backward, 50.f, OwnerCharacter->GetActorRotation());
+		FVector TraceEnd = VectorDirectionMoveWithRotation(Shift, UGT.Traversal_Direction_Forward, 70.f, OwnerCharacter->GetActorRotation());
+		
+		UKismetSystemLibrary::SphereTraceSingle(
+			GetWorld(),
+			TraceStart,
+			TraceEnd,
+			15.f,
+			UEngineTypes::ConvertToTraceType(ECC_Visibility),
+			false,
+			TArray<AActor*>(),
+			EDrawDebugTrace::ForOneFrame,
+			ClimbWallHitResult,
+			true);
+
+		if (ClimbWallHitResult.bBlockingHit && !ClimbWallHitResult.bStartPenetrating) break;
+	}
+
+	if (!ClimbWallHitResult.bBlockingHit || ClimbWallHitResult.bStartPenetrating)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Wall | BlockingHit = [%d] | StartPenetrating = [%d]"), ClimbWallHitResult.bBlockingHit, ClimbWallHitResult.bStartPenetrating);
+		return;
+	}
+
+	WallRotation = ReverseNormal(ClimbWallHitResult.ImpactNormal);
+	FRotator ClimbHandRotation = bLeftHand ? WallRotation + FRotator(90.f, 0, 280.f) : WallRotation + FRotator(270.f, 0, 270.f);
+	
+	FHitResult ClimbTopHitResult;
+	for (int32 i = 0; i < 6; i++)
+	{
+		float MoveValue = i * 5;
+		FVector Shift = VectorDirectionMoveWithRotation(ClimbWallHitResult.ImpactPoint, UGT.Traversal_Direction_Forward, 2.f, WallRotation);
+		FVector TraceStart =  VectorDirectionMove(Shift, UGT.Traversal_Direction_Up, MoveValue);
+		FVector TraceEnd = VectorDirectionMove(TraceStart, UGT.Traversal_Direction_Down, 75.f);
+		
+		UKismetSystemLibrary::SphereTraceSingle(
+			GetWorld(),
+			TraceStart,
+			TraceEnd,
+			2.5f,
+			UEngineTypes::ConvertToTraceType(ECC_Visibility),
+			false,
+			TArray<AActor*>(),
+			EDrawDebugTrace::None,
+			ClimbTopHitResult,
+			true);
+
+		if (ClimbTopHitResult.bBlockingHit && !ClimbTopHitResult.bStartPenetrating) break;
+	}
+
+	if (!ClimbTopHitResult.bBlockingHit || ClimbTopHitResult.bStartPenetrating)
+	{
+		UE_LOG(LogTemp, Error, TEXT("TOP | BlockingHit = [%d] | StartPenetrating = [%d]"), ClimbTopHitResult.bBlockingHit, ClimbTopHitResult.bStartPenetrating);
+		return;
+	}
+
+	FVector ClimbHandLocation = FVector(
+	ClimbWallHitResult.ImpactPoint.X,
+	ClimbWallHitResult.ImpactPoint.Y,
+	VectorDirectionMove(ClimbTopHitResult.ImpactPoint, UGT.Traversal_Direction_Down, 9.f).Z);
+
+	UE_LOG(LogTemp, Warning, TEXT("LH = %d | Location = [X = %f, Y = %f, Z = %f]"), bLeftHand, ClimbHandLocation.X, ClimbHandLocation.Y, ClimbHandLocation.Z);
+	
+	if (bLeftHand)
+	{
+		if (AnimInstance && AnimInstance->GetClass()->ImplementsInterface(UTraversalInterface::StaticClass()))
+		{
+			ITraversalInterface::Execute_SetLeftHandClimbLocation(AnimInstance, ClimbHandLocation);
+			ITraversalInterface::Execute_SetLeftHandClimbRotation(AnimInstance, ClimbHandRotation);
+		}
+	}
+	else
+	{
+		if (AnimInstance && AnimInstance->GetClass()->ImplementsInterface(UTraversalInterface::StaticClass()))
+		{
+			ITraversalInterface::Execute_SetRightHandClimbLocation(AnimInstance, ClimbHandLocation);
+			ITraversalInterface::Execute_SetRightHandClimbRotation(AnimInstance, ClimbHandRotation);
+		}
+	}
+}
+
+void UTraversalComponent::ClimbMovementIK()
+{
+	if (!TraversalState.MatchesTagExact(UGT.Traversal_State_Climb))
+	{
+		return;
+	}
+
+	UpdateHandIK(false);
+	UpdateHandIK(true);
 }
 
 

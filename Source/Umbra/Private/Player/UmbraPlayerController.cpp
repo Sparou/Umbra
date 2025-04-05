@@ -38,12 +38,12 @@ void AUmbraPlayerController::SwitchToCameraOnlyContext()
 void AUmbraPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	check(InputContext);
+	check(InputContext); 
 	check(CameraOnlyInputContext);
 	SwitchToDefaultContext();
 
-	TraversalComponent = GetPawn()->FindComponentByClass<UTraversalComponent>();
-	check(TraversalComponent);
+	// TraversalComponent = GetPawn()->FindComponentByClass<UTraversalComponent>();
+	// check(TraversalComponent);
 }
 
 void AUmbraPlayerController::SetupInputComponent()
@@ -120,16 +120,21 @@ void AUmbraPlayerController::Move(const FInputActionValue& InputActionValue)
 
 	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-
-	if (TraversalComponent)
-	{
-		TraversalComponent->AddMovementInput(InputAxisVector.Y, true);
-		TraversalComponent->AddMovementInput(InputAxisVector.X, false);
-	}
-	else if (APawn* ControlledPawn = GetPawn<APawn>()) {
+	
+	if (APawn* ControlledPawn = GetPawn<APawn>()) {
 		ControlledPawn->AddMovementInput(ForwardDirection, InputAxisVector.Y);
 		ControlledPawn->AddMovementInput(RightDirection, InputAxisVector.X);
 	}
+	
+	// if (TraversalComponent)
+	// {
+	// 	TraversalComponent->AddMovementInput(InputAxisVector.Y, true);
+	// 	TraversalComponent->AddMovementInput(InputAxisVector.X, false);
+	// }
+	// else if (APawn* ControlledPawn = GetPawn<APawn>()) {
+	// 	ControlledPawn->AddMovementInput(ForwardDirection, InputAxisVector.Y);
+	// 	ControlledPawn->AddMovementInput(RightDirection, InputAxisVector.X);
+	// }
 }
 
 void AUmbraPlayerController::Look(const FInputActionValue& InputActionValue)
@@ -142,10 +147,10 @@ void AUmbraPlayerController::Look(const FInputActionValue& InputActionValue)
 
 void AUmbraPlayerController::OnStopMoving()
 {
-	if (TraversalComponent)
-	{
-		TraversalComponent->ResetMovement();
-	}
+	// if (TraversalComponent)
+	// {
+	// 	TraversalComponent->ResetMovement();
+	// }
 }
 
 void AUmbraPlayerController::OnStartWalking()
@@ -169,14 +174,15 @@ void AUmbraPlayerController::OnStopWalking()
 void AUmbraPlayerController::OnStartJumping()
 {
 	bWantsToJump = true;
-	if (TraversalComponent)
-	{
-		TraversalComponent->TriggerTraversalAction(true);
-	}
-	// if (AUmbraBaseCharacter* ControlledCharacter = Cast<AUmbraBaseCharacter>(GetCharacter()))
+	// if (TraversalComponent)
 	// {
-	// 	ControlledCharacter->Jump();
+	// 	TraversalComponent->TriggerTraversalAction(true);
 	// }
+	
+	if (AUmbraBaseCharacter* ControlledCharacter = Cast<AUmbraBaseCharacter>(GetCharacter()))
+	{
+		ControlledCharacter->Jump();
+	}
 }
 
 void AUmbraPlayerController::OnStopJumping()

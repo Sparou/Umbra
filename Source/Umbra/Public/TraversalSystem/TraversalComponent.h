@@ -62,7 +62,7 @@ public:
 	void AddMovementInput(float ScaleValue, bool Front);
 	void ResetMovement();
 
-
+	
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -163,6 +163,9 @@ protected:
 	UPROPERTY()
 	float ClimbMoveCheckDistance = 10.f;
 
+	UPROPERTY()
+	float ClimbHandSpace = 20.f;
+
 private:
 	
     void InitializeReferences();
@@ -182,7 +185,13 @@ private:
 	void SetTraversalAction(const FGameplayTag& NewTraversalAction);
 	FVector FindWarpLocation(const FVector& Location, const FRotator& Rotation, float XOffset, float ZOffset);
 	void DecideClimbStyle(const FVector& Location, const FRotator& Rotation);
-	
+
+	UFUNCTION(BlueprintCallable)
+	void NextClimbHandIK(const bool bLeftHand);
+
+	UFUNCTION(BlueprintCallable)
+	void UpdateHandIK(const bool bLeftHand);
+	void ClimbMovementIK();
 	
 	/** Validate Functions */
 	void ValidateIsInLand();
@@ -216,6 +225,8 @@ private:
 	float WallDepth;
 	float VaultHeight;
 
+
+	
 	bool bInLand = true;
 
 	FTraversalActionData CurrentActionData;
