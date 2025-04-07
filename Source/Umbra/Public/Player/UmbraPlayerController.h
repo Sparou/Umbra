@@ -95,7 +95,11 @@ private:
 	UPROPERTY()
 	TObjectPtr<UTraversalComponent> TraversalComponent;
 
+	UPROPERTY()
+	TObjectPtr<UAnimInstance> AnimInstance;
+
 	UUmbraAbilitySystemComponent* GetAbilitySystemComponent();
+	UAnimInstance* GetAnimInstance();
 	
 	void SwitchCharacter(FGameplayTag CharacterTag);
 	void Interact();

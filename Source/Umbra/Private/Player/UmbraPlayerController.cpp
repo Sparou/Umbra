@@ -13,6 +13,7 @@
 #include "Character/Data/PlayerCharacterInfo.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Input/UmbraInputComponent.h"
+#include "Interface/UmbraAnimationInterface.h"
 #include "Kismet/GameplayStatics.h"
 
 void AUmbraPlayerController::SwitchToDefaultContext()
@@ -73,6 +74,8 @@ void AUmbraPlayerController::SetupInputComponent()
 		&AUmbraPlayerController::SwitchCharacter, FUmbraGameplayTags::Get().Character_Trapper);
 }
 
+
+
 UUmbraAbilitySystemComponent* AUmbraPlayerController::GetAbilitySystemComponent()
 {
 	if (AbilitySystemComponent == nullptr)
@@ -81,6 +84,16 @@ UUmbraAbilitySystemComponent* AUmbraPlayerController::GetAbilitySystemComponent(
 	}
 
 	return AbilitySystemComponent;
+}
+
+UAnimInstance* AUmbraPlayerController::GetAnimInstance()
+{
+	if (AnimInstance == nullptr)
+	{
+		AnimInstance = GetCharacter()->GetMesh()->GetAnimInstance();
+	}
+
+	return AnimInstance;
 }
 
 void AUmbraPlayerController::SwitchCharacter(FGameplayTag CharacterTag)
@@ -159,6 +172,10 @@ void AUmbraPlayerController::OnStartWalking()
 	if (AUmbraBaseCharacter* ControlledCharacter = Cast<AUmbraBaseCharacter>(GetCharacter()))
 	{
 		ControlledCharacter->GetCharacterMovement()->MaxWalkSpeed = ControlledCharacter->BaseWalkSpeed;
+		if (AnimInstance && AnimInstance->GetClass()->ImplementsInterface(UUmbraAnimationInterface::StaticClass()))
+		{
+			IUmbraAnimationInterface::Execute_UpdateLocomotionState(AnimInstance, ELocomotionStates::Walking);
+		}
 	}
 }
 
@@ -168,6 +185,11 @@ void AUmbraPlayerController::OnStopWalking()
 	if (AUmbraBaseCharacter* ControlledCharacter = Cast<AUmbraBaseCharacter>(GetCharacter()))
 	{
 		ControlledCharacter->GetCharacterMovement()->MaxWalkSpeed = ControlledCharacter->BaseRunSpeed;
+		AnimInstance = GetAnimInstance();
+		if (AnimInstance && AnimInstance->GetClass()->ImplementsInterface(UUmbraAnimationInterface::StaticClass()))
+		{
+			IUmbraAnimationInterface::Execute_UpdateLocomotionState(AnimInstance, ELocomotionStates::Running);
+		}
 	}
 }
 
