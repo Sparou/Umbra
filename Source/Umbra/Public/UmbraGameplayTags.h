@@ -26,6 +26,7 @@ public:
 	FGameplayTag Input_2;
 	FGameplayTag Input_3;
 	FGameplayTag Input_4;
+	FGameplayTag Input_T;
 	
 	/** Combat Tags */
 	FGameplayTag WeaponTrace_Start;
@@ -39,6 +40,9 @@ public:
 	FGameplayTag Ability_Melee;
 	FGameplayTag Ability_Stealth_Kill;
 	FGameplayTag Ability_Stealth_Victim;
+	FGameplayTag Ability_Through;
+	FGameplayTag Ability_Invisibility;
+	
 	
 private:
 	static FUmbraGameplayTags GameplayTags;

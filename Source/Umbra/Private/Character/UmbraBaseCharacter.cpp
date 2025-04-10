@@ -8,6 +8,7 @@
 #include "MotionWarpingComponent.h"
 #include "AbilitySystem/UmbraAbilitySystemComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Net/UnrealNetwork.h"
 
 AUmbraBaseCharacter::AUmbraBaseCharacter()
 {
@@ -17,6 +18,59 @@ AUmbraBaseCharacter::AUmbraBaseCharacter()
 	WeaponMeshComponent->SetupAttachment(GetMesh(), FName("WeaponHandSocket"));
 	AbilitySystemComponent = CreateDefaultSubobject<UUmbraAbilitySystemComponent>("Ability System");
 	TrajectoryComponent = CreateDefaultSubobject<UCharacterTrajectoryComponent>("Character Trajectory");
+}
+
+void AUmbraBaseCharacter::OnRep_InvisibilityChanged()
+{
+	if (!OriginalMaterial && GetMesh())
+	{
+		OriginalMaterial = GetMesh()->GetMaterial(0);
+		OriginalWeaponMaterials = GetMesh()->GetMaterial(2);
+	}
+	
+	if (IsLocallyControlled())
+	{
+		if (bIsInvisible)
+		{
+			if (InvisibleMaterial)   GetMesh()->SetMaterial(0, InvisibleMaterial);
+			if (InvisibleMaterial)   WeaponMeshComponent->SetMaterial(0, InvisibleWeaponMaterials);
+		}
+		else
+		{
+			if (InvisibleMaterial)   GetMesh()->SetMaterial(0, OriginalMaterial);
+			if (InvisibleMaterial)   WeaponMeshComponent->SetMaterial(0, OriginalWeaponMaterials);
+		}
+	}
+	else
+	{
+		// Остальные игроки: делаем полностью невидимым
+		GetMesh()->SetVisibility(!bIsInvisible, true);
+	}
+}
+
+void AUmbraBaseCharacter::SetInvisibility(bool bInvisible)
+{
+	if (HasAuthority())
+	{
+		bIsInvisible = bInvisible;
+		OnRep_InvisibilityChanged();
+	}
+	else
+	{
+		ServerSetInvisibility(bInvisible);
+	}
+}
+
+void AUmbraBaseCharacter::ServerSetInvisibility_Implementation(bool bInvisible)
+{
+	SetInvisibility(bInvisible);
+}
+
+void AUmbraBaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
+	DOREPLIFETIME(AUmbraBaseCharacter, bIsInvisible);
 }
 
 FWeaponSocketLocations AUmbraBaseCharacter::GetWeaponSocketLocations_Implementation() const

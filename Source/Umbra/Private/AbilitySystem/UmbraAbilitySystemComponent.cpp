@@ -11,7 +11,7 @@ void UUmbraAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassO
 		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(Ability, 1);
 		if (UUmbraBaseGameplayAbility* UmbraBaseAbility = Cast<UUmbraBaseGameplayAbility>(AbilitySpec.Ability))
 		{
-			AbilitySpec.DynamicAbilityTags.AddTag(UmbraBaseAbility->StartupInputTag);
+			AbilitySpec.GetDynamicSpecSourceTags().AddTag(UmbraBaseAbility->StartupInputTag);
 			GiveAbility(AbilitySpec);
 		}
 	}
@@ -23,7 +23,7 @@ void UUmbraAbilitySystemComponent::AbilityInputTagHeld(FGameplayTag InputTag)
 
 	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
 	{
-		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
+		if (AbilitySpec.GetDynamicSpecSourceTags().HasTagExact(InputTag))
 		{
 			AbilitySpecInputPressed(AbilitySpec);
 			if (!AbilitySpec.IsActive()) TryActivateAbility(AbilitySpec.Handle);
@@ -37,7 +37,7 @@ void UUmbraAbilitySystemComponent::AbilityInputTagReleased(FGameplayTag InputTag
 
 	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
 	{
-		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
+		if (AbilitySpec.GetDynamicSpecSourceTags().HasTagExact(InputTag))
 		{
 			AbilitySpecInputReleased(AbilitySpec);
 		}

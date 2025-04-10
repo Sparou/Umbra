@@ -38,6 +38,9 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	bool bWantsToCrouch;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bWantsToThough;
 	
 	void SwitchToDefaultContext();
 	void SwitchToCameraOnlyContext();
@@ -107,6 +110,9 @@ private:
 
 	void OnStartCrouch();
 	void OnStopCrouch();
+
+	void OnStartThrough();
+	void OnStopThrough();
 	
 	void AbilityInputTagPressed(FGameplayTag InputTag);
 	void AbilityInputTagReleased(FGameplayTag InputTag);

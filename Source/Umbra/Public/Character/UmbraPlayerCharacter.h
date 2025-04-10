@@ -7,6 +7,7 @@
 #include "Character/UmbraBaseCharacter.h"
 #include "UmbraPlayerCharacter.generated.h"
 
+class USpringArmComponent;
 class UInteractionComponent;
 /**
  * 
@@ -49,6 +50,5 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stealth|Animations")
 	TArray<FStealthKillMontages> StealthKillMontagesFromRight;
 	
-
 	virtual void InitAbilityActorInfo() override;
 };

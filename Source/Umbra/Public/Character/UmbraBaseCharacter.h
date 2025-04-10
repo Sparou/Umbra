@@ -34,6 +34,33 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
 	float BaseCrouchSpeed = 300.f;
 
+
+	/* For invisibility */
+	UPROPERTY(ReplicatedUsing = OnRep_InvisibilityChanged)
+	bool bIsInvisible;
+
+	UPROPERTY(EditAnywhere, Category = "Invisibility")
+	UMaterialInterface* InvisibleMaterial;
+	
+	UPROPERTY(EditAnywhere, Category = "Invisibility")
+	UMaterialInterface* OriginalMaterial;
+
+	UPROPERTY(EditAnywhere, Category = "Invisibility")
+	UMaterialInterface* InvisibleWeaponMaterials;
+	
+	UPROPERTY(EditAnywhere, Category = "Invisibility")
+	UMaterialInterface* OriginalWeaponMaterials;
+	
+	UFUNCTION()
+	void OnRep_InvisibilityChanged();
+
+	UFUNCTION()
+	void SetInvisibility(bool bInvisible);
+
+	UFUNCTION(Server, Reliable)
+	void ServerSetInvisibility(bool bInvisible);
+	
+
 	/** ICombatInterface implementation */
 	virtual FWeaponSocketLocations GetWeaponSocketLocations_Implementation() const override;
 	virtual UAnimMontage* GetRandomHitReactMontage_Implementation() override;
