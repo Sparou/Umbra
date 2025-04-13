@@ -3,17 +3,42 @@
 #include "Character/UmbraBaseCharacter.h"
 #include "MotionWarpingComponent.h"
 #include "AbilitySystem/UmbraAbilitySystemComponent.h"
+#include "Character/Component/TagManager.h"
 #include "TraversalSystem/TraversalComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 AUmbraBaseCharacter::AUmbraBaseCharacter()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>("Motion Warping");
-	//TraversalComponent = CreateDefaultSubobject<UTraversalComponent>("Traversal Component");
-	WeaponMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("WeaponMesh");
+	TraversalComponent = CreateDefaultSubobject<UTraversalComponent>("Traversal Component");
+	WeaponMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("Weapon Mesh");
 	WeaponMeshComponent->SetupAttachment(GetMesh(), FName("WeaponHandSocket"));
 	AbilitySystemComponent = CreateDefaultSubobject<UUmbraAbilitySystemComponent>("Ability System");
+	TagManager = CreateDefaultSubobject<UTagManager>("Tag Manager");
+
+	GetCharacterMovement()->MaxWalkSpeed = StandRunSpeed;
+	GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchRunSpeed;
+	
+}
+
+float AUmbraBaseCharacter::GetMoveSpeed(const FGameplayTag& Stance, const FGameplayTag& Locomotion)
+{
+	FUmbraGameplayTags UGT = FUmbraGameplayTags::Get();
+	if (Stance == UGT.State_Stance_Standing)
+	{
+		if (Locomotion == UGT.State_Locomotion_Walking) return StandWalkSpeed;
+		if (Locomotion == UGT.State_Locomotion_Running) return StandRunSpeed;
+		return StandRunSpeed;
+	}
+	if (Stance == UGT.State_Stance_Crouching)
+	{
+		if (Locomotion == UGT.State_Locomotion_Walking) return CrouchWalkSpeed;
+		if (Locomotion == UGT.State_Locomotion_Running) return CrouchRunSpeed;
+		return CrouchRunSpeed;
+	}
+	return StandRunSpeed;
 }
 
 FWeaponSocketLocations AUmbraBaseCharacter::GetWeaponSocketLocations_Implementation() const
@@ -58,6 +83,11 @@ void AUmbraBaseCharacter::BeginPlay()
 		InitAbilityActorInfo();
 		InitializeDefaultAttributes();
 	}
+}
+
+UTagManager* AUmbraBaseCharacter::GetTagManager()
+{
+	return TagManager;
 }
 
 void AUmbraBaseCharacter::ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, const float Level) const

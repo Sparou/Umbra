@@ -33,6 +33,13 @@ void FUmbraGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Ability_Stealth_Kill = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Stealth.Kill"));
 	GameplayTags.Ability_Stealth_Victim = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Stealth.Victim"));
 
+	GameplayTags.State_Locomotion_Walking = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.Locomotion.Walking"));
+	GameplayTags.State_Locomotion_Running = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.Locomotion.Running"));
+	GameplayTags.State_Movement_Moving = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.Movement.Moving"));
+	GameplayTags.State_Movement_Falling = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.Movement.Falling"));
+	GameplayTags.State_Stance_Standing = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.Stance.Standing"));
+	GameplayTags.State_Stance_Crouching = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.Stance.Crouching"));
+	
 	/** Traversal Tags */
 	GameplayTags.Traversal_State_FreeRoam = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.State.FreeRoam"));
 	GameplayTags.Traversal_State_ReadyToClimb = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.State.ReadyToClimb"));

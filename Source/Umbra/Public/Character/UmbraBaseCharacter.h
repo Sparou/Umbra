@@ -7,6 +7,7 @@
 #include "Interface/CombatInterface.h"
 #include "UmbraBaseCharacter.generated.h"
 
+class UTagManager;
 class UTraversalComponent;
 class UCharacterTrajectoryComponent;
 class UAbilitySystemComponent;
@@ -26,14 +27,8 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastHandleDeath();
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
-	float BaseWalkSpeed = 300.f;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
-	float BaseRunSpeed = 600.f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
-	float BaseCrouchSpeed = 300.f;
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Movement")
+	float GetMoveSpeed(const FGameplayTag& Stance, const FGameplayTag& Locomotion);
 
 	/** ICombatInterface implementation */
 	virtual FWeaponSocketLocations GetWeaponSocketLocations_Implementation() const override;
@@ -41,6 +36,9 @@ public:
 	virtual UNiagaraSystem* GetBloodEffect_Implementation() const override;
 	virtual bool IsDead_Implementation() const override;
 	virtual void Die() override;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	UTagManager* GetTagManager();
 	
 protected:
   
@@ -49,8 +47,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TObjectPtr<UMotionWarpingComponent> MotionWarpingComponent;
 	
-	// UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	// TObjectPtr<UTraversalComponent> TraversalComponent;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TObjectPtr<UTraversalComponent> TraversalComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Weapon")
 	TObjectPtr<UStaticMeshComponent> WeaponMeshComponent;
@@ -70,6 +68,9 @@ protected:
 	UPROPERTY()
 	TObjectPtr<UAttributeSet> AttributeSet;
 
+	UPROPERTY()
+	TObjectPtr<UTagManager> TagManager;
+	
 	UPROPERTY(EditAnywhere, Category = "Attributes")
 	TSubclassOf<UGameplayEffect> DefaultPrimaryAttributes;
 
@@ -83,6 +84,18 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Abilities")
 	TArray<TSubclassOf<class UGameplayAbility>> StartingAbilities;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
+	float StandWalkSpeed = 100.f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
+	float StandRunSpeed = 600.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
+	float CrouchWalkSpeed = 100.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
+	float CrouchRunSpeed = 300.f;
 
 private:
 

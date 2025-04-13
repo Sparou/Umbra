@@ -40,6 +40,14 @@ public:
 	FGameplayTag Ability_Stealth_Kill;
 	FGameplayTag Ability_Stealth_Victim;
 
+	FGameplayTag State_Locomotion_Walking;
+	FGameplayTag State_Locomotion_Running;
+	FGameplayTag State_Movement_Moving;
+	FGameplayTag State_Movement_Falling;
+	FGameplayTag State_Stance_Crouching;
+	FGameplayTag State_Stance_Standing;
+	
+	
 	/** Traversal Tags */
 	FGameplayTag Traversal_State_FreeRoam;
 	FGameplayTag Traversal_State_ReadyToClimb;

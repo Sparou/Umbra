@@ -18,6 +18,7 @@ class AUmbraBaseCharacter;
 class AUmbraPlayerCharacter;
 class UInputMappingContext;
 class UInputAction;
+class UTagManager;
 
 /**
  * 
@@ -90,16 +91,20 @@ private:
 	TObjectPtr<UPlayerCharacterInfo> PlayerCharactersInfo;
 
 	UPROPERTY()
+	TObjectPtr<AUmbraBaseCharacter> ControlledCharacter;
+	UPROPERTY()
 	TObjectPtr<UUmbraAbilitySystemComponent> AbilitySystemComponent;
-
 	UPROPERTY()
 	TObjectPtr<UTraversalComponent> TraversalComponent;
-
 	UPROPERTY()
 	TObjectPtr<UAnimInstance> AnimInstance;
+	UPROPERTY()
+	TObjectPtr<UTagManager> TagManager;
 
 	UUmbraAbilitySystemComponent* GetAbilitySystemComponent();
 	UAnimInstance* GetAnimInstance();
+	UTagManager* GetTagManager();
+	AUmbraBaseCharacter* GetControlledCharacter();
 	
 	void SwitchCharacter(FGameplayTag CharacterTag);
 	void Interact();
@@ -107,6 +112,7 @@ private:
 	void Move(const FInputActionValue& InputActionValue);
 	void Look(const FInputActionValue& InputActionValue);
 
+	void OnStartMoving();
 	void OnStopMoving();
 	
 	void OnStartWalking();
