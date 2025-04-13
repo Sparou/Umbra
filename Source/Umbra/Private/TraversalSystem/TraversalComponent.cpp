@@ -865,12 +865,23 @@ void UTraversalComponent::ClimbMovement()
 
 bool UTraversalComponent::ClimbCheckForSides(const FVector& ImpactPoint)
 {
-	for (int32 i = 0; i <= 5; i++)
+	for (int32 i = 0; i < ClimbCheckForSidesIterations; i++)
 	{
 
-		FVector TempVector = VectorDirectionMove(ImpactPoint, UGT.Traversal_Direction_Up, 2.f);
-		FVector TraceStart = VectorDirectionMove(TempVector, UGT.Traversal_Direction_Up, i * 5.f);
-		FVector TraceEnd = VectorDirectionMoveWithRotation(TraceStart, UGT.Traversal_Direction_Right, RightValue * 15.f, WallRotation);
+		FVector InitialVector = VectorDirectionMove(
+			ImpactPoint,
+			UGT.Traversal_Direction_Up,
+			ClimbCheckForSidesInitialVerticalOffset);
+		
+		FVector TraceStart = VectorDirectionMove(
+			InitialVector,
+			UGT.Traversal_Direction_Up,
+			i * ClimbCheckForSidesVerticalOffsetMultiplier);
+		
+		FVector TraceEnd = VectorDirectionMoveWithRotation(
+			TraceStart,
+			UGT.Traversal_Direction_Right,
+			RightValue * ClimbCheckForSidesHorizontalOffset, WallRotation);
 
 		FHitResult HitResult;
 		UKismetSystemLibrary::LineTraceSingle(
@@ -884,7 +895,7 @@ bool UTraversalComponent::ClimbCheckForSides(const FVector& ImpactPoint)
 			HitResult,
 			true);
 
-		if (HitResult.bBlockingHit && i == 5)
+		if (HitResult.bBlockingHit && i == ClimbCheckForSidesIterations - 1)
 		{
 			StopClimbMovement();
 			return true;
@@ -900,11 +911,30 @@ bool UTraversalComponent::ClimbCheckForSides(const FVector& ImpactPoint)
 bool UTraversalComponent::ValidateClimbMovementSurface(const FVector& MovementImpactLocation)
 {
 	FRotator CharacterRotation = OwnerCharacter->GetActorRotation();
-	FVector FirstTempVector = VectorDirectionMoveWithRotation(MovementImpactLocation, UGT.Traversal_Direction_Right, RightValue * 13.f, CharacterRotation);
-	FVector SecondTempVector = VectorDirectionMove(FirstTempVector, UGT.Traversal_Direction_Down, 90.f);
-	FVector TraceStart = VectorDirectionMoveWithRotation(SecondTempVector, UGT.Traversal_Direction_Backward, 40.f, CharacterRotation);
-	FVector TraceEnd = VectorDirectionMoveWithRotation(SecondTempVector, UGT.Traversal_Direction_Backward, 25.f, CharacterRotation);
-
+	
+	FVector HorizontalOffsetVector = VectorDirectionMoveWithRotation(
+		MovementImpactLocation,
+		UGT.Traversal_Direction_Right,
+		RightValue * ClimbMovementSurfaceValidationHorizontalOffset,
+		CharacterRotation);
+	
+	FVector InitialVector = VectorDirectionMove(
+		HorizontalOffsetVector,
+		UGT.Traversal_Direction_Down,
+		ClimbMovementSurfaceValidationInitialVerticalOffset);
+	
+	FVector TraceStart = VectorDirectionMoveWithRotation(
+		InitialVector,
+		UGT.Traversal_Direction_Backward,
+		ClimbMovementSurfaceValidationCapsuleStartOffset,
+		CharacterRotation);
+	
+	FVector TraceEnd = VectorDirectionMoveWithRotation(
+		InitialVector,
+		UGT.Traversal_Direction_Backward,
+		ClimbMovementSurfaceValidationCapsuleEndOffset,
+		CharacterRotation);
+	
 	FHitResult HitResult;
 	UKismetSystemLibrary::CapsuleTraceSingle(
 		this,

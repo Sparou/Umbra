@@ -141,6 +141,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="Traversal|WallDetection|Debug")
 	bool bDrawDetectWallDebug = false;
 
+
+	
 	/* Grid Scan */
     UPROPERTY(EditDefaultsOnly, Category="Traversal|GridScan")
     float GridColumnSpacing = 20.f;
@@ -160,6 +162,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="Traversal|GridScan|Debug")
 	bool bDrawWallEdgeDebug = false;
 
+
+	
     /* Wall Top Search */
     UPROPERTY(EditDefaultsOnly, Category="Traversal|WallTopSearch")
     int32 TopScanIterations = 8;
@@ -176,6 +180,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="Traversal|WallTopSearch|Debug")
 	bool bDrawWallTopDebug = false;
 
+	
+	
     /* FindWallDepth */
     UPROPERTY(EditDefaultsOnly, Category="Traversal|FindWallDepth")
     float DepthForwardOffset = 30.f;
@@ -186,6 +192,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="Traversal|FindWallDepth|Debug")
 	bool bDrawWallDepthDebug = false;
 
+
+	
     /* FindWallVault */
     UPROPERTY(EditDefaultsOnly, Category="Traversal|FindWallVault")
     float VaultForwardOffset = 70.f;
@@ -204,6 +212,8 @@ protected:
 	bool FindWallDepth(const FHitResult& LastTopHit, const FRotator& WallRot, FHitResult& OutWallDepthResult);
 	bool FindWallVault(const FHitResult& WallDepthHit, const FRotator& WallRot, FHitResult& OutWallVaultResult);
 
+
+	
 	/* DecideClimbStyle */
 	UPROPERTY(EditDefaultsOnly, Category="Traversal|DecideClimbStyle")
 	float DecideClimbStyleDownOffset = 125.f;
@@ -220,6 +230,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="Traversal|DecideClimbStyle|Debug")
 	bool bDecideClimbStyleEnableDebug = false;
 
+
+	
 	/* Climb Movement */
 
 	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|WallDetection")
@@ -276,10 +288,43 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement")
 	float ClimbMovementFreeHangZOffset = 130.f;
 
-	/* ClimbCheckForSides  */
-	
-	
 
+	
+	/* ClimbCheckForSides  */
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|CheckForSides")
+	int32 ClimbCheckForSidesIterations = 6;
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|CheckForSides")
+	float ClimbCheckForSidesInitialVerticalOffset = 2.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|CheckForSides")
+	float ClimbCheckForSidesVerticalOffsetMultiplier = 5.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|CheckForSides")
+	float ClimbCheckForSidesHorizontalOffset = 15.f;
+
+
+	
+	/* ValidateClimbMovementSurface */
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|SurfaceValidation")
+	float ClimbMovementSurfaceValidationHorizontalOffset = 13.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|SurfaceValidation")
+	float ClimbMovementSurfaceValidationInitialVerticalOffset = 90.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|SurfaceValidation")
+	float ClimbMovementSurfaceValidationCapsuleStartOffset = 40.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|SurfaceValidation")
+	float ClimbMovementSurfaceValidationCapsuleEndOffset = 25.f;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|SurfaceValidation")
+	float ClimbMovementSurfaceValidationCapsuleRadius = 5.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|SurfaceValidation")
+	float ClimbMovementSurfaceValidationCapsuleHalfHeight = 82.f;
+	
 	
 	UPROPERTY(EditAnywhere, Category="Data")
 	TMap<FGameplayTag, FTraversalActionData> TraversalActionDataMap;
