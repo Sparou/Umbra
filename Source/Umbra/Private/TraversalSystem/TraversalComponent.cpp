@@ -2,11 +2,8 @@
 
 
 #include "TraversalSystem/TraversalComponent.h"
-
-#include "KismetAnimationLibrary.h"
 #include "MotionWarpingComponent.h"
 #include "Camera/CameraComponent.h"
-#include "Character/UmbraBaseCharacter.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -161,7 +158,7 @@ void UTraversalComponent::SetClimbDirection(const FGameplayTag& NewClimbDirectio
 	{
 		return;
 	}
-
+	
 	ClimbDirection = NewClimbDirection;
 
 	if (AnimInstance && AnimInstance->GetClass()->ImplementsInterface(UTraversalInterface::StaticClass()))
@@ -192,6 +189,29 @@ void UTraversalComponent::SetTraversalAction(const FGameplayTag& NewTraversalAct
 		CurrentActionData = TraversalActionDataMap.FindRef(NewTraversalAction);
 		PlayTraversalMontage();
 	}
+}
+
+void UTraversalComponent::SetNewClimbPosition(float NewLocationX, float NewLocationY, float NewLocationZ,
+	FRotator NewRotation)
+{
+	float X = FMath::FInterpTo(
+		OwnerCharacter->GetActorLocation().X,
+		NewLocationX, GetWorld()->GetDeltaSeconds(),
+		2.f);
+	
+	float Y = FMath::FInterpTo(
+		OwnerCharacter->GetActorLocation().Y,
+		NewLocationY, GetWorld()->GetDeltaSeconds(),
+		2.f);
+
+	float Z = FMath::FInterpTo(
+		OwnerCharacter->GetActorLocation().Z,
+		NewLocationZ - ClimbValues(ClimbStyle, ClimbMovementBracedZOffset, ClimbMovementFreeHangZOffset),
+		GetWorld()->GetDeltaSeconds(), 0.f);
+	
+	FVector NewActorLocation = FVector(X, Y, Z);	
+	
+	OwnerCharacter->SetActorLocationAndRotation(NewActorLocation, NewRotation);
 }
 
 /********************* Wall Detection **********************/
@@ -664,23 +684,243 @@ void UTraversalComponent::DecideClimbStyle(const FVector& Location, const FRotat
 }
 
 
-void UTraversalComponent::ResetTraversalResults()
-{
-	WallHitResult = FHitResult();
-	WallEdgeResult = FHitResult();
-	WallTopResult = FHitResult();
-	WallDepthResult = FHitResult();
-	WallVaultResult = FHitResult();
+/********************* Climbing **********************/
 
-	WallHeight = 0;
-	WallDepth = 0;
-	VaultHeight = 0;
-	WallRotation = FRotator::ZeroRotator;
+void UTraversalComponent::AddMovementInput(float ScaleValue, bool Front)
+{
+	Front ? ForwardValue = ScaleValue : RightValue = ScaleValue;
+
+	if (TraversalState.MatchesTagExact(UGT.Traversal_State_FreeRoam))
+	{
+		const FRotator YawRotation(0.f, OwnerCharacter->GetControlRotation().Yaw, 0.f);
+		FVector WorldDirection = Front ? FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X) : FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		OwnerCharacter->AddMovementInput(WorldDirection, ScaleValue, false);
+	}
+
+	else if (TraversalState.MatchesTagExact(UGT.Traversal_State_Climb))
+	{
+		AnimInstance->IsAnyMontagePlaying() ? StopClimbMovement() : ClimbMovement();
+	}
 }
 
+void UTraversalComponent::ClimbMovement()
+{
+	if (TraversalState.MatchesTagExact(UGT.Traversal_Action_CornerMove))
+	{
+		return;
+	}
+
+	if (FMath::Abs(RightValue) < 0.7f)
+	{
+		StopClimbMovement();
+		return;
+	}
+
+	SetClimbDirection(RightValue > 0.f ? UGT.Traversal_Direction_Right : UGT.Traversal_Direction_Left);
+
+	FHitResult ClimbWallHitResult;
+	FHitResult ClimbTopHitResult;
+
+	float ZOffset = 0.f;
+	if (ClimbStyle.MatchesTagExact(UGT.Traversal_ClimbStyle_BracedClimb))
+	{
+		ZOffset = ClimbMovementWallDetectionBracedHeightOffset;
+	}
+	else
+	{
+		ZOffset = ClimbMovementWallDetectionFreeHangHeightOffset;
+	}
+	
+	FVector WallDetectionInitialVector = VectorDirectionMoveWithRotation(
+	SkeletalMesh->GetComponentLocation() + FVector(0.f, 0.f, ZOffset),
+		UGT.Traversal_Direction_Right,
+		ClimbMovementWallDetectionHorizontalOffset * RightValue,
+		OwnerCharacter->GetActorRotation());
+	
+	int32 WallDetectionIndex = 0;
+	for (; WallDetectionIndex < ClimbMovementWallDetectionIterations; WallDetectionIndex++)
+	{
+
+		/*
+		 * Внешний цикл проверяет наличие стены, по
+		 * которой можно карабкаться с помощью серии
+		 * вертикальный трейсов.
+		 */
+		
+		FVector WallDetectionTraceStart = VectorDirectionMove(
+			WallDetectionInitialVector,
+			UGT.Traversal_Direction_Down,
+			WallDetectionIndex * ClimbMovementWallDetectionVerticalMultiplier);
+		
+		FVector WallDetectionTraceEnd = VectorDirectionMoveWithRotation(
+			WallDetectionTraceStart,
+			UGT.Traversal_Direction_Forward,
+			ClimbMovementWallDetectionDistance, OwnerCharacter->GetActorRotation());
+		
+		UKismetSystemLibrary::SphereTraceSingle(
+			this,
+			WallDetectionTraceStart,
+			WallDetectionTraceEnd,
+			5.f,
+			UEngineTypes::ConvertToTraceType(ECC_Visibility),
+			false,
+			TArray<AActor*>(),
+			EDrawDebugTrace::ForOneFrame,
+			ClimbWallHitResult,
+			true
+		);
 
 
+		if (!ClimbWallHitResult.bStartPenetrating)
+		{
+			if (!ClimbWallHitResult.bBlockingHit)
+			{
+				if (WallDetectionIndex != ClimbMovementWallDetectionIterations - 1)
+				{
+					StopClimbMovement();
+				}
+			}
+			else
+			{
+				WallRotation = ReverseNormal(ClimbWallHitResult.ImpactNormal);
+		
+				for (int32 TopDetectionIndex = 0; TopDetectionIndex < ClimbMovementTopDetectionIterations; TopDetectionIndex++)
+				{
+					/*
+					 * Внутренний цикл ищет верх стены с помощью серии
+					 * вертикальных трейсов, направленных от чуть смещенной
+					 * вперед и наверх ClimbWallHit вниз.
+					 */
+		
+					FVector TopDetectionForwardOffsetVector =
+						VectorDirectionMoveWithRotation(
+							ClimbWallHitResult.ImpactPoint,
+							UGT.Traversal_Direction_Forward,
+							ClimbMovementTopDetectionInitialForwardOffset,
+							WallRotation);
+					
+					FVector TopDetectionInitialVector = VectorDirectionMove(
+						TopDetectionForwardOffsetVector,
+						UGT.Traversal_Direction_Up,
+						ClimbMovementTopDetectionInitialVerticalOffset);
+					
+					FVector TopDetectionTraceStart = VectorDirectionMove(
+						TopDetectionInitialVector,
+						UGT.Traversal_Direction_Up,
+						TopDetectionIndex * ClimbMovementTopDetectionVerticalOffsetMultiplier);
+					
+					FVector TopDetectionTraceEnd = VectorDirectionMove(
+						TopDetectionTraceStart, UGT.Traversal_Direction_Down,
+						ClimbMovementTopDetectionDistance);
+		
+					UKismetSystemLibrary::SphereTraceSingle(
+						this,
+						TopDetectionTraceStart,
+						TopDetectionTraceEnd,
+						2.5f,
+						UEngineTypes::ConvertToTraceType(ECC_Visibility),
+						false,
+						TArray<AActor*>(),
+						EDrawDebugTrace::ForOneFrame,
+						ClimbTopHitResult,
+						true);
+		
+					if (ClimbTopHitResult.bStartPenetrating
+						&& WallDetectionIndex == (ClimbMovementWallDetectionIterations - 1)
+						&& TopDetectionIndex == (ClimbMovementTopDetectionIterations - 1))
+					{
+						StopClimbMovement();
+					}
+					else break;
+				}
+				
+				if (!ClimbTopHitResult.bBlockingHit)
+				{
+					StopClimbMovement();
+				}
+				else break;
+			}
+		}
+	}
+	
+	if (ClimbCheckForSides(ClimbTopHitResult.ImpactPoint)) return;
+	
+	if (!ValidateClimbMovementSurface(ClimbWallHitResult.ImpactPoint))
+	{
+		StopClimbMovement();
+		return;
+	}
+	
+	FVector HorizontalLocation = VectorDirectionMoveWithRotation(
+		ClimbWallHitResult.ImpactPoint,
+		UGT.Traversal_Direction_Backward,
+		ClimbValues(ClimbStyle, ClimbMovementBracedXOffset, ClimbMovementFreeHangXOffset),
+		WallRotation);
+	
+	float NewLocationZ = ClimbTopHitResult.ImpactPoint.Z;
+	
+	SetNewClimbPosition(HorizontalLocation.X, HorizontalLocation.Y, NewLocationZ, WallRotation);
+	DecideClimbStyle(ClimbTopHitResult.ImpactPoint, WallRotation);
+}
 
+bool UTraversalComponent::ClimbCheckForSides(const FVector& ImpactPoint)
+{
+	for (int32 i = 0; i <= 5; i++)
+	{
+
+		FVector TempVector = VectorDirectionMove(ImpactPoint, UGT.Traversal_Direction_Up, 2.f);
+		FVector TraceStart = VectorDirectionMove(TempVector, UGT.Traversal_Direction_Up, i * 5.f);
+		FVector TraceEnd = VectorDirectionMoveWithRotation(TraceStart, UGT.Traversal_Direction_Right, RightValue * 15.f, WallRotation);
+
+		FHitResult HitResult;
+		UKismetSystemLibrary::LineTraceSingle(
+			this,
+			TraceStart,
+			TraceEnd,
+			UEngineTypes::ConvertToTraceType(ECC_Visibility),
+			false,
+			TArray<AActor*>(),
+			EDrawDebugTrace::ForOneFrame,
+			HitResult,
+			true);
+
+		if (HitResult.bBlockingHit && i == 5)
+		{
+			StopClimbMovement();
+			return true;
+		}
+		if (!HitResult.bBlockingHit)
+		{
+			break;
+		}
+	}
+	return false;
+}
+
+bool UTraversalComponent::ValidateClimbMovementSurface(const FVector& MovementImpactLocation)
+{
+	FRotator CharacterRotation = OwnerCharacter->GetActorRotation();
+	FVector FirstTempVector = VectorDirectionMoveWithRotation(MovementImpactLocation, UGT.Traversal_Direction_Right, RightValue * 13.f, CharacterRotation);
+	FVector SecondTempVector = VectorDirectionMove(FirstTempVector, UGT.Traversal_Direction_Down, 90.f);
+	FVector TraceStart = VectorDirectionMoveWithRotation(SecondTempVector, UGT.Traversal_Direction_Backward, 40.f, CharacterRotation);
+	FVector TraceEnd = VectorDirectionMoveWithRotation(SecondTempVector, UGT.Traversal_Direction_Backward, 25.f, CharacterRotation);
+
+	FHitResult HitResult;
+	UKismetSystemLibrary::CapsuleTraceSingle(
+		this,
+		TraceStart,
+		TraceEnd,
+		5.f,
+		82.f,
+		UEngineTypes::ConvertToTraceType(ECC_Visibility),
+		false,
+		TArray<AActor*>(),
+		EDrawDebugTrace::ForOneFrame,
+		HitResult,
+		true);
+
+	return !HitResult.bBlockingHit;
+}
 
 
 
@@ -924,47 +1164,8 @@ void UTraversalComponent::ValidateIsInLand()
 		QueryParams);
 }
 
-bool UTraversalComponent::ValidateClimbMovementSurface(const FVector& MovementImpactLocation)
-{
-	FRotator CharacterRotation = OwnerCharacter->GetActorRotation();
-	FVector FirstTempVector = VectorDirectionMoveWithRotation(MovementImpactLocation, UGT.Traversal_Direction_Right, RightValue * 13.f, CharacterRotation);
-	FVector SecondTempVector = VectorDirectionMove(FirstTempVector, UGT.Traversal_Direction_Down, 90.f);
-	FVector TraceStart = VectorDirectionMoveWithRotation(SecondTempVector, UGT.Traversal_Direction_Backward, 40.f, CharacterRotation);
-	FVector TraceEnd = VectorDirectionMoveWithRotation(SecondTempVector, UGT.Traversal_Direction_Backward, 25.f, CharacterRotation);
 
-	FHitResult HitResult;
-	UKismetSystemLibrary::CapsuleTraceSingle(
-		this,
-		TraceStart,
-		TraceEnd,
-		5.f,
-		82.f,
-		UEngineTypes::ConvertToTraceType(ECC_Visibility),
-		false,
-		TArray<AActor*>(),
-		EDrawDebugTrace::ForOneFrame,
-		HitResult,
-		true);
 
-	return !HitResult.bBlockingHit;
-}
-
-void UTraversalComponent::AddMovementInput(float ScaleValue, bool Front)
-{
-	Front ? ForwardValue = ScaleValue : RightValue = ScaleValue;
-
-	if (TraversalState.MatchesTagExact(UGT.Traversal_State_FreeRoam))
-	{
-		const FRotator YawRotation(0.f, OwnerCharacter->GetControlRotation().Yaw, 0.f);
-		FVector WorldLocation = Front ? FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X) : FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-		OwnerCharacter->AddMovementInput(WorldLocation, ScaleValue, false);
-	}
-
-	else if (TraversalState.MatchesTagExact(UGT.Traversal_State_Climb))
-	{
-		AnimInstance->IsAnyMontagePlaying() ? StopClimbMovement() : ClimbMovement();
-	}
-}
 
 void UTraversalComponent::ResetMovement()
 {
@@ -973,155 +1174,10 @@ void UTraversalComponent::ResetMovement()
 	SetClimbDirection(UGT.Traversal_Direction_NoDirection);
 }
 
-void UTraversalComponent::ClimbMovement()
-{
-	if (TraversalState.MatchesTagExact(UGT.Traversal_Action_CornerMove))
-	{
-		return;
-	}
-
-	if (FMath::Abs(RightValue) < 0.7f)
-	{
-		StopClimbMovement();
-		return;
-	}
-
-	SetClimbDirection(RightValue > 0.f ? UGT.Traversal_Direction_Right : UGT.Traversal_Direction_Left);
-
-	FHitResult ClimbWallHitResult;
-	FHitResult ClimbTopHitResult;
-	int32 Index = 0;
-	for (; Index <= 2; Index++)
-	{
-		FVector TempVector = VectorDirectionMoveWithRotation(
-		SkeletalMesh->GetComponentLocation() + FVector(0.f, 0.f, 195.f),
-			UGT.Traversal_Direction_Right,
-			ClimbMoveCheckDistance * RightValue,
-			OwnerCharacter->GetActorRotation());
-
-		FVector TraceStart = VectorDirectionMove(TempVector, UGT.Traversal_Direction_Down, Index * 10.f);
-		FVector TraceEnd = VectorDirectionMoveWithRotation(TraceStart, UGT.Traversal_Direction_Forward, 60.f, OwnerCharacter->GetActorRotation());
-
-		//UE_LOG(LogTemp, Display, TEXT("ClimbMovement: RightValue: [%f], Index: [%d]"), RightValue, Index);
-		//UE_LOG(LogTemp, Display, TEXT("ClimbMovement: TraceStart: [%s], TraceEnd: [%s]"), *TraceStart.ToString(), *TraceEnd.ToString());
-		
-		UKismetSystemLibrary::SphereTraceSingle(
-			this,
-			TraceStart,
-			TraceEnd,
-			5.f,
-			UEngineTypes::ConvertToTraceType(ECC_Visibility),
-			false,
-			TArray<AActor*>(),
-			EDrawDebugTrace::ForOneFrame,
-			ClimbWallHitResult,
-			true
-		);
-
-
-		if (!ClimbWallHitResult.bStartPenetrating)
-		{
-			if (!ClimbWallHitResult.bBlockingHit)
-			{
-				if (Index != 2) StopClimbMovement();
-			}
-			else
-			{
-				WallRotation = ReverseNormal(ClimbWallHitResult.ImpactNormal);
-		
-				for (int32 i = 0; i <= 6; i++)
-				{
-		
-					FVector FirstTempVector = VectorDirectionMoveWithRotation(ClimbWallHitResult.ImpactPoint, UGT.Traversal_Direction_Forward, 2.f, WallRotation);
-					FVector SecondTempVector = VectorDirectionMove(FirstTempVector, UGT.Traversal_Direction_Up,  5.f);
-					FVector InnerTraceStart = VectorDirectionMove(SecondTempVector, UGT.Traversal_Direction_Up, i * 5.f);
-					FVector InnerTraceEnd = VectorDirectionMove(InnerTraceStart, UGT.Traversal_Direction_Down, 100.f);
-		
-					UKismetSystemLibrary::SphereTraceSingle(
-						this,
-						InnerTraceStart,
-						InnerTraceEnd,
-						2.5f,
-						UEngineTypes::ConvertToTraceType(ECC_Visibility),
-						false,
-						TArray<AActor*>(),
-						EDrawDebugTrace::ForOneFrame,
-						ClimbTopHitResult,
-						true);
-		
-					if (ClimbTopHitResult.bStartPenetrating && Index == 2 && i == 6) StopClimbMovement();
-					else break;
-				}
-				
-				if (!ClimbTopHitResult.bBlockingHit) StopClimbMovement();
-				else break;
-			}
-		}
-	}
-	
-	if (ClimbCheckForSides(ClimbTopHitResult.ImpactPoint)) return;
-	if (!ValidateClimbMovementSurface(ClimbWallHitResult.ImpactPoint))
-	{
-		StopClimbMovement();
-		return;
-	}
-	
-	FVector HorizontalLocation = VectorDirectionMoveWithRotation(ClimbWallHitResult.ImpactPoint, UGT.Traversal_Direction_Backward, ClimbValues(ClimbStyle, 44.f, 7.f), WallRotation);
-	float NewLocationZ = ClimbTopHitResult.ImpactPoint.Z;
-	
-	SetNewClimbPosition(HorizontalLocation.X, HorizontalLocation.Y, NewLocationZ, WallRotation);
-	DecideClimbStyle(ClimbTopHitResult.ImpactPoint, WallRotation);
-}
-
 void UTraversalComponent::StopClimbMovement()
 {
 	CharacterMovement->StopMovementImmediately();
 	SetClimbDirection(UGT.Traversal_Direction_NoDirection);
-}
-
-bool UTraversalComponent::ClimbCheckForSides(const FVector& ImpactPoint)
-{
-	for (int32 i = 0; i <= 5; i++)
-	{
-
-		FVector TempVector = VectorDirectionMove(ImpactPoint, UGT.Traversal_Direction_Up, 2.f);
-		FVector TraceStart = VectorDirectionMove(TempVector, UGT.Traversal_Direction_Up, i * 5.f);
-		FVector TraceEnd = VectorDirectionMoveWithRotation(TraceStart, UGT.Traversal_Direction_Right, RightValue * 15.f, WallRotation);
-
-		FHitResult HitResult;
-		UKismetSystemLibrary::LineTraceSingle(
-			this,
-			TraceStart,
-			TraceEnd,
-			UEngineTypes::ConvertToTraceType(ECC_Visibility),
-			false,
-			TArray<AActor*>(),
-			EDrawDebugTrace::ForOneFrame,
-			HitResult,
-			true);
-
-		if (HitResult.bBlockingHit && i == 5)
-		{
-			StopClimbMovement();
-			return true;
-		}
-		if (!HitResult.bBlockingHit)
-		{
-			break;
-		}
-	}
-	return false;
-}
-
-void UTraversalComponent::SetNewClimbPosition(float NewLocationX, float NewLocationY, float NewLocationZ,
-	FRotator NewRotation)
-{
-	float X = FMath::FInterpTo(OwnerCharacter->GetActorLocation().X, NewLocationX, GetWorld()->GetDeltaSeconds(), 2.f);
-	float Y = FMath::FInterpTo(OwnerCharacter->GetActorLocation().Y, NewLocationY, GetWorld()->GetDeltaSeconds(), 2.f);
-	float Z = FMath::FInterpTo(OwnerCharacter->GetActorLocation().Z, NewLocationZ - ClimbValues(ClimbStyle, 107.f, 115.f), GetWorld()->GetDeltaSeconds(), 0.f);
-	FVector NewActorLocation = FVector(X, Y, Z);	
-	
-	OwnerCharacter->SetActorLocationAndRotation(NewActorLocation, NewRotation);
 }
 
 FVector UTraversalComponent::VectorDirectionMove(const FVector& Source, const FGameplayTag& Direction, const float& MoveValue)
@@ -1185,7 +1241,19 @@ FRotator UTraversalComponent::ReverseNormal(const FVector& Normal)
 	return FRotator(0.f, DeltaRotator.Yaw, 0.f);
 }
 
+void UTraversalComponent::ResetTraversalResults()
+{
+	WallHitResult = FHitResult();
+	WallEdgeResult = FHitResult();
+	WallTopResult = FHitResult();
+	WallDepthResult = FHitResult();
+	WallVaultResult = FHitResult();
 
+	WallHeight = 0;
+	WallDepth = 0;
+	VaultHeight = 0;
+	WallRotation = FRotator::ZeroRotator;
+}
 
 
 

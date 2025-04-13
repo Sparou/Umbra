@@ -156,22 +156,16 @@ void AUmbraPlayerController::Move(const FInputActionValue& InputActionValue)
 
 	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-	
-	if (APawn* ControlledPawn = GetPawn<APawn>()) {
+
+	if (TraversalComponent)
+	{
+		TraversalComponent->AddMovementInput(InputAxisVector.Y, true);
+		TraversalComponent->AddMovementInput(InputAxisVector.X, false);
+	}
+	else if (APawn* ControlledPawn = GetPawn<APawn>()) {
 		ControlledPawn->AddMovementInput(ForwardDirection, InputAxisVector.Y);
 		ControlledPawn->AddMovementInput(RightDirection, InputAxisVector.X);
 	}
-	
-	
-	// if (TraversalComponent)
-	// {
-	// 	TraversalComponent->AddMovementInput(InputAxisVector.Y, true);
-	// 	TraversalComponent->AddMovementInput(InputAxisVector.X, false);
-	// }
-	// else if (APawn* ControlledPawn = GetPawn<APawn>()) {
-	// 	ControlledPawn->AddMovementInput(ForwardDirection, InputAxisVector.Y);
-	// 	ControlledPawn->AddMovementInput(RightDirection, InputAxisVector.X);
-	// }
 }
 
 void AUmbraPlayerController::Look(const FInputActionValue& InputActionValue)
@@ -190,10 +184,10 @@ void AUmbraPlayerController::OnStartMoving()
 void AUmbraPlayerController::OnStopMoving()
 {
 	GetTagManager()->RemoveTag(FUmbraGameplayTags::Get().State_Movement_Moving);
-	// if (TraversalComponent)
-	// {
-	// 	TraversalComponent->ResetMovement();
-	// }
+	if (TraversalComponent)
+	{
+		TraversalComponent->ResetMovement();
+	}
 }
 
 void AUmbraPlayerController::OnStartWalking()

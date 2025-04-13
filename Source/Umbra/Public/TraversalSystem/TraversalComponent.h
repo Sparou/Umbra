@@ -203,7 +203,8 @@ protected:
 	bool FindWallTop(const FHitResult& WallEdgeHit, const FRotator& WallRot, FHitResult& OutWallTopResult, FHitResult& OutLastTopHit, bool& OutEndOfWallFound);
 	bool FindWallDepth(const FHitResult& LastTopHit, const FRotator& WallRot, FHitResult& OutWallDepthResult);
 	bool FindWallVault(const FHitResult& WallDepthHit, const FRotator& WallRot, FHitResult& OutWallVaultResult);
-	
+
+	/* DecideClimbStyle */
 	UPROPERTY(EditDefaultsOnly, Category="Traversal|DecideClimbStyle")
 	float DecideClimbStyleDownOffset = 125.f;
 	
@@ -218,13 +219,71 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category="Traversal|DecideClimbStyle|Debug")
 	bool bDecideClimbStyleEnableDebug = false;
+
+	/* Climb Movement */
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|WallDetection")
+	FName HandBoneName = "hand_l";
+	
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|WallDetection")
+	int32 ClimbMovementWallDetectionIterations = 3;
+
+	/* Определяет, насколько выше относительно корневой кости будет совершаться поиск стены для карабканья */
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|WallDetection")
+	float ClimbMovementWallDetectionBracedHeightOffset = 200.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|WallDetection")
+	float ClimbMovementWallDetectionFreeHangHeightOffset = 220.f;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|WallDetection")
+	float ClimbMovementWallDetectionHorizontalOffset = 10.f;
+
+	/* Определяет вертикальное смещение каждой итерации поиска стены для карабканья */
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|WallDetection")
+	float ClimbMovementWallDetectionVerticalMultiplier = 10.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|WallDetection")
+	float ClimbMovementWallDetectionDistance = 60.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|TopDetection")
+	int32 ClimbMovementTopDetectionIterations = 7;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|TopDetection")
+	float ClimbMovementTopDetectionInitialForwardOffset = 2.f;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|TopDetection")
+	float ClimbMovementTopDetectionInitialVerticalOffset = 5.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|TopDetection")
+	float ClimbMovementTopDetectionVerticalOffsetMultiplier = 5.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|TopDetection")
+	float ClimbMovementTopDetectionDistance = 5.f;
+
+	/* Определяет смещение персонажа по оси X относительно точки ClimbTopResult */
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement")
+	float ClimbMovementBracedXOffset = 45.f;
+
+	/* Определяет смещение персонажа по оси X относительно точки ClimbTopResult */
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement")
+	float ClimbMovementFreeHangXOffset = 17.f;
+
+	/* Определяет смещение персонажа по оси Z относительно точки ClimbTopResult */
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement")
+	float ClimbMovementBracedZOffset = 107.f;
+
+	/* Определяет смещение персонажа по оси Z относительно точки ClimbTopResult */
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement")
+	float ClimbMovementFreeHangZOffset = 130.f;
+
+	/* ClimbCheckForSides  */
+	
+	
+
 	
 	UPROPERTY(EditAnywhere, Category="Data")
 	TMap<FGameplayTag, FTraversalActionData> TraversalActionDataMap;
-
-	UPROPERTY()
-	float ClimbMoveCheckDistance = 10.f;
-
+	
 	UPROPERTY()
 	float ClimbHandSpace = 20.f;
 	
