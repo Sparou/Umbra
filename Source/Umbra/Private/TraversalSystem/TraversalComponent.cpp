@@ -966,14 +966,17 @@ void UTraversalComponent::NextClimbHandIK(const bool bLeftHand)
 		return;
 	}
 
+	FHitResult ClimbWallHitResult;
+	FHitResult ClimbTopHitResult;
+	FRotator ClimbHandRotation;
+	
 	for (int32 i = 0; i < 5; ++i)
 	{
 		float MoveValue = bLeftHand ? (8 - i * 2) * -1.f : (8 - i * 2) * 1.f;
 		FVector TempVector = VectorDirectionMoveWithRotation(NextClimbResult.ImpactPoint, UGT.Traversal_Direction_Right, MoveValue, WallRotation);
 		FVector TraceStartVector = VectorDirectionMoveWithRotation(TempVector, UGT.Traversal_Direction_Backward, 20.f, WallRotation);
 		FVector TraceEndVector = VectorDirectionMoveWithRotation(TempVector, UGT.Traversal_Direction_Forward, 20.f, WallRotation);
-
-		FHitResult ClimbWallHitResult;
+		
 		bool bHit = UKismetSystemLibrary::SphereTraceSingle(
 			GetWorld(),
 			TraceStartVector,
@@ -984,10 +987,7 @@ void UTraversalComponent::NextClimbHandIK(const bool bLeftHand)
 			TArray<AActor*>(),
 			EDrawDebugTrace::ForDuration,
 			ClimbWallHitResult,
-			true,
-			FLinearColor::Black,
-			FLinearColor::Black,
-			5.f);
+			true);
 
 		if (!ClimbWallHitResult.bBlockingHit)
 		{
@@ -995,16 +995,15 @@ void UTraversalComponent::NextClimbHandIK(const bool bLeftHand)
 		}
 		
 		WallRotation = ReverseNormal(ClimbWallHitResult.ImpactNormal);
-		FRotator ClimbHandRotation = bLeftHand ? WallRotation + FRotator(90.f, 0, 280.f) : WallRotation + FRotator(270.f, 0, 270.f);
+		ClimbHandRotation = bLeftHand ? WallRotation + FRotator(90.f, 0, 280.f) : WallRotation + FRotator(270.f, 0, 270.f);
 		
 		for (int32 j = 0; j < 6; j++)
 		{
 			TempVector = VectorDirectionMoveWithRotation(ClimbWallHitResult.ImpactPoint, UGT.Traversal_Direction_Forward, 2.f, WallRotation);
 			TraceStartVector = VectorDirectionMove(TempVector, UGT.Traversal_Direction_Up, j * 5);
-			TraceEndVector = VectorDirectionMove(TempVector, UGT.Traversal_Direction_Down, 75.f);
-
-			FHitResult ClimbTopHitResult;
-			bHit = UKismetSystemLibrary::SphereTraceSingle(
+			TraceEndVector = VectorDirectionMove(TraceStartVector, UGT.Traversal_Direction_Down, 75.f);
+			
+			UKismetSystemLibrary::SphereTraceSingle(
 				GetWorld(),
 				TraceStartVector,
 				TraceEndVector,
@@ -1014,39 +1013,38 @@ void UTraversalComponent::NextClimbHandIK(const bool bLeftHand)
 				TArray<AActor*>(),
 				EDrawDebugTrace::None,
 				ClimbTopHitResult,
-				true,
-				FLinearColor::Blue,
-				FLinearColor::Blue,
-				5.f);
+				true);
 
 			if (!ClimbTopHitResult.bBlockingHit || ClimbTopHitResult.bStartPenetrating)
 			{
 				continue;
 			}
 
-			FVector ClimbHandLocation = FVector(
-				ClimbWallHitResult.ImpactPoint.X,
-				ClimbWallHitResult.ImpactPoint.Y,
-				VectorDirectionMove(ClimbTopHitResult.ImpactPoint, UGT.Traversal_Direction_Down, 9.f).Z);
+			break;
+		}
+
+		break;
+	}
+
+	FVector ClimbHandLocation = FVector(
+		ClimbWallHitResult.ImpactPoint.X,
+		ClimbWallHitResult.ImpactPoint.Y,
+		VectorDirectionMove(ClimbTopHitResult.ImpactPoint, UGT.Traversal_Direction_Down, 9.f).Z);
 			
-			if (bLeftHand)
-			{
-				if (AnimInstance && AnimInstance->GetClass()->ImplementsInterface(UTraversalInterface::StaticClass()))
-				{
-					ITraversalInterface::Execute_SetLeftHandClimbLocation(AnimInstance, ClimbHandLocation);
-					ITraversalInterface::Execute_SetLeftHandClimbRotation(AnimInstance, ClimbHandRotation);
-				}
-			}
-			else
-			{
-				if (AnimInstance && AnimInstance->GetClass()->ImplementsInterface(UTraversalInterface::StaticClass()))
-				{
-					ITraversalInterface::Execute_SetRightHandClimbLocation(AnimInstance, ClimbHandLocation);
-					ITraversalInterface::Execute_SetRightHandClimbRotation(AnimInstance, ClimbHandRotation);
-				}
-			}
-			
-			return;
+	if (bLeftHand)
+	{
+		if (AnimInstance && AnimInstance->GetClass()->ImplementsInterface(UTraversalInterface::StaticClass()))
+		{
+			ITraversalInterface::Execute_SetLeftHandClimbLocation(AnimInstance, ClimbHandLocation);
+			ITraversalInterface::Execute_SetLeftHandClimbRotation(AnimInstance, ClimbHandRotation);
+		}
+	}
+	else
+	{
+		if (AnimInstance && AnimInstance->GetClass()->ImplementsInterface(UTraversalInterface::StaticClass()))
+		{
+			ITraversalInterface::Execute_SetRightHandClimbLocation(AnimInstance, ClimbHandLocation);
+			ITraversalInterface::Execute_SetRightHandClimbRotation(AnimInstance, ClimbHandRotation);
 		}
 	}
 }
