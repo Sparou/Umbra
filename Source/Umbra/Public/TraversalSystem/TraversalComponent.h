@@ -328,6 +328,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|SurfaceValidation")
 	float ClimbMovementSurfaceValidationCapsuleHalfHeight = 82.f;
 
+
+	
 	/* IK */
 	
 	/* Устанавливает максимальное расстояние от NextClimbTopResult (WallTopResult) при поиске позиции для IK рук */
@@ -364,8 +366,38 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Initialization")
 	float HandIKLocationVerticalOffset = 9.f;
 
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Initialization")
+	int32 FootIKWallDetectionIterations = 2;
 
-	
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Initialization")
+	float FootIKWallDetectionVerticalOffsetMultiplier = 5.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Initialization")
+	float FootIKLeftHorizontalOffset = 9.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Initialization")
+	float FootIKRightHorizontalOffset = 9.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Initialization")
+	float FootIKLeftVerticalOffset = 140.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Initialization")
+	float FootIKRightVerticalOffset = 140.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Initialization")
+	float FootIKTraceBackwardOffset = 30.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Initialization")
+	float FootIKTraceForwardOffset = 30.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Initialization")
+	float FootIKWallDetectionSphereRadius = 6.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Initialization")
+	float FootIKLocationAdditiveBackwardOffset = 17.f;
+
+	//////////////////////////////////////////////
+
 	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Update")
 	int32 HandIKUpdateWallDetectionIterations = 5;
 
@@ -398,6 +430,24 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Update")
 	float  HandIKUpdateTopDetectionSphereRadius = 2.5f;
+
+	int32 FootIKUpdateWallDetectionIterations = 3;
+
+	float FootIKUpdateVerticalOffsetMultiplier = 5.f;
+
+	float FootIKUpdateLeftVerticalOffset = 135.f;
+
+	float FootIKUpdateRightVerticalOffset = 125.f;
+
+	float FootIKUpdateLeftHorizontalOffset = 4.f;
+
+	float FootIKUpdateRightHorizontalOffset = 4.f;
+
+	float FootIKUpdateTraceBackwardOffset = 30.f;
+
+	float FootIKUpdateTraceForwardOffset = 70.f;
+
+	float FootIKUpdateWallDetectionSphereRadius = 6.f;
 	
 
 private:
@@ -428,9 +478,15 @@ private:
 
 	UFUNCTION(BlueprintCallable)
 	void NextClimbHandIK(const bool bLeftHand);
-
+	UFUNCTION(BlueprintCallable)
+	void NextClimbFootIK(const bool bLeftFoot);
 	UFUNCTION(BlueprintCallable)
 	void UpdateHandIK(const bool bLeftHand);
+	UFUNCTION(BlueprintCallable)
+	void UpdateFootIK(const bool bLeftFoot);
+
+	void ResetFootIK();
+	
 	void ClimbMovementIK();
 	
 	/** Validate Functions */

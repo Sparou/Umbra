@@ -1055,6 +1055,97 @@ void UTraversalComponent::NextClimbHandIK(const bool bLeftHand)
 	}
 }
 
+void UTraversalComponent::NextClimbFootIK(const bool bLeftFoot)
+{
+	if (!TraversalState.MatchesTagExact(UGT.Traversal_State_ReadyToClimb))
+	{
+		return;
+	}
+
+	FHitResult ClimbWallHitResult;
+	
+	for (int32 WallDetectionIndex = 0; WallDetectionIndex < FootIKWallDetectionIterations; WallDetectionIndex++)
+	{
+		FVector InitialVerticalOffset = VectorDirectionMove(
+			NextClimbResult.ImpactPoint,
+			UGT.Traversal_Direction_Up,
+			WallDetectionIndex * FootIKWallDetectionVerticalOffsetMultiplier);
+
+		FVector InitialHorizontalOffset;
+		
+		if (bLeftFoot)
+		{
+			InitialHorizontalOffset = VectorDirectionMoveWithRotation(
+				InitialVerticalOffset,
+				UGT.Traversal_Direction_Left,
+				FootIKLeftHorizontalOffset,
+				WallRotation);
+		}
+		else
+		{
+			InitialHorizontalOffset = VectorDirectionMoveWithRotation(
+				InitialVerticalOffset,
+				UGT.Traversal_Direction_Right,
+				FootIKRightHorizontalOffset,
+				WallRotation);
+		}
+
+		FVector SecondaryHorizontalOffset = VectorDirectionMove(
+			InitialHorizontalOffset,
+			UGT.Traversal_Direction_Down,
+			bLeftFoot ? FootIKLeftVerticalOffset : FootIKRightVerticalOffset);
+
+		FVector TraceStart = VectorDirectionMoveWithRotation(
+			SecondaryHorizontalOffset,
+			UGT.Traversal_Direction_Backward,
+			FootIKTraceBackwardOffset,
+			WallRotation);
+
+		FVector TraceEnd = VectorDirectionMoveWithRotation(
+			SecondaryHorizontalOffset,
+			UGT.Traversal_Direction_Forward,
+			FootIKTraceForwardOffset,
+			WallRotation);
+
+		UKismetSystemLibrary::SphereTraceSingle(
+			this,
+			TraceStart,
+			TraceEnd,
+			FootIKWallDetectionSphereRadius,
+			UEngineTypes::ConvertToTraceType(ECC_Visibility),
+			false,
+			TArray<AActor*>(),
+			EDrawDebugTrace::ForDuration,
+			ClimbWallHitResult,
+			true);
+
+		if (ClimbWallHitResult.bBlockingHit)
+		{
+			break;
+		}
+	}
+	
+	FVector FootIKLocation = VectorDirectionMoveWithRotation(
+		ClimbWallHitResult.ImpactPoint,
+		UGT.Traversal_Direction_Backward,
+		FootIKLocationAdditiveBackwardOffset,
+		ReverseNormal(ClimbWallHitResult.ImpactNormal));
+	
+	UE_LOG(TraversalComponent, Log, TEXT("Next Foot IK: Foot Location = [%s]"), *ClimbWallHitResult.ToString());
+	
+	if (AnimInstance && AnimInstance->GetClass()->ImplementsInterface(UTraversalInterface::StaticClass()))
+	{
+		if (bLeftFoot)
+		{
+			ITraversalInterface::Execute_SetLeftFootClimbLocation(AnimInstance, FootIKLocation);
+		}
+		else
+		{
+			ITraversalInterface::Execute_SetRightFootClimbLocation(AnimInstance, FootIKLocation);
+		}
+	}
+}
+
 void UTraversalComponent::UpdateHandIK(const bool bLeftHand)
 {
 	if (!TraversalState.MatchesTagExact(UGT.Traversal_State_Climb))
@@ -1171,8 +1262,8 @@ void UTraversalComponent::UpdateHandIK(const bool bLeftHand)
 		ClimbWallHitResult.ImpactPoint.Y,
 		VectorDirectionMove(ClimbTopHitResult.ImpactPoint, UGT.Traversal_Direction_Down, 9.f).Z);
 
-	UE_LOG(TraversalComponent, Log, TEXT("Update Climb IK: Hand = [%d] | Location = [%s]"), bLeftHand, *ClimbHandLocation.ToString());
-	UE_LOG(TraversalComponent, Log, TEXT("Update Climb IK: Hand = [%d] | Rotation = [%s]"), bLeftHand, *ClimbHandRotation.ToString());
+	//UE_LOG(TraversalComponent, Log, TEXT("Update Climb IK: Hand = [%d] | Location = [%s]"), bLeftHand, *ClimbHandLocation.ToString());
+	//UE_LOG(TraversalComponent, Log, TEXT("Update Climb IK: Hand = [%d] | Rotation = [%s]"), bLeftHand, *ClimbHandRotation.ToString());
 	
 	if (bLeftHand)
 	{
@@ -1192,6 +1283,117 @@ void UTraversalComponent::UpdateHandIK(const bool bLeftHand)
 	}
 }
 
+void UTraversalComponent::UpdateFootIK(const bool bLeftFoot)
+{
+	if (!TraversalState.MatchesTagExact(UGT.Traversal_State_Climb))
+	{
+		return;
+	}
+
+	if (!AnimInstance->GetCurveValue(bLeftFoot ? "LeftFootIK" : "RightFootIK") == 1.f)
+	{
+		ResetFootIK();
+		return;
+	}
+
+	FHitResult ClimbWallHitResult;
+
+	for (int32 WallDetectionIndex = 0; WallDetectionIndex < FootIKUpdateWallDetectionIterations; WallDetectionIndex++)
+	{
+		FVector HandLocation = FVector(
+			bLeftFoot ? SkeletalMesh->GetSocketLocation("ik_foot_l").X : SkeletalMesh->GetSocketLocation("ik_foot_r").X,
+			bLeftFoot ? SkeletalMesh->GetSocketLocation("ik_foot_l").Y : SkeletalMesh->GetSocketLocation("ik_foot_r").Y,
+			bLeftFoot ? SkeletalMesh->GetSocketLocation("hand_l").Z : SkeletalMesh->GetSocketLocation("hand_r").Z);
+
+		FVector FirstVerticalOffset = VectorDirectionMove(
+			HandLocation,
+			UGT.Traversal_Direction_Down,
+			bLeftFoot ? FootIKUpdateLeftVerticalOffset : FootIKUpdateRightVerticalOffset);
+
+		FVector SecondVerticalOffset = VectorDirectionMove(
+			FirstVerticalOffset,
+			UGT.Traversal_Direction_Up,
+			WallDetectionIndex * FootIKUpdateVerticalOffsetMultiplier);
+
+		FVector HorizontalOffset;
+
+		if (bLeftFoot)
+		{
+			HorizontalOffset = VectorDirectionMove(
+				SecondVerticalOffset,
+				UGT.Traversal_Direction_Right,
+				FootIKUpdateLeftHorizontalOffset);
+		}
+		else
+		{
+			HorizontalOffset = VectorDirectionMove(
+				SecondVerticalOffset,
+				UGT.Traversal_Direction_Left,
+				FootIKUpdateRightHorizontalOffset);
+		}
+
+		FVector TraceStart = VectorDirectionMove(
+			HorizontalOffset,
+			UGT.Traversal_Direction_Backward,
+			FootIKUpdateTraceBackwardOffset);
+
+		FVector TraceEnd = VectorDirectionMove(
+			HorizontalOffset,
+			UGT.Traversal_Direction_Forward,
+			FootIKUpdateTraceForwardOffset);
+
+		UKismetSystemLibrary::SphereTraceSingle(
+			this,
+			TraceStart,
+			TraceEnd,
+			FootIKUpdateWallDetectionSphereRadius,
+			UEngineTypes::ConvertToTraceType(ECC_Visibility),
+			false,
+			TArray<AActor*>(),
+			EDrawDebugTrace::ForOneFrame,
+			ClimbWallHitResult,
+			true);
+
+		if (ClimbWallHitResult.bBlockingHit && !ClimbWallHitResult.bStartPenetrating)
+		{
+			break;
+		}
+	}
+
+	if (!ClimbWallHitResult.bBlockingHit || ClimbWallHitResult.bStartPenetrating)
+	{
+		return;
+	}
+	
+	FVector FootIKLocation = VectorDirectionMoveWithRotation(
+		ClimbWallHitResult.ImpactPoint,
+		UGT.Traversal_Direction_Backward,
+		FootIKLocationAdditiveBackwardOffset,
+		ReverseNormal(ClimbWallHitResult.ImpactNormal));
+
+	if (AnimInstance && AnimInstance->GetClass()->ImplementsInterface(UTraversalInterface::StaticClass()))
+	{
+		if (bLeftFoot)
+		{
+			ITraversalInterface::Execute_SetLeftFootClimbLocation(AnimInstance, FootIKLocation);
+		}
+		else
+		{
+			ITraversalInterface::Execute_SetRightFootClimbLocation(AnimInstance, FootIKLocation);
+		}
+	}
+}
+
+void UTraversalComponent::ResetFootIK()
+{
+	if (AnimInstance && AnimInstance->GetClass()->ImplementsInterface(UTraversalInterface::StaticClass()))
+	{
+		ITraversalInterface::Execute_SetRightFootClimbLocation(AnimInstance, SkeletalMesh->GetSocketLocation("ik_foot_r"));
+		ITraversalInterface::Execute_SetLeftFootClimbLocation(AnimInstance, SkeletalMesh->GetSocketLocation("ik_foot_l"));
+	}
+}
+
+
 void UTraversalComponent::ClimbMovementIK()
 {
 	if (!TraversalState.MatchesTagExact(UGT.Traversal_State_Climb))
@@ -1201,6 +1403,8 @@ void UTraversalComponent::ClimbMovementIK()
 
 	UpdateHandIK(false);
 	UpdateHandIK(true);
+	UpdateFootIK(false);
+	UpdateFootIK(true);
 }
 
 void UTraversalComponent::ValidateIsInLand()
