@@ -48,4 +48,11 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Traversal")
 	bool SetRightHandClimbRotation(const FRotator& NewRightHandClimbRotation);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Traversal")
+	bool SetLeftFootClimbLocation(const FVector& NewLeftFootClimbLocation);
+	
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Traversal")
+	bool SetRightFootClimbLocation(const FVector& NewRightFootClimbLocation);
+
 };
