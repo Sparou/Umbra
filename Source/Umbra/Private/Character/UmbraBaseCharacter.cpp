@@ -13,6 +13,7 @@ AUmbraBaseCharacter::AUmbraBaseCharacter()
 	PrimaryActorTick.bCanEverTick = false;
 	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>("Motion Warping");
 	TraversalComponent = CreateDefaultSubobject<UTraversalComponent>("Traversal Component");
+	//TraversalComponent->DestroyComponent();
 	WeaponMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("Weapon Mesh");
 	WeaponMeshComponent->SetupAttachment(GetMesh(), FName("WeaponHandSocket"));
 	AbilitySystemComponent = CreateDefaultSubobject<UUmbraAbilitySystemComponent>("Ability System");

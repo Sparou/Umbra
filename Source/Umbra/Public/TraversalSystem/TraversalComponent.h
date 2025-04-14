@@ -116,6 +116,9 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UPROPERTY(EditAnywhere, Category="Data")
+	TMap<FGameplayTag, FTraversalActionData> TraversalActionDataMap;
+
 	/* Wall Detection */
 	UPROPERTY(EditDefaultsOnly, Category="Traversal|WallDetection")
 	int32 DetectWallIterationsFalling = 8;
@@ -324,14 +327,79 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|SurfaceValidation")
 	float ClimbMovementSurfaceValidationCapsuleHalfHeight = 82.f;
+
+	/* IK */
 	
+	/* Устанавливает максимальное расстояние от NextClimbTopResult (WallTopResult) при поиске позиции для IK рук */
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Initialization")
+	float HandIKMaxDistance = 16.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Initialization")
+	float HandIKTraceDistance = 20.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Initialization")
+	float HandIKWallDetectionSphereRadius = 5.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Initialization")
+	FRotator HandIKLeftHandAdditiveRotation = FRotator(90.f, 0, 280.f);
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Initialization")
+	FRotator HandIKRightHandAdditiveRotation = FRotator(270.f, 0, 270.f);
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Initialization")
+	int32 HandIKTopDetectionIterations = 7;
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Initialization")
+	float HandIKTopDetectionForwardOffset = 2.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Initialization")
+	float HandIKTopDetectionVerticalOffsetMultiplier = 5.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Initialization")
+	float HandIKTopDetectionTraceDistance = 75.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Initialization")
+	float HandIKTopDetectionSphereRadius = 2.5f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Initialization")
+	float HandIKLocationVerticalOffset = 9.f;
+
+
 	
-	UPROPERTY(EditAnywhere, Category="Data")
-	TMap<FGameplayTag, FTraversalActionData> TraversalActionDataMap;
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Update")
+	int32 HandIKUpdateWallDetectionIterations = 5;
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Update")
+	float HandIKUpdateClimbHandSpace = 10.f;
 	
-	UPROPERTY()
-	float ClimbHandSpace = 20.f;
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Update")
+	float HandIKUpdateWallDetectionHorizontalOffsetMultiplier = 2.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Update")
+	float HandIKUpdateWallDetectionTraceStartOffset = 50.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Update")
+	float HandIKUpdateWallDetectionTraceDistance = 70.f;
 	
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Update")
+	float HandIKUpdateWallDetectionSphereRadius = 15.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Update")
+	int32 HandIKUpdateTopDetectionIterations = 6;
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Update")
+	float HandIKUpdateTopDetectionForwardOffset = 2.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Update")
+	float HandIKUpdateTopDetectionVerticalOffsetMultiplier = 5.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Update")
+	float  HandIKUpdateTopDetectionTraceDistance = 75.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Update")
+	float  HandIKUpdateTopDetectionSphereRadius = 2.5f;
+	
+
 private:
 	
     void InitializeReferences();
