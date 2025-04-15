@@ -762,7 +762,7 @@ void UTraversalComponent::ClimbMovement()
 			UEngineTypes::ConvertToTraceType(ECC_Visibility),
 			false,
 			TArray<AActor*>(),
-			EDrawDebugTrace::ForOneFrame,
+			EDrawDebugTrace::None,
 			ClimbWallHitResult,
 			true
 		);
@@ -818,7 +818,7 @@ void UTraversalComponent::ClimbMovement()
 						UEngineTypes::ConvertToTraceType(ECC_Visibility),
 						false,
 						TArray<AActor*>(),
-						EDrawDebugTrace::ForOneFrame,
+						EDrawDebugTrace::None,
 						ClimbTopHitResult,
 						true);
 		
@@ -894,7 +894,7 @@ bool UTraversalComponent::ClimbCheckForSides(const FVector& ImpactPoint)
 			UEngineTypes::ConvertToTraceType(ECC_Visibility),
 			false,
 			TArray<AActor*>(),
-			EDrawDebugTrace::ForOneFrame,
+			EDrawDebugTrace::None,
 			HitResult,
 			true);
 
@@ -948,7 +948,7 @@ bool UTraversalComponent::ValidateClimbMovementSurface(const FVector& MovementIm
 		UEngineTypes::ConvertToTraceType(ECC_Visibility),
 		false,
 		TArray<AActor*>(),
-		EDrawDebugTrace::ForOneFrame,
+		EDrawDebugTrace::None,
 		HitResult,
 		true);
 
@@ -988,7 +988,7 @@ void UTraversalComponent::NextClimbHandIK(const bool bLeftHand)
 			UEngineTypes::ConvertToTraceType(ECC_Visibility),
 			false,
 			TArray<AActor*>(),
-			EDrawDebugTrace::ForDuration,
+			EDrawDebugTrace::None,
 			ClimbWallHitResult,
 			true);
 
@@ -1115,7 +1115,7 @@ void UTraversalComponent::NextClimbFootIK(const bool bLeftFoot)
 			UEngineTypes::ConvertToTraceType(ECC_Visibility),
 			false,
 			TArray<AActor*>(),
-			EDrawDebugTrace::ForDuration,
+			EDrawDebugTrace::None,
 			ClimbWallHitResult,
 			true);
 
@@ -1198,7 +1198,7 @@ void UTraversalComponent::UpdateHandIK(const bool bLeftHand)
 			UEngineTypes::ConvertToTraceType(ECC_Visibility),
 			false,
 			TArray<AActor*>(),
-			EDrawDebugTrace::ForOneFrame,
+			EDrawDebugTrace::None,
 			ClimbWallHitResult,
 			true);
 
@@ -1350,7 +1350,7 @@ void UTraversalComponent::UpdateFootIK(const bool bLeftFoot)
 			UEngineTypes::ConvertToTraceType(ECC_Visibility),
 			false,
 			TArray<AActor*>(),
-			EDrawDebugTrace::ForOneFrame,
+			EDrawDebugTrace::None,
 			ClimbWallHitResult,
 			true);
 

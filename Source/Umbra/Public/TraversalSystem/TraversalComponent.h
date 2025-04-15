@@ -245,10 +245,10 @@ protected:
 
 	/* Определяет, насколько выше относительно корневой кости будет совершаться поиск стены для карабканья */
 	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|WallDetection")
-	float ClimbMovementWallDetectionBracedHeightOffset = 200.f;
+	float ClimbMovementWallDetectionBracedHeightOffset = 180.f;
 
 	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|WallDetection")
-	float ClimbMovementWallDetectionFreeHangHeightOffset = 220.f;
+	float ClimbMovementWallDetectionFreeHangHeightOffset = 200.f;
 	
 	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|WallDetection")
 	float ClimbMovementWallDetectionHorizontalOffset = 10.f;
@@ -281,15 +281,15 @@ protected:
 
 	/* Определяет смещение персонажа по оси X относительно точки ClimbTopResult */
 	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement")
-	float ClimbMovementFreeHangXOffset = 17.f;
+	float ClimbMovementFreeHangXOffset = 25.f;
 
 	/* Определяет смещение персонажа по оси Z относительно точки ClimbTopResult */
 	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement")
-	float ClimbMovementBracedZOffset = 107.f;
+	float ClimbMovementBracedZOffset = 110.f;
 
 	/* Определяет смещение персонажа по оси Z относительно точки ClimbTopResult */
 	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement")
-	float ClimbMovementFreeHangZOffset = 130.f;
+	float ClimbMovementFreeHangZOffset = 110.f;
 
 
 	
@@ -431,22 +431,31 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Update")
 	float  HandIKUpdateTopDetectionSphereRadius = 2.5f;
 
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Update")
 	int32 FootIKUpdateWallDetectionIterations = 3;
 
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Update")
 	float FootIKUpdateVerticalOffsetMultiplier = 5.f;
 
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Update")
 	float FootIKUpdateLeftVerticalOffset = 135.f;
 
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Update")
 	float FootIKUpdateRightVerticalOffset = 125.f;
 
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Update")
 	float FootIKUpdateLeftHorizontalOffset = 4.f;
 
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Update")
 	float FootIKUpdateRightHorizontalOffset = 4.f;
 
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Update")
 	float FootIKUpdateTraceBackwardOffset = 30.f;
 
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Update")
 	float FootIKUpdateTraceForwardOffset = 70.f;
 
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Update")
 	float FootIKUpdateWallDetectionSphereRadius = 6.f;
 	
 
