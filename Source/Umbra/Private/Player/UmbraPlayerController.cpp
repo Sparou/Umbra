@@ -65,6 +65,8 @@ void AUmbraPlayerController::SetupInputComponent()
 	UmbraInputComponent->BindAction(WalkAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::OnStopWalking);
 	UmbraInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &AUmbraPlayerController::OnStartCrouch);
 	UmbraInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::OnStopCrouch);
+	UmbraInputComponent->BindAction(DropAction, ETriggerEvent::Started, this, &AUmbraPlayerController::OnStartDrop);
+	
 	
 	UmbraInputComponent->BindAbilityActions(InputConfig, this, &AUmbraPlayerController::AbilityInputTagPressed,
 	                                        &AUmbraPlayerController::AbilityInputTagReleased, &AUmbraPlayerController::AbilityInputTagHeld);
@@ -261,6 +263,14 @@ void AUmbraPlayerController::OnStopCrouch()
 	{
 		ControlledCharacter->UnCrouch();
 		GetTagManager()->RemoveTag(FUmbraGameplayTags::Get().State_Stance_Crouching);
+	}
+}
+
+void AUmbraPlayerController::OnStartDrop()
+{
+	if (TraversalComponent)
+	{
+		TraversalComponent->DropFromClimb();
 	}
 }
 

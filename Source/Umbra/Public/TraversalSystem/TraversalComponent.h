@@ -84,6 +84,7 @@ private:
 	float VaultHeight;
 	
 	bool bInLand = true;
+	bool bIsDropping = false;
 
 	FTraversalActionData CurrentActionData;
 	
@@ -110,7 +111,8 @@ public:
 	void GridScan(int GridWidth, int GridHeight, const FVector& ScanBaseLocation, const FRotator& ScanRotation);
 	void PlayTraversalMontage();
 	void AddMovementInput(float ScaleValue, bool Front);
-	void ResetMovement();
+	void ResetMovement(); 
+	void DropFromClimb();
 
 	
 protected:
@@ -236,6 +238,9 @@ protected:
 
 	
 	/* Climb Movement */
+
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement")
+	float IsDroppingResetTime = 0.5f;
 
 	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|WallDetection")
 	FName HandBoneName = "hand_l";
@@ -459,6 +464,9 @@ protected:
 	float FootIKUpdateWallDetectionSphereRadius = 6.f;
 	
 
+	UPROPERTY(EditDefaultsOnly, Category="Traversal|Mantle")
+	float MantleSurfaceValidationCapsuleVerticalOffset = 10.f;
+	
 private:
 	
     void InitializeReferences();
@@ -475,16 +483,24 @@ private:
 	FVector VectorDirectionMove (const FVector& Source, const FGameplayTag& Direction, const float& MoveValue);
 	FVector VectorDirectionMoveWithRotation (const FVector& Source, const FGameplayTag& Direction, const float& MoveValue, const FRotator& Rotation);
 	FRotator ReverseNormal (const FVector& Normal);
+	FGameplayTag GetControllerDirection();
 
 	FHitResult DetectWall();
 	
-	FHitResult FindWallEdge(int GridWidth, int GridHeight, const FVector& ScanBaseLocation, const FRotator& ScanRotation);
+	
 	void MeasureWall();
 	void DecideTraversalType(bool JumpAction);
 	void ResetTraversalResults();
 	FVector FindWarpLocation(const FVector& Location, const FRotator& Rotation, float XOffset, float ZOffset);
 	void DecideClimbStyle(const FVector& Location, const FRotator& Rotation);
+	void DecideClimbOrHope();
 
+	void ClimbMovement();
+	void StopClimbMovement();
+	bool ClimbCheckForSides(const FVector& ImpactPoint);
+	void SetNewClimbPosition(float NewLocationX, float NewLocationY, float NewLocationZ, FRotator NewRotation);
+
+	void ClimbMovementIK();
 	UFUNCTION(BlueprintCallable)
 	void NextClimbHandIK(const bool bLeftHand);
 	UFUNCTION(BlueprintCallable)
@@ -493,20 +509,12 @@ private:
 	void UpdateHandIK(const bool bLeftHand);
 	UFUNCTION(BlueprintCallable)
 	void UpdateFootIK(const bool bLeftFoot);
-
 	void ResetFootIK();
-	
-	void ClimbMovementIK();
 	
 	/** Validate Functions */
 	void ValidateIsInLand();
 	bool ValidateClimbMovementSurface(const FVector& MovementImpactLocation);
-
-	/** Input Functions */
-	void ClimbMovement();
-	void StopClimbMovement();
-	bool ClimbCheckForSides(const FVector& ImpactPoint);
-	void SetNewClimbPosition(float NewLocationX, float NewLocationY, float NewLocationZ, FRotator NewRotation);
-
-
+	bool ValidateAirHang();
+	bool ValidateMantleSurface();
+	
 };

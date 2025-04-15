@@ -74,6 +74,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Input|Basic")
 	TObjectPtr<UInputAction> CrouchAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input|Basic")
+	TObjectPtr<UInputAction> DropAction;
 	
 	UPROPERTY(EditAnywhere, Category = "Input|Characters")
 	TObjectPtr<UInputAction> SwitchToAssassinAction;
@@ -123,6 +126,8 @@ private:
 
 	void OnStartCrouch();
 	void OnStopCrouch();
+
+	void OnStartDrop();
 	
 	void AbilityInputTagPressed(FGameplayTag InputTag);
 	void AbilityInputTagReleased(FGameplayTag InputTag);
