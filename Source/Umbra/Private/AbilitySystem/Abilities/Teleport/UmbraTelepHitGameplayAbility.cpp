@@ -1,7 +1,7 @@
 // Copyrighted by Vorona Games
 
 
-#include "AbilitySystem/Abilities/UmbraTelepHitGameplayAbility.h"
+#include "AbilitySystem/Abilities/Teleport/UmbraTelepHitGameplayAbility.h"
 
 void UUmbraTelepHitGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
