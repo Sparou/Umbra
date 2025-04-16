@@ -78,7 +78,27 @@ void UTraversalComponent::TriggerTraversalAction(bool JumpAction)
 			return;
 		}
 
-		GridScan(4, 30, WallHitResult.ImpactPoint, ReverseNormal(WallHitResult.ImpactNormal));
+		float GridScanHeight = TraversalStateValues(
+			TraversalState,
+			WallHitResult.ImpactPoint.Z,
+			0.f,
+			GetCharacterHandHeight(),
+			0.f,
+			0.f);
+
+		FVector GridScanLocation = FVector(
+			WallHitResult.ImpactPoint.X,
+			WallHitResult.ImpactPoint.Y,
+			GridScanHeight);
+		
+		float GridHeight = TraversalStateValues(TraversalState, 30.f, 0.f, 7.f, 0.f, 0.f);
+		float GridWidth = TraversalStateValues(TraversalState, 4.f, 0.f, 2.f, 0.f, 30.f);
+
+		UE_LOG(TraversalComponent, Log, TEXT("Grid Scan Height: [%f]"), GridScanHeight);
+		UE_LOG(TraversalComponent, Log, TEXT("Grid Scan Width: [%f]"), GridWidth);
+		UE_LOG(TraversalComponent, Log, TEXT("Grid Scan Location: [%s]"), *GridScanLocation.ToString());
+		
+		GridScan(GridWidth, GridHeight, GridScanLocation, ReverseNormal(WallHitResult.ImpactNormal));
 		MeasureWall();
 		DecideTraversalType(JumpAction);
 	}
@@ -327,6 +347,8 @@ bool UTraversalComponent::FindWallEdge(int GridWidth, int GridHeight, const FVec
         		QueryParams);
 
         	LineHitTraces.Add(LineHit);
+
+        	DrawDebugLine(GetWorld(), LineHit.TraceStart, LineHit.TraceEnd, FColor::White, false, 1.f);
         }
     	
         for (int32 j = 1; j < LineHitTraces.Num(); j++)
@@ -402,7 +424,8 @@ bool UTraversalComponent::FindWallTop(const FHitResult& WallEdgeHit, const FRota
 			ECC_Visibility,
 			FCollisionShape::MakeSphere(TopSweepSphereRadius),
 			QueryParams);
-
+		
+		
 		if (i == 0 && TopHit.bBlockingHit)
 		{
 			OutWallTopResult = TopHit;
@@ -542,14 +565,20 @@ void UTraversalComponent::MeasureWall()
 
 void UTraversalComponent::PlayTraversalMontage()
 {
-	SetTraversalState(CurrentActionData.InState);
-
 	FVector TopResultWarpLocation = FindWarpLocation(WallTopResult.ImpactPoint, WallRotation, CurrentActionData.Warp1XOffset, CurrentActionData.Warp1ZOffset);
 	MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation("TopResultWarp", TopResultWarpLocation, WallRotation);
 
 	FVector BalanceWarpLocation = FindWarpLocation(WallTopResult.ImpactPoint, WallRotation, CurrentActionData.Warp2XOffset, CurrentActionData.Warp2ZOffset);
 	MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation("BalanceWarp", BalanceWarpLocation, WallRotation);
 
+	if (TopResultWarpLocation == FVector::ZeroVector || BalanceWarpLocation == FVector::ZeroVector)
+	{
+		UE_LOG(TraversalComponent, Warning, TEXT("Warp Location is Zero Vector!"));
+		return;
+	}
+	
+	SetTraversalState(CurrentActionData.InState);
+	
 	DrawDebugSphere(GetWorld(), TopResultWarpLocation, 4.f, 8, FColor::White, false, 10.f);
 	DrawDebugSphere(GetWorld(), BalanceWarpLocation, 4.f, 8, FColor::Black, false, 10.f);
 	
@@ -568,10 +597,76 @@ void UTraversalComponent::PlayTraversalMontage()
 	}
 }
 
-float UTraversalComponent::ClimbValues(const FGameplayTag& NewClimbStyle, const float& Braced, const float& FreeHang) const
+float UTraversalComponent::ClimbValues(const FGameplayTag& NewClimbStyle, float Braced, float FreeHang) const
 {
 	return ClimbStyle.MatchesTagExact(FUmbraGameplayTags::Get().Traversal_ClimbStyle_BracedClimb) ? Braced : FreeHang;
 }
+
+float UTraversalComponent::DirectionValues(const FGameplayTag& Direction, float Forward, float ForwardRight, float Right,
+		float BackwardRight, float Backward, float BackwardLeft, float Left, float ForwardLeft) const
+{
+	if (Direction.MatchesTagExact(UGT.Traversal_Direction_Forward))
+	{
+		return Forward;
+	}
+	if (Direction.MatchesTagExact(UGT.Traversal_Direction_ForwardRight))
+	{
+		return ForwardRight;
+	}
+	if (Direction.MatchesTagExact(UGT.Traversal_Direction_Right))
+	{
+		return Right;
+	}
+	if (Direction.MatchesTagExact(UGT.Traversal_Direction_BackwardRight))
+	{
+		return BackwardRight;
+	}
+	if (Direction.MatchesTagExact(UGT.Traversal_Direction_Backward))
+	{
+		return Backward;
+	}
+	if (Direction.MatchesTagExact(UGT.Traversal_Direction_BackwardLeft))
+	{
+		return BackwardLeft;
+	}
+	if (Direction.MatchesTagExact(UGT.Traversal_Direction_Left))
+	{
+		return Left;
+	}
+	if (Direction.MatchesTagExact(UGT.Traversal_Direction_ForwardLeft))
+	{
+		return ForwardLeft;
+	}
+	return Forward;
+}
+
+float UTraversalComponent::TraversalStateValues(const FGameplayTag& State, float FreeRoam, float ReadyToClimb,
+	float Climb, float Mantle, float Vault) const
+{
+	if (State.MatchesTagExact(UGT.Traversal_State_FreeRoam))
+	{
+		return FreeRoam;
+	}
+	if (State.MatchesTagExact(UGT.Traversal_State_ReadyToClimb))
+	{
+		return ReadyToClimb;
+	}
+	if (State.MatchesTagExact(UGT.Traversal_State_Climb))
+	{
+		return Climb;
+	}
+	if (State.MatchesTagExact(UGT.Traversal_State_Mantle))
+	{
+		return Mantle;
+	}
+	if (State.MatchesTagExact(UGT.Traversal_State_Vault))
+	{
+		return Vault;
+	}
+
+	return FreeRoam;
+}
+
 
 void UTraversalComponent::DecideTraversalType(bool JumpAction)
 {
@@ -699,6 +794,8 @@ void UTraversalComponent::DecideClimbStyle(const FVector& Location, const FRotat
 void UTraversalComponent::DecideClimbOrHope()
 {
 	FGameplayTag ControllerDirection = GetControllerDirection();
+	CurrentClimbResult = WallTopResult;
+	
 	if (ControllerDirection.MatchesTagExact(UGT.Traversal_Direction_Forward) ||
 		ControllerDirection.MatchesTagExact(UGT.Traversal_Direction_ForwardRight) ||
 		ControllerDirection.MatchesTagExact(UGT.Traversal_Direction_ForwardLeft))
@@ -715,10 +812,19 @@ void UTraversalComponent::DecideClimbOrHope()
 			}
 			return;
 		}
+		else
+		{
+			FindHopLocation();
+			DecideClimbStyle(WallTopResult.ImpactPoint, WallRotation);
+			NextClimbResult = WallTopResult;
+			SetTraversalAction(DecideHopAction());
+		}
 	}
-
-	FHitResult CurrentClimbResult = WallTopResult;
-	return;
+	
+	FindHopLocation();
+	DecideClimbStyle(WallTopResult.ImpactPoint, WallRotation);
+	NextClimbResult = WallTopResult;
+	SetTraversalAction(DecideHopAction());
 }
 
 
@@ -1512,6 +1618,121 @@ void UTraversalComponent::ResetFootIK()
 	}
 }
 
+float UTraversalComponent::GetVerticalHopDistance()
+{
+	return DirectionValues(GetControllerDirection(),
+		1.0f,
+		0.5f,
+		-2.5f,
+		-4.0f,
+		-7.5f,
+		-4.0f,
+		-2.5f,
+		0.5f) * HopVerticalDistanceMultiplier;
+}
+
+float UTraversalComponent::GetHorizontalHopDistance()
+{
+	return DirectionValues(GetControllerDirection(),
+	0.0f,
+	0.75f,
+	1.f,
+	0.75,
+	0,
+	-0.75f,
+	-1.0f,
+	-0.75f) * HopHorizontalDistanceMultiplier; 
+}
+
+FGameplayTag UTraversalComponent::DecideHopAction()
+{
+	FGameplayTag Direction = GetControllerDirection();
+
+	if (bool bBraced = ClimbStyle.MatchesTagExact(UGT.Traversal_ClimbStyle_BracedClimb))
+	{
+		if (Direction.MatchesTagExact(UGT.Traversal_Direction_Forward))
+		{
+			return UGT.Traversal_Action_BracedClimb_HopUp;
+		}
+		if (Direction.MatchesTagExact(UGT.Traversal_Direction_ForwardRight))
+		{
+			return UGT.Traversal_Action_BracedClimb_HopRightUp;
+		}
+		if (Direction.MatchesTagExact(UGT.Traversal_Direction_Right))
+		{
+			return UGT.Traversal_Action_BracedClimb_HopRight;
+		}
+		if (Direction.MatchesTagExact(UGT.Traversal_Direction_Backward))
+		{
+			return UGT.Traversal_Action_BracedClimb_HopDown;
+		}
+		if (Direction.MatchesTagExact(UGT.Traversal_Direction_BackwardLeft))
+		{
+			return UGT.Traversal_Action_BracedClimb_HopLeft;
+		}
+		if (Direction.MatchesTagExact(UGT.Traversal_Direction_Left))
+		{
+			return UGT.Traversal_Action_BracedClimb_HopLeft;
+		}
+		if (Direction.MatchesTagExact(UGT.Traversal_Direction_ForwardLeft))
+		{
+			return UGT.Traversal_Action_BracedClimb_HopLeftUp;
+		}
+	}
+	else
+	{
+		if (Direction.MatchesTagExact(UGT.Traversal_Direction_Forward))
+		{
+			return UGT.Traversal_Action_FreeHang_HopUp;
+		}
+		if (Direction.MatchesTagExact(UGT.Traversal_Direction_ForwardRight))
+		{
+			return UGT.Traversal_Action_FreeHang_HopRightUp;
+		}
+		if (Direction.MatchesTagExact(UGT.Traversal_Direction_Right))
+		{
+			return UGT.Traversal_Action_FreeHang_HopRight;
+		}
+		if (Direction.MatchesTagExact(UGT.Traversal_Direction_Backward))
+		{
+			return UGT.Traversal_Action_FreeHang_HopDown;
+		}
+		if (Direction.MatchesTagExact(UGT.Traversal_Direction_BackwardLeft))
+		{
+			return UGT.Traversal_Action_FreeHang_HopLeft;
+		}
+		if (Direction.MatchesTagExact(UGT.Traversal_Direction_Left))
+		{
+			return UGT.Traversal_Action_FreeHang_HopLeft;
+		}
+		if (Direction.MatchesTagExact(UGT.Traversal_Direction_ForwardLeft))
+		{
+			return UGT.Traversal_Action_FreeHang_HopLeftUp;
+		}
+	}
+
+	return UGT.Traversal_Action_BracedClimb_HopUp;
+}
+
+void UTraversalComponent::FindHopLocation()
+{
+	float VerticalHopDistance = GetVerticalHopDistance();
+	float HorizontalHopDistance = GetHorizontalHopDistance();
+
+	FVector VerticalOffset = VectorDirectionMove(
+		WallTopResult.ImpactPoint,
+		UGT.Traversal_Direction_Up,
+		VerticalHopDistance);
+
+	FVector ScanLocation = VectorDirectionMoveWithRotation(
+		VerticalOffset,
+		UGT.Traversal_Direction_Right,
+		HorizontalHopDistance,
+		OwnerCharacter->GetActorRotation());
+
+	GridScan(5, 20, ScanLocation, WallRotation);
+}
+
 
 void UTraversalComponent::ClimbMovementIK()
 {
@@ -1654,6 +1875,13 @@ FGameplayTag UTraversalComponent::GetControllerDirection()
 		return UGT.Traversal_Direction_ForwardLeft;
 	}
 	return UGT.Traversal_Direction_Forward;
+}
+
+float UTraversalComponent::GetCharacterHandHeight()
+{
+	return FMath::Max(
+		SkeletalMesh->GetBoneLocation("hand_l").Z,
+		SkeletalMesh->GetBoneLocation("hand_r").Z);
 }
 
 void UTraversalComponent::ResetTraversalResults()

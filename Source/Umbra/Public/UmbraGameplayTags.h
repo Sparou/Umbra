@@ -67,8 +67,11 @@ public:
 	FGameplayTag Traversal_Action_FreeHang;
 	FGameplayTag Traversal_Action_FreeHang_FallingClimb;
 	FGameplayTag Traversal_Action_FreeHang_ClimbUp;
+	FGameplayTag Traversal_Action_FreeHang_HopUp;
 	FGameplayTag Traversal_Action_FreeHang_HopLeft;
 	FGameplayTag Traversal_Action_FreeHang_HopRight;
+	FGameplayTag Traversal_Action_FreeHang_HopLeftUp;
+	FGameplayTag Traversal_Action_FreeHang_HopRightUp;
 	FGameplayTag Traversal_Action_FreeHang_HopDown;
 	FGameplayTag Traversal_Action_CornerMove;
 	FGameplayTag Traversal_Action_Mantle;

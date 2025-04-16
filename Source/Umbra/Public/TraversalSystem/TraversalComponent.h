@@ -39,6 +39,7 @@ private:
 	FHitResult WallDepthResult = FHitResult();
 	FHitResult WallVaultResult = FHitResult();
 	FHitResult NextClimbResult = FHitResult();
+	FHitResult CurrentClimbResult = FHitResult();
 
 	float WallHeight;
 	float WallDepth;
@@ -173,12 +174,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="Traversal|FindWallVault|Debug")
 	bool bDrawWallVaultDebug = false;
 
-	bool FindWallEdge(int GridWidth, int GridHeight, const FVector& ScanBaseLocation, const FRotator& ScanRotation, FHitResult& OutWallEdgeResult);
-	bool FindWallTop(const FHitResult& WallEdgeHit, const FRotator& WallRot, FHitResult& OutWallTopResult, FHitResult& OutLastTopHit, bool& OutEndOfWallFound);
-	bool FindWallDepth(const FHitResult& LastTopHit, const FRotator& WallRot, FHitResult& OutWallDepthResult);
-	bool FindWallVault(const FHitResult& WallDepthHit, const FRotator& WallRot, FHitResult& OutWallVaultResult);
-
-
+	
 	
 	/* DecideClimbStyle */
 	UPROPERTY(EditDefaultsOnly, Category="Traversal|DecideClimbStyle")
@@ -423,10 +419,13 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category="Traversal|ClimbMovement|IK|Update")
 	float FootIKUpdateWallDetectionSphereRadius = 6.f;
-	
 
 	UPROPERTY(EditDefaultsOnly, Category="Traversal|Mantle")
 	float MantleSurfaceValidationCapsuleVerticalOffset = 10.f;
+
+	float HopVerticalDistanceMultiplier = 25.f;
+
+	float HopHorizontalDistanceMultiplier = 100.f;
 	
 private:
 	
@@ -440,14 +439,21 @@ private:
 	void SetTraversalAction(const FGameplayTag& NewTraversalAction);
 
 	/* Helper Functions */
-	float ClimbValues (const FGameplayTag& NewClimbStyle, const float& Braced, const float& FreeHang) const;
+	float ClimbValues (const FGameplayTag& NewClimbStyle, float Braced, float FreeHang) const;
+	float DirectionValues(const FGameplayTag& Direction, float Forward, float ForwardRight, float Right,
+		float BackwardRight, float Backward, float BackwardLeft, float Left, float ForwardLeft) const;
+	float TraversalStateValues(const FGameplayTag& State, float FreeRoam, float ReadyToClimb, float Climb, float Mantle, float Vault) const;
 	FVector VectorDirectionMove (const FVector& Source, const FGameplayTag& Direction, const float& MoveValue);
 	FVector VectorDirectionMoveWithRotation (const FVector& Source, const FGameplayTag& Direction, const float& MoveValue, const FRotator& Rotation);
 	FRotator ReverseNormal (const FVector& Normal);
 	FGameplayTag GetControllerDirection();
+	float GetCharacterHandHeight();
 
 	FHitResult DetectWall();
-	
+	bool FindWallEdge(int GridWidth, int GridHeight, const FVector& ScanBaseLocation, const FRotator& ScanRotation, FHitResult& OutWallEdgeResult);
+	bool FindWallTop(const FHitResult& WallEdgeHit, const FRotator& WallRot, FHitResult& OutWallTopResult, FHitResult& OutLastTopHit, bool& OutEndOfWallFound);
+	bool FindWallDepth(const FHitResult& LastTopHit, const FRotator& WallRot, FHitResult& OutWallDepthResult);
+	bool FindWallVault(const FHitResult& WallDepthHit, const FRotator& WallRot, FHitResult& OutWallVaultResult);
 	
 	void MeasureWall();
 	void DecideTraversalType(bool JumpAction);
@@ -471,6 +477,11 @@ private:
 	UFUNCTION(BlueprintCallable)
 	void UpdateFootIK(const bool bLeftFoot);
 	void ResetFootIK();
+
+	float GetVerticalHopDistance();
+	float GetHorizontalHopDistance();
+	FGameplayTag DecideHopAction();
+	void FindHopLocation();
 	
 	/** Validate Functions */
 	void ValidateIsInLand();
