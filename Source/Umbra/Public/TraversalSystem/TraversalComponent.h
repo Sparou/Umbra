@@ -3,10 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "TraversalActionsData.h"
 #include "UmbraGameplayTags.h"
 #include "Components/ActorComponent.h"
 #include "TraversalComponent.generated.h"
 
+struct FTraversalActionData;
 DECLARE_LOG_CATEGORY_EXTERN(TraversalComponent, Log, All);
 
 class UCapsuleComponent;
@@ -14,47 +16,6 @@ class UCameraComponent;
 class UCharacterMovementComponent;
 class UMotionWarpingComponent;
 
-USTRUCT(BlueprintType)
-struct FTraversalActionData
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere)
-	UAnimMontage* Montage = nullptr;
-	
-	UPROPERTY(EditAnywhere)
-	FGameplayTag InState = FUmbraGameplayTags::Get().Traversal_State_FreeRoam;
-	
-	UPROPERTY(EditAnywhere)
-	FGameplayTag OutState = FUmbraGameplayTags::Get().Traversal_State_FreeRoam;
-
-	/*
-	 * Offsets
-	 * Нужны для того, чтобы изменять положение корневой
-	 * кости пероснажа относительно WallTop с помощью
-	 * Motion Warping. Помогает персонажу принять
-	 * правильное положение относительно стены.
-	 * 
-	 */
-	
-	UPROPERTY(EditAnywhere)
-	float Warp1XOffset = 0.f;
-
-	UPROPERTY(EditAnywhere)
-	float Warp1ZOffset = 0.f;
-	
-	UPROPERTY(EditAnywhere)
-	float Warp2XOffset = 0.f;
-
-	UPROPERTY(EditAnywhere)
-	float Warp2ZOffset = 0.f;
-
-	UPROPERTY(EditAnywhere)
-	float Warp3XOffset = 0.f;
-
-	UPROPERTY(EditAnywhere)
-	float Warp3ZOffset = 0.f;
-};
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class UMBRA_API UTraversalComponent : public UActorComponent
@@ -118,8 +79,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditAnywhere, Category="Data")
-	TMap<FGameplayTag, FTraversalActionData> TraversalActionDataMap;
+	UPROPERTY(EditAnywhere, Category="Actions")
+	TObjectPtr<UTraversalActionsData> TraversalActions;
 
 	/* Wall Detection */
 	UPROPERTY(EditDefaultsOnly, Category="Traversal|WallDetection")

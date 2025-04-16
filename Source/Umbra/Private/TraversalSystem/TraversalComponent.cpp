@@ -183,7 +183,7 @@ void UTraversalComponent::SetTraversalAction(const FGameplayTag& NewTraversalAct
 	}
 	else
 	{
-		CurrentActionData = TraversalActionDataMap.FindRef(NewTraversalAction);
+		CurrentActionData = TraversalActions->FindActionDataByTag(NewTraversalAction);
 		PlayTraversalMontage();
 	}
 }
