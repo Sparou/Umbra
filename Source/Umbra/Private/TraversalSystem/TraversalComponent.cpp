@@ -3,6 +3,7 @@
 
 #include "TraversalSystem/TraversalComponent.h"
 #include "MotionWarpingComponent.h"
+#include "RayTracingDebugDefinitions.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
@@ -47,7 +48,9 @@ void UTraversalComponent::InitializeReferences()
 void UTraversalComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
+	GEngine->AddOnScreenDebugMessage(3, 0.f, FColor::Green, *TraversalState.ToString());
+	GEngine->AddOnScreenDebugMessage(4, 0.f, FColor::Green, *TraversalAction.ToString());
+	
 	ValidateIsInLand();
 	if (bInLand)
 	{
@@ -69,7 +72,7 @@ void UTraversalComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 void UTraversalComponent::TriggerTraversalAction(bool JumpAction)
 {
-	if (TraversalAction.MatchesTagExact(FUmbraGameplayTags::Get().Traversal_Action_NoAction))
+	if (TraversalAction.MatchesTagExact(UGT.Traversal_Action_NoAction))
 	{
 		WallHitResult = DetectWall();
 		if (!WallHitResult.bBlockingHit && JumpAction)
@@ -192,6 +195,7 @@ void UTraversalComponent::SetTraversalAction(const FGameplayTag& NewTraversalAct
 	}
 
 	TraversalAction = NewTraversalAction;
+	UE_LOG(TraversalComponent, Log, TEXT("New Traversal Action = [%s]"), *TraversalAction.ToString());
 	if (ITraversalInterface *TraversalAnimInstance = Cast<ITraversalInterface>(AnimInstance))
 	{
 		TraversalAnimInstance->SetTraversalAction(NewTraversalAction);
@@ -273,7 +277,8 @@ FHitResult UTraversalComponent::DetectWall()
 void UTraversalComponent::GridScan(int GridWidth, int GridHeight, const FVector& ScanBaseLocation,
 	const FRotator& ScanRotation)
 {
-	if (!FindWallEdge(GridWidth, GridHeight, ScanBaseLocation, ScanRotation, WallEdgeResult))
+	if (!FindWallEdge(GridWidth, GridHeight, ScanBaseLocation, ScanRotation, WallEdgeResult)
+		|| WallEdgeResult.ImpactPoint == FVector::ZeroVector)
 	{
 		return;
 	}
@@ -287,7 +292,8 @@ void UTraversalComponent::GridScan(int GridWidth, int GridHeight, const FVector&
 	
 	FHitResult LastTopHit;
 	bool bEndOfWallFound = false;
-	if (!FindWallTop(WallEdgeResult, WallRotation, WallTopResult, LastTopHit, bEndOfWallFound))
+	if (!FindWallTop(WallEdgeResult, WallRotation, WallTopResult, LastTopHit, bEndOfWallFound)
+		|| WallTopResult.ImpactPoint == FVector::ZeroVector)
 	{
 		return;
 	}
@@ -300,12 +306,14 @@ void UTraversalComponent::GridScan(int GridWidth, int GridHeight, const FVector&
 		return;
 	}
 	
-	if (!FindWallDepth(LastTopHit, WallRotation, WallDepthResult))
+	if (!FindWallDepth(LastTopHit, WallRotation, WallDepthResult)
+		|| WallDepthResult.ImpactPoint == FVector::ZeroVector)
 	{
 		return;
 	}
 	
-	if (!FindWallVault(WallDepthResult, WallRotation, WallVaultResult))
+	if (!FindWallVault(WallDepthResult, WallRotation, WallVaultResult)
+		|| WallVaultResult.ImpactPoint == FVector::ZeroVector)
 	{
 		return;
 	}
@@ -571,9 +579,12 @@ void UTraversalComponent::PlayTraversalMontage()
 	FVector BalanceWarpLocation = FindWarpLocation(WallTopResult.ImpactPoint, WallRotation, CurrentActionData.Warp2XOffset, CurrentActionData.Warp2ZOffset);
 	MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation("BalanceWarp", BalanceWarpLocation, WallRotation);
 
-	if (TopResultWarpLocation == FVector::ZeroVector || BalanceWarpLocation == FVector::ZeroVector)
+	if (TopResultWarpLocation == FVector::ZeroVector || BalanceWarpLocation == FVector::ZeroVector ||
+		TopResultWarpLocation == FVector::ZeroVector + FVector(CurrentActionData.Warp1XOffset, 0.f, CurrentActionData.Warp1ZOffset) ||
+		BalanceWarpLocation == FVector::ZeroVector + FVector(CurrentActionData.Warp2XOffset, 0.f, CurrentActionData.Warp2ZOffset))
 	{
-		UE_LOG(TraversalComponent, Warning, TEXT("Warp Location is Zero Vector!"));
+		UE_LOG(TraversalComponent, Error, TEXT("Warp Location is Zero Vector!"));
+		SetTraversalAction(UGT.Traversal_Action_NoAction);
 		return;
 	}
 	
@@ -590,10 +601,15 @@ void UTraversalComponent::PlayTraversalMontage()
 				SetTraversalState(CurrentActionData.OutState);
 		}
 		);
+
+		FOnMontageEnded Ended = FOnMontageEnded::CreateWeakLambda(this, [this](UAnimMontage*, bool)
+		{
+				SetTraversalAction(UGT.Traversal_Action_NoAction);
+		});
 		
 		AnimInstance->Montage_Play(CurrentActionData.Montage);
 		AnimInstance->Montage_SetBlendingOutDelegate(BlendingOutStarted);
-		SetTraversalAction(UGT.Traversal_Action_NoAction);
+		AnimInstance->Montage_SetEndDelegate(Ended);
 	}
 }
 
@@ -802,6 +818,7 @@ void UTraversalComponent::DecideClimbOrHope()
 	{
 		if (ValidateMantleSurface())
 		{
+			UE_LOG(TraversalComponent, Log, TEXT("Decide Climb or Hope: ClimbUp"));
 			if (ClimbStyle.MatchesTagExact(UGT.Traversal_ClimbStyle_BracedClimb))
 			{
 				SetTraversalAction(UGT.Traversal_Action_BracedClimb_ClimbUp);
@@ -814,13 +831,16 @@ void UTraversalComponent::DecideClimbOrHope()
 		}
 		else
 		{
+			UE_LOG(TraversalComponent, Log, TEXT("Decide Climb or Hope: Hope"));
 			FindHopLocation();
 			DecideClimbStyle(WallTopResult.ImpactPoint, WallRotation);
 			NextClimbResult = WallTopResult;
 			SetTraversalAction(DecideHopAction());
+			return;
 		}
 	}
-	
+
+	UE_LOG(TraversalComponent, Log, TEXT("Decide Climb or Hope: Hope"));
 	FindHopLocation();
 	DecideClimbStyle(WallTopResult.ImpactPoint, WallRotation);
 	NextClimbResult = WallTopResult;
@@ -1156,6 +1176,11 @@ bool UTraversalComponent::ValidateMantleSurface()
 
 	float CharacterCapsuleHalfHeight = Capsule->GetScaledCapsuleHalfHeight();
 	float CharacterCapsuleRadius = Capsule->GetScaledCapsuleRadius();
+
+	if (WallTopResult.ImpactPoint == FVector::ZeroVector)
+	{
+		return false;
+	}
 	
 	FVector CapsuleLocation = VectorDirectionMove(
 		WallTopResult.ImpactPoint,
@@ -1258,6 +1283,7 @@ void UTraversalComponent::NextClimbHandIK(const bool bLeftHand)
 		ClimbWallHitResult.ImpactPoint.Y,
 		VectorDirectionMove(ClimbTopHitResult.ImpactPoint, UGT.Traversal_Direction_Down, HandIKLocationVerticalOffset).Z);
 
+	UE_LOG(TraversalComponent, Log, TEXT("Next Climb Ik: Hand = [%d]"), bLeftHand);
 	UE_LOG(TraversalComponent, Log, TEXT("Next Climb IK: Location = [%s]"), *ClimbHandLocation.ToString());
 	UE_LOG(TraversalComponent, Log, TEXT("Next Climb IK: Rotation = [%s]"), *ClimbHandRotation.ToString());
 	DrawDebugSphere(GetWorld(), ClimbHandLocation, 4, 8, FColor::Yellow, false, 12.f);
@@ -1730,6 +1756,7 @@ void UTraversalComponent::FindHopLocation()
 		HorizontalHopDistance,
 		OwnerCharacter->GetActorRotation());
 
+	UE_LOG(TraversalComponent, Log, TEXT("Find Hop Location: Grid Scan Location = [%s]"), *ScanLocation.ToString());
 	GridScan(5, 20, ScanLocation, WallRotation);
 }
 
