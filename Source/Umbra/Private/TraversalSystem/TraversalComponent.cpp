@@ -718,19 +718,22 @@ void UTraversalComponent::DecideTraversalType(bool JumpAction)
 						{
 							UE_LOG(TraversalComponent, Log, TEXT("DecideTraversalType: [%s]"), *UGT.Traversal_State_Vault.ToString());
 						}
-						else
+						else if (ValidateMantleSurface())
 						{
 							UE_LOG(TraversalComponent, Log, TEXT("DecideTraversalType: [%s]"), *UGT.Traversal_State_Mantle.ToString());
+							SetTraversalAction(UGT.Traversal_Action_Mantle);
 						}
 					}
-					else
+					else if (ValidateMantleSurface())
 					{
 						UE_LOG(TraversalComponent, Warning, TEXT("DecideTraversalType: [%s]"), *UGT.Traversal_State_Mantle.ToString());
+						SetTraversalAction(UGT.Traversal_Action_Mantle);
 					}
 				}
-				else
+				else if (ValidateMantleSurface())
 				{
 					UE_LOG(TraversalComponent, Warning, TEXT("DecideTraversalType: [%s]"), *UGT.Traversal_State_Mantle.ToString());
+					SetTraversalAction(UGT.Traversal_Action_Mantle);
 				}
 			}
 			else
