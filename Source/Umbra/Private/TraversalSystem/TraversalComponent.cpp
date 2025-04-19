@@ -11,6 +11,7 @@
 #include "TraversalSystem/TraversalInterface.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Misc/LowLevelTestAdapter.h"
 
 DEFINE_LOG_CATEGORY(TraversalComponent)
 
@@ -235,6 +236,36 @@ void UTraversalComponent::SetNewClimbPosition(float NewLocationX, float NewLocat
 	OwnerCharacter->SetActorLocationAndRotation(NewActorLocation, NewRotation);
 }
 
+bool UTraversalComponent::ValidateClimbSurface(FVector Location, FRotator Rotation)
+{
+	FVector DownOffset = VectorDirectionMove(
+		Location,
+		UGT.Traversal_Direction_Down,
+		Capsule->GetScaledCapsuleHalfHeight());
+
+	FVector CapsuleTraceLocation = VectorDirectionMoveWithRotation(
+		DownOffset,
+		UGT.Traversal_Direction_Backward,
+		Capsule->GetScaledCapsuleRadius() + ValidateClimbSurfaceAdditiveBackwardOffset,
+		Rotation);
+
+	FHitResult ClimbSurface;
+	UKismetSystemLibrary::CapsuleTraceSingle(
+		this,
+		CapsuleTraceLocation,
+		CapsuleTraceLocation,
+		Capsule->GetScaledCapsuleRadius(),
+		Capsule->GetScaledCapsuleHalfHeight(),
+		UEngineTypes::ConvertToTraceType(ECC_Visibility),
+		false,
+		TArray<AActor*>(),
+		EDrawDebugTrace::ForDuration,
+		ClimbSurface,
+		true);
+
+	return !ClimbSurface.bBlockingHit;
+}
+
 /********************* Wall Detection **********************/
 
 FHitResult UTraversalComponent::DetectWall()
@@ -356,7 +387,7 @@ bool UTraversalComponent::FindWallEdge(int GridWidth, int GridHeight, const FVec
 
         	LineHitTraces.Add(LineHit);
 
-        	DrawDebugLine(GetWorld(), LineHit.TraceStart, LineHit.TraceEnd, FColor::White, false, 1.f);
+        	//DrawDebugLine(GetWorld(), LineHit.TraceStart, LineHit.TraceEnd, FColor::White, false, 1.f);
         }
     	
         for (int32 j = 1; j < LineHitTraces.Num(); j++)
@@ -573,25 +604,26 @@ void UTraversalComponent::MeasureWall()
 
 void UTraversalComponent::PlayTraversalMontage()
 {
+	if (WallTopResult.ImpactPoint == FVector::ZeroVector)
+	{
+		//UE_LOG(TraversalComponent, Error, TEXT("Warp Location is Zero Vector!"));
+		SetTraversalAction(UGT.Traversal_Action_NoAction);
+		return;
+	}
+
+	SetTraversalState(CurrentActionData.InState);
+	
 	FVector TopResultWarpLocation = FindWarpLocation(WallTopResult.ImpactPoint, WallRotation, CurrentActionData.Warp1XOffset, CurrentActionData.Warp1ZOffset);
 	MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation("TopResultWarp", TopResultWarpLocation, WallRotation);
 
 	FVector BalanceWarpLocation = FindWarpLocation(WallTopResult.ImpactPoint, WallRotation, CurrentActionData.Warp2XOffset, CurrentActionData.Warp2ZOffset);
 	MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation("BalanceWarp", BalanceWarpLocation, WallRotation);
 
-	if (TopResultWarpLocation == FVector::ZeroVector || BalanceWarpLocation == FVector::ZeroVector ||
-		TopResultWarpLocation == FVector::ZeroVector + FVector(CurrentActionData.Warp1XOffset, 0.f, CurrentActionData.Warp1ZOffset) ||
-		BalanceWarpLocation == FVector::ZeroVector + FVector(CurrentActionData.Warp2XOffset, 0.f, CurrentActionData.Warp2ZOffset))
-	{
-		UE_LOG(TraversalComponent, Error, TEXT("Warp Location is Zero Vector!"));
-		SetTraversalAction(UGT.Traversal_Action_NoAction);
-		return;
-	}
-	
-	SetTraversalState(CurrentActionData.InState);
-	
-	DrawDebugSphere(GetWorld(), TopResultWarpLocation, 4.f, 8, FColor::White, false, 10.f);
-	DrawDebugSphere(GetWorld(), BalanceWarpLocation, 4.f, 8, FColor::Black, false, 10.f);
+	FVector DepthResultWarpLocation = FindWarpLocation(WallDepthResult.ImpactPoint, WallRotation, CurrentActionData.Warp2XOffset, CurrentActionData.Warp2ZOffset);
+	MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation("DepthResultWarp", DepthResultWarpLocation, WallRotation);
+
+	FVector VaultResultWarpLocation = FindWarpLocation(WallVaultResult.ImpactPoint, WallRotation, CurrentActionData.Warp3XOffset, CurrentActionData.Warp3ZOffset);
+	MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation("VaultResultWarp", VaultResultWarpLocation, WallRotation);
 	
 	if (AnimInstance)
 	{
@@ -716,7 +748,15 @@ void UTraversalComponent::DecideTraversalType(bool JumpAction)
 					{
 						if (CharacterMovement->Velocity.Length() > 20)
 						{
-							UE_LOG(TraversalComponent, Log, TEXT("DecideTraversalType: [%s]"), *UGT.Traversal_State_Vault.ToString());
+							if (ValidateVaultSurface())
+							{
+								UE_LOG(TraversalComponent, Log, TEXT("DecideTraversalType: [%s]"), *UGT.Traversal_State_Vault.ToString());
+								SetTraversalAction(UGT.Traversal_Action_Vault);
+							}
+							else
+							{
+								SetTraversalAction(UGT.Traversal_Action_NoAction);
+							}
 						}
 						else if (ValidateMantleSurface())
 						{
@@ -738,7 +778,7 @@ void UTraversalComponent::DecideTraversalType(bool JumpAction)
 			}
 			else
 			{
-				if (WallHeight < 250.f)
+				if (WallHeight < 250.f && ValidateClimbSurface(WallTopResult.ImpactPoint, WallRotation))
 				{
 					UE_LOG(TraversalComponent, Log, TEXT("DecideTraversalType: [%s]"), *UGT.Traversal_State_Climb.ToString());
 					DecideClimbStyle(WallTopResult.ImpactPoint, WallRotation);
@@ -757,7 +797,7 @@ void UTraversalComponent::DecideTraversalType(bool JumpAction)
 			UE_LOG(TraversalComponent, Log, TEXT("DecideTraversalType: [%s]"), *UGT.Traversal_State_Climb.ToString());
 			DecideClimbStyle(WallTopResult.ImpactPoint, WallRotation);
 			NextClimbResult = WallTopResult;
-			if (ValidateAirHang())
+			if (ValidateAirHang() && ValidateClimbSurface(WallTopResult.ImpactPoint, WallRotation))
 			{
 				ClimbStyle.MatchesTagExact(UGT.Traversal_ClimbStyle_BracedClimb) ?
 					SetTraversalAction(UGT.Traversal_Action_BracedClimb_FallingClimb) :
@@ -765,7 +805,7 @@ void UTraversalComponent::DecideTraversalType(bool JumpAction)
 			}
 		}
 	}
-	else
+	else if (ValidateClimbSurface(WallTopResult.ImpactPoint, WallRotation))
 	{
 		UE_LOG(TraversalComponent, Log, TEXT("DecideTraversalType: [%s]"), *UGT.Traversal_State_Climb.ToString());
 		DecideClimbStyle(WallTopResult.ImpactPoint, WallRotation);
@@ -801,12 +841,10 @@ void UTraversalComponent::DecideClimbStyle(const FVector& Location, const FRotat
 	if (HitResult.bBlockingHit)
 	{
 		SetClimbStyle(FUmbraGameplayTags::Get().Traversal_ClimbStyle_BracedClimb);
-		UE_LOG(TraversalComponent, Log, TEXT("DecideClimbStyle: [%s]"), *UGT.Traversal_ClimbStyle_BracedClimb.ToString());
 	}
 	else
 	{
 		SetClimbStyle(FUmbraGameplayTags::Get().Traversal_ClimbStyle_FreeHang);
-		UE_LOG(TraversalComponent, Log, TEXT("DecideClimbStyle: [%s]"), *UGT.Traversal_ClimbStyle_FreeHang.ToString());
 	}
 }
 
@@ -1200,7 +1238,7 @@ bool UTraversalComponent::ValidateMantleSurface()
 		UEngineTypes::ConvertToTraceType(ECC_Visibility),
 		false,
 		TArray<AActor*>(),
-		EDrawDebugTrace::ForDuration,
+		EDrawDebugTrace::None,
 		HitResult,
 		true);
 
@@ -1761,6 +1799,54 @@ void UTraversalComponent::FindHopLocation()
 
 	UE_LOG(TraversalComponent, Log, TEXT("Find Hop Location: Grid Scan Location = [%s]"), *ScanLocation.ToString());
 	GridScan(5, 20, ScanLocation, WallRotation);
+}
+
+bool UTraversalComponent::ValidateVaultSurface()
+{
+	float OnObstacleCapsuleTraceHeight = Capsule->GetScaledCapsuleHalfHeight() / 2.f;
+	float CapsuleRadius = Capsule->GetScaledCapsuleRadius();
+	
+	FVector OnObstacleCapsuleTraceLocation = VectorDirectionMove(
+		WallTopResult.ImpactPoint,
+		UGT.Traversal_Direction_Up,
+		OnObstacleCapsuleTraceHeight + 20.f);
+
+	FHitResult OnObstacleHitResult;
+	UKismetSystemLibrary::CapsuleTraceSingle(
+		this,
+		OnObstacleCapsuleTraceLocation,
+		OnObstacleCapsuleTraceLocation,
+		CapsuleRadius,
+		OnObstacleCapsuleTraceHeight,
+		UEngineTypes::ConvertToTraceType(ECC_Visibility),
+		false,
+		TArray<AActor*>(),
+		EDrawDebugTrace::None,
+		OnObstacleHitResult,
+		true);
+
+	float VaultCapsuleTraceHeight = Capsule->GetScaledCapsuleHalfHeight();
+
+	FVector VaultCapsuleLocation = VectorDirectionMove(
+		WallVaultResult.ImpactPoint,
+		UGT.Traversal_Direction_Up,
+		VaultCapsuleTraceHeight + 10.f);
+
+	FHitResult VaultHitResult;
+	UKismetSystemLibrary::CapsuleTraceSingle(
+		this,
+		VaultCapsuleLocation,
+		VaultCapsuleLocation,
+		CapsuleRadius,
+		VaultCapsuleTraceHeight,
+		UEngineTypes::ConvertToTraceType(ECC_Visibility),
+		false,
+		TArray<AActor*>(),
+		EDrawDebugTrace::None,
+		VaultHitResult,
+		true);
+
+	return !OnObstacleHitResult.bBlockingHit && !VaultHitResult.bBlockingHit;
 }
 
 

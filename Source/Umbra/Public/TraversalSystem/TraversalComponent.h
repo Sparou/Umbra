@@ -426,6 +426,8 @@ protected:
 	float HopVerticalDistanceMultiplier = 25.f;
 
 	float HopHorizontalDistanceMultiplier = 100.f;
+
+	float ValidateClimbSurfaceAdditiveBackwardOffset = 10.f;
 	
 private:
 	
@@ -466,7 +468,8 @@ private:
 	void StopClimbMovement();
 	bool ClimbCheckForSides(const FVector& ImpactPoint);
 	void SetNewClimbPosition(float NewLocationX, float NewLocationY, float NewLocationZ, FRotator NewRotation);
-
+	bool ValidateClimbSurface(FVector Location, FRotator Rotation);
+	
 	void ClimbMovementIK();
 	UFUNCTION(BlueprintCallable)
 	void NextClimbHandIK(const bool bLeftHand);
@@ -482,6 +485,8 @@ private:
 	float GetHorizontalHopDistance();
 	FGameplayTag DecideHopAction();
 	void FindHopLocation();
+
+	bool ValidateVaultSurface();
 	
 	/** Validate Functions */
 	void ValidateIsInLand();
