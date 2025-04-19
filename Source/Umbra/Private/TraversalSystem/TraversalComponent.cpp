@@ -3,7 +3,6 @@
 
 #include "TraversalSystem/TraversalComponent.h"
 #include "MotionWarpingComponent.h"
-#include "RayTracingDebugDefinitions.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
@@ -11,7 +10,6 @@
 #include "TraversalSystem/TraversalInterface.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "Misc/LowLevelTestAdapter.h"
 
 DEFINE_LOG_CATEGORY(TraversalComponent)
 
@@ -29,22 +27,26 @@ void UTraversalComponent::BeginPlay()
 void UTraversalComponent::InitializeReferences()
 {
 	OwnerCharacter = Cast<ACharacter>(this->GetOwner());
+	checkf(OwnerCharacter, TEXT("Traversal Component: Owner Character is null"));
+	
 	CharacterMovement = OwnerCharacter->GetCharacterMovement();
+	checkf(CharacterMovement, TEXT("Traversal Component: Character Movement is null"));
+
 	MotionWarping = OwnerCharacter->FindComponentByClass<UMotionWarpingComponent>();
+	checkf(MotionWarping, TEXT("Traversal Component: Motion Warping is null"));
+
 	Camera = OwnerCharacter->FindComponentByClass<UCameraComponent>();
+	checkf(Camera, TEXT("Traversal Component: Camera is null"));
+
 	Capsule = OwnerCharacter->FindComponentByClass<UCapsuleComponent>();
+	checkf(Capsule, TEXT("Traversal Component: Capsule is null"));
+
 	SkeletalMesh = OwnerCharacter->GetMesh();
+	checkf(SkeletalMesh, TEXT("Traversal Component: Skeletal Mesh is NUll"));
+
 	AnimInstance = SkeletalMesh->GetAnimInstance();
-
-	check(OwnerCharacter);
-	check(CharacterMovement);
-	check(MotionWarping);
-	check(Camera);
-	check(Capsule);
-	check(SkeletalMesh);
-	check(AnimInstance);
+	checkf(AnimInstance, TEXT("Traversal Component: Anim Instance is null"));
 }
-
 
 void UTraversalComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
@@ -105,6 +107,49 @@ void UTraversalComponent::TriggerTraversalAction(bool JumpAction)
 		GridScan(GridWidth, GridHeight, GridScanLocation, ReverseNormal(WallHitResult.ImpactNormal));
 		MeasureWall();
 		DecideTraversalType(JumpAction);
+	}
+}
+
+void UTraversalComponent::PlayTraversalMontage()
+{
+	if (WallTopResult.ImpactPoint == FVector::ZeroVector)
+	{
+		UE_LOG(TraversalComponent, Warning, TEXT("Play Traversal Montage: Wall Top Result is zero!"));
+		SetTraversalAction(UGT.Traversal_Action_NoAction);
+		return;
+	}
+
+	SetTraversalState(CurrentActionData.InState);
+	
+	FVector TopResultWarpLocation = FindWarpLocation(WallTopResult.ImpactPoint, WallRotation, CurrentActionData.Warp1XOffset, CurrentActionData.Warp1ZOffset);
+	MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation("TopResultWarp", TopResultWarpLocation, WallRotation);
+
+	FVector BalanceWarpLocation = FindWarpLocation(WallTopResult.ImpactPoint, WallRotation, CurrentActionData.Warp2XOffset, CurrentActionData.Warp2ZOffset);
+	MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation("BalanceWarp", BalanceWarpLocation, WallRotation);
+
+	FVector DepthResultWarpLocation = FindWarpLocation(WallDepthResult.ImpactPoint, WallRotation, CurrentActionData.Warp2XOffset, CurrentActionData.Warp2ZOffset);
+	MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation("DepthResultWarp", DepthResultWarpLocation, WallRotation);
+
+	FVector VaultResultWarpLocation = FindWarpLocation(WallVaultResult.ImpactPoint, WallRotation, CurrentActionData.Warp3XOffset, CurrentActionData.Warp3ZOffset);
+	MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation("VaultResultWarp", VaultResultWarpLocation, WallRotation);
+	
+	if (AnimInstance)
+	{
+		FOnMontageBlendingOutStarted BlendingOutStarted = FOnMontageBlendingOutStarted::CreateWeakLambda(this,
+			[this](UAnimMontage*, bool)
+		{
+				SetTraversalState(CurrentActionData.OutState);
+		}
+		);
+
+		FOnMontageEnded Ended = FOnMontageEnded::CreateWeakLambda(this, [this](UAnimMontage*, bool)
+		{
+				SetTraversalAction(UGT.Traversal_Action_NoAction);
+		});
+		
+		AnimInstance->Montage_Play(CurrentActionData.Montage);
+		AnimInstance->Montage_SetBlendingOutDelegate(BlendingOutStarted);
+		AnimInstance->Montage_SetEndDelegate(Ended);
 	}
 }
 
@@ -236,39 +281,9 @@ void UTraversalComponent::SetNewClimbPosition(float NewLocationX, float NewLocat
 	OwnerCharacter->SetActorLocationAndRotation(NewActorLocation, NewRotation);
 }
 
-bool UTraversalComponent::ValidateClimbSurface(FVector Location, FRotator Rotation)
-{
-	FVector DownOffset = VectorDirectionMove(
-		Location,
-		UGT.Traversal_Direction_Down,
-		Capsule->GetScaledCapsuleHalfHeight());
-
-	FVector CapsuleTraceLocation = VectorDirectionMoveWithRotation(
-		DownOffset,
-		UGT.Traversal_Direction_Backward,
-		Capsule->GetScaledCapsuleRadius() + ValidateClimbSurfaceAdditiveBackwardOffset,
-		Rotation);
-
-	FHitResult ClimbSurface;
-	UKismetSystemLibrary::CapsuleTraceSingle(
-		this,
-		CapsuleTraceLocation,
-		CapsuleTraceLocation,
-		Capsule->GetScaledCapsuleRadius(),
-		Capsule->GetScaledCapsuleHalfHeight(),
-		UEngineTypes::ConvertToTraceType(ECC_Visibility),
-		false,
-		TArray<AActor*>(),
-		EDrawDebugTrace::ForDuration,
-		ClimbSurface,
-		true);
-
-	return !ClimbSurface.bBlockingHit;
-}
-
 /********************* Wall Detection **********************/
 
-FHitResult UTraversalComponent::DetectWall()
+FHitResult UTraversalComponent::DetectWall() const
 {
 	FHitResult HitResult;
 	int32 iterations = CharacterMovement->IsFalling() ? DetectWallIterationsFalling : DetectWallIterationsNotFalling;
@@ -277,25 +292,29 @@ FHitResult UTraversalComponent::DetectWall()
 	{
 		FVector CurrentLocation = OwnerCharacter->GetActorLocation();
 
-		FVector FirstStepVector = VectorDirectionMove(CurrentLocation, UGT.Traversal_Direction_Down, DetectWallDownOffset);
-		FVector SecondStepVector = VectorDirectionMove(FirstStepVector, UGT.Traversal_Direction_Up, i * DetectWallUpStepMultiplier);
-		FVector ThirdStepVector = VectorDirectionMove(SecondStepVector, UGT.Traversal_Direction_Backward, DetectWallBackwardOffset);
-		FVector FourthStepVector = VectorDirectionMove(SecondStepVector, UGT.Traversal_Direction_Forward, DetectWallForwardOffset);
-		
-		if (GetWorld()->SweepSingleByChannel(
+		FVector DownOffset = VectorDirectionMove(CurrentLocation, UGT.Traversal_Direction_Down, DetectWallDownOffset);
+		FVector UpOffset = VectorDirectionMove(DownOffset, UGT.Traversal_Direction_Up, i * DetectWallUpStepMultiplier);
+		FVector BackwardOffset = VectorDirectionMove(UpOffset, UGT.Traversal_Direction_Backward, DetectWallBackwardOffset);
+		FVector ForwardOffset = VectorDirectionMove(UpOffset, UGT.Traversal_Direction_Forward, DetectWallForwardOffset);
+
+		UKismetSystemLibrary::SphereTraceSingle(
+			this,
+			BackwardOffset,
+			ForwardOffset,
+			DetectWallSphereRadius,
+			UEngineTypes::ConvertToTraceType(ECC_Visibility),
+			false,
+			TArray<AActor*>(),
+			GetDebugType(DetectWallDebugType),
 			HitResult,
-			ThirdStepVector,
-			FourthStepVector,
-			FQuat::Identity,
-			ECC_Visibility,
-			FCollisionShape::MakeSphere(DetectWallSphereRadius)))
+			true,
+			DetectWallDebugTraceColor,
+			DetectWallDebugHitColor,
+			DetectWallDebugTime);
+		
 		{
 			if (HitResult.bBlockingHit && !HitResult.bStartPenetrating)
 			{
-				if (bDrawDetectWallDebug)
-				{
-					DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 8.f, 8, FColor::Green, false, 3.f);
-				}
 				UE_LOG(TraversalComponent, Log, TEXT("Wall Impact Point: [%s]"), *HitResult.ImpactPoint.ToString());
 				return HitResult;
 			}
@@ -363,9 +382,6 @@ bool UTraversalComponent::FindWallEdge(int GridWidth, int GridHeight, const FVec
 	 */
 	
 	TArray<FHitResult> EdgesResults;
-
-	FCollisionQueryParams QueryParams;
-	QueryParams.AddIgnoredActor(OwnerCharacter);
  
     for (int32 i = 0; i <= GridWidth; i++)
     {
@@ -375,19 +391,42 @@ bool UTraversalComponent::FindWallEdge(int GridWidth, int GridHeight, const FVec
         TArray<FHitResult> LineHitTraces;
         for (int32 j = 0; j <= GridHeight; j++)
         {
-            FVector GridPointLocation = VectorDirectionMove(ScanColumnOrigin, FUmbraGameplayTags::Get().Traversal_Direction_Up, j * GridRowSpacing);
-            FHitResult LineHit;
+            FVector GridPointLocation = VectorDirectionMove(
+            	ScanColumnOrigin,
+            	UGT.Traversal_Direction_Up,
+            	j * GridRowSpacing);
+
+        	FVector TraceStart = VectorDirectionMoveWithRotation(
+        		GridPointLocation,
+        		UGT.Traversal_Direction_Backward,
+        		GridScanLineTraceDistance,
+        		ScanRotation);
+
+        	FVector TraceEnd = VectorDirectionMoveWithRotation(
+        		GridPointLocation,
+        		UGT.Traversal_Direction_Forward,
+        		GridScanLineTraceDistance,
+        		ScanRotation);
+
         	
-        	GetWorld()->LineTraceSingleByChannel(
+            FHitResult LineHit;
+
+        	UKismetSystemLibrary::LineTraceSingle(
+        		this,
+        		TraceStart,
+        		TraceEnd,
+        		UEngineTypes::ConvertToTraceType(ECC_Visibility),
+        		false,
+        		TArray<AActor*>(),
+        		GetDebugType(WallEdgeSearchDebugType),
         		LineHit,
-        		VectorDirectionMoveWithRotation(GridPointLocation, FUmbraGameplayTags::Get().Traversal_Direction_Backward, GridScanLineTraceDistance, ScanRotation),
-        		VectorDirectionMoveWithRotation(GridPointLocation, FUmbraGameplayTags::Get().Traversal_Direction_Forward, GridScanLineTraceDistance, ScanRotation),
-        		ECC_Visibility,
-        		QueryParams);
-
+        		true,
+        		WallEdgeSearchDebugTraceColor,
+        		WallEdgeSearchDebugHitColor,
+        		WallEdgeSearchDebugTime);
+        	
         	LineHitTraces.Add(LineHit);
-
-        	//DrawDebugLine(GetWorld(), LineHit.TraceStart, LineHit.TraceEnd, FColor::White, false, 1.f);
+        	
         }
     	
         for (int32 j = 1; j < LineHitTraces.Num(); j++)
@@ -421,13 +460,8 @@ bool UTraversalComponent::FindWallEdge(int GridWidth, int GridHeight, const FVec
             OutWallEdgeResult = EdgesResults[i];
         }
     }
-
-	if (bDrawWallEdgeDebug)
-	{
-		DrawDebugSphere(GetWorld(), OutWallEdgeResult.ImpactPoint, 4.f, 8, FColor::Blue, false, 3.f);
-	}
-	UE_LOG(TraversalComponent, Log, TEXT("Wall Edge Location: [%s]"), *WallEdgeResult.ImpactPoint.ToString());
 	
+	UE_LOG(TraversalComponent, Log, TEXT("Wall Edge Location: [%s]"), *WallEdgeResult.ImpactPoint.ToString());
     return OutWallEdgeResult.bBlockingHit && !OutWallEdgeResult.bStartPenetrating;
 }
 
@@ -444,34 +478,45 @@ bool UTraversalComponent::FindWallTop(const FHitResult& WallEdgeHit, const FRota
 	
 	bool bFoundTop = false;
 	FHitResult LastTopHit;
-
-	FCollisionQueryParams QueryParams;
-	QueryParams.AddIgnoredActor(OwnerCharacter);
 	
-	for (int32 i = 0; i < TopScanIterations; i++)
+	for (int32 i = 0; i < WallTopSearchScanIterations; i++)
 	{
-		FVector ForwardScanLocation = VectorDirectionMoveWithRotation(WallEdgeHit.ImpactPoint, FUmbraGameplayTags::Get().Traversal_Direction_Forward, i * TopForwardScanStep, WallRot);
-		FVector ElevatedTraceStart = VectorDirectionMove(ForwardScanLocation, FUmbraGameplayTags::Get().Traversal_Direction_Up, TopElevatedOffset);
-		FVector ElevatedTraceEnd = VectorDirectionMove(ElevatedTraceStart, FUmbraGameplayTags::Get().Traversal_Direction_Down, TopElevatedOffset);
+		FVector ForwardScanLocation = VectorDirectionMoveWithRotation(
+			WallEdgeHit.ImpactPoint,
+			UGT.Traversal_Direction_Forward,
+			i * WallTopSearchForwardScanStep,
+			WallRot);
+		
+		FVector ElevatedTraceStart = VectorDirectionMove(
+			ForwardScanLocation,
+			UGT.Traversal_Direction_Up,
+			WallTopSearchElevatedOffset);
+		
+		FVector ElevatedTraceEnd = VectorDirectionMove(
+			ElevatedTraceStart,
+			UGT.Traversal_Direction_Down,
+			WallTopSearchElevatedOffset);
+		
 		FHitResult TopHit;
 
-		GetWorld()->SweepSingleByChannel(
-			TopHit,
+		UKismetSystemLibrary::SphereTraceSingle(
+			this,
 			ElevatedTraceStart,
 			ElevatedTraceEnd,
-			FQuat::Identity,
-			ECC_Visibility,
-			FCollisionShape::MakeSphere(TopSweepSphereRadius),
-			QueryParams);
-		
+			WallTopSearchSphereRadius,
+			UEngineTypes::ConvertToTraceType(ECC_Visibility),
+			false,
+			TArray<AActor*>(),
+			GetDebugType(WallTopSearchDebugType),
+			TopHit,
+			true,
+			WallTopSearchDebugTraceColor,
+			WallTopSearchDebugHitColor,
+			WallTopSearchDebugTime);
 		
 		if (i == 0 && TopHit.bBlockingHit)
 		{
 			OutWallTopResult = TopHit;
-			if (bDrawWallTopDebug)
-			{
-				DrawDebugSphere(GetWorld(), OutWallTopResult.ImpactPoint, 2.f, 4, FColor::Orange, false, 3.f);
-			}
 			bFoundTop = true;
 			UE_LOG(TraversalComponent, Log, TEXT("Wall Top Location: [%s]"), *OutWallTopResult.ImpactPoint.ToString());
 		}
@@ -481,10 +526,6 @@ bool UTraversalComponent::FindWallTop(const FHitResult& WallEdgeHit, const FRota
 			if (TopHit.bBlockingHit)
 			{
 				LastTopHit = TopHit;
-				if (bDrawWallTopDebug)
-				{
-					DrawDebugSphere(GetWorld(), LastTopHit.ImpactPoint, 6.f, 12, FColor::Green, false, 3.f);
-				}
 				UE_LOG(TraversalComponent, Log, TEXT("Wall Surface Found: [%s]"), *LastTopHit.ImpactPoint.ToString());
 			}
 			else
@@ -509,19 +550,28 @@ bool UTraversalComponent::FindWallTop(const FHitResult& WallEdgeHit, const FRota
 bool UTraversalComponent::FindWallDepth(const FHitResult& LastTopHit, const FRotator& WallRot,
 	FHitResult& OutWallDepthResult)
 {
-
-	FCollisionQueryParams QueryParams;
-	QueryParams.AddIgnoredActor(OwnerCharacter);
-	
 	FHitResult DepthResult;
-	GetWorld()->SweepSingleByChannel(
-		DepthResult,
-		VectorDirectionMoveWithRotation(LastTopHit.ImpactPoint, UGT.Traversal_Direction_Forward, DepthForwardOffset, WallRot),
+
+	FVector TraceStart = VectorDirectionMoveWithRotation(
 		LastTopHit.ImpactPoint,
-		FQuat::Identity,
-		ECC_Visibility,
-		FCollisionShape::MakeSphere(DepthSweepSphereRadius),
-		QueryParams);
+		UGT.Traversal_Direction_Forward,
+		WallDepthSearchForwardOffset,
+		WallRot);
+	
+	UKismetSystemLibrary::SphereTraceSingle(
+		this,
+		TraceStart,
+		LastTopHit.ImpactPoint,
+		WallDepthSearchSphereRadius,
+		UEngineTypes::ConvertToTraceType(ECC_Visibility),
+		false,
+		TArray<AActor*>(),
+		GetDebugType(WallDepthSearchDebugType),
+		DepthResult,
+		true,
+		WallDepthSearchDebugTraceColor,
+		WallDepthSearchDebugHitColor,
+		WallDepthSearchDebugTime);
 
 	if (!DepthResult.bBlockingHit)
 	{
@@ -531,10 +581,6 @@ bool UTraversalComponent::FindWallDepth(const FHitResult& LastTopHit, const FRot
 
 	OutWallDepthResult = DepthResult;
 	
-	if (bDrawWallDepthDebug)
-	{
-		DrawDebugSphere(GetWorld(), OutWallDepthResult.ImpactPoint, 4.f, 8, FColor::Red, false, 3.f);
-	}
 	UE_LOG(TraversalComponent, Log, TEXT("Wall Depth Location: [%s]"), *OutWallDepthResult.ImpactPoint.ToString());
 	
 	return true;
@@ -543,22 +589,34 @@ bool UTraversalComponent::FindWallDepth(const FHitResult& LastTopHit, const FRot
 bool UTraversalComponent::FindWallVault(const FHitResult& WallDepthHit, const FRotator& WallRot,
 	FHitResult& OutWallVaultResult)
 {
-	FCollisionQueryParams QueryParams;
-	QueryParams.AddIgnoredActor(OwnerCharacter);
-	
 	FHitResult VaultHit;
-	FVector Start = VectorDirectionMoveWithRotation(WallDepthHit.ImpactPoint, FUmbraGameplayTags::Get().Traversal_Direction_Forward, VaultForwardOffset, WallRot);
-	FVector End = VectorDirectionMove(Start, FUmbraGameplayTags::Get().Traversal_Direction_Down, VaultDownOffset);
-
-	GetWorld()->SweepSingleByChannel(
-		VaultHit,
-		Start,
-		End,
-		FQuat::Identity,
-		ECC_Visibility,
-		FCollisionShape::MakeSphere(VaultSweepSphereRadius),
-		QueryParams);
 	
+	FVector TraceStart = VectorDirectionMoveWithRotation(
+		WallDepthHit.ImpactPoint,
+		UGT.Traversal_Direction_Forward,
+		WallVaultSearchForwardOffset,
+		WallRot);
+	
+	FVector TraceEnd = VectorDirectionMove(
+		TraceStart,
+		UGT.Traversal_Direction_Down,
+		WallVaultSearchDownOffset);
+
+	UKismetSystemLibrary::SphereTraceSingle(
+		this,
+		TraceStart,
+		TraceEnd,
+		WallVaultSearchSphereRadius,
+		UEngineTypes::ConvertToTraceType(ECC_Visibility),
+		false,
+		TArray<AActor*>(),
+		GetDebugType(WallVaultSearchDebugType),
+		VaultHit,
+		true,
+		WallVaultSearchDebugTraceColor,
+		WallVaultSearchDebugHitColor,
+		WallVaultSearchDebugTime);	
+
 	if (!VaultHit.bBlockingHit)
 	{
 		UE_LOG(TraversalComponent, Warning, TEXT("Wall Vault Not Found!"));
@@ -566,18 +624,14 @@ bool UTraversalComponent::FindWallVault(const FHitResult& WallDepthHit, const FR
 	}
 
 	OutWallVaultResult = VaultHit;
-	if (bDrawWallVaultDebug)
-	{
-		DrawDebugSphere(GetWorld(), OutWallVaultResult.ImpactPoint, 10.f, 8, FColor::White, false, 6.f);
-	}
+	
 	UE_LOG(TraversalComponent, Log, TEXT("Wall Vault Location: [%s]"), *OutWallVaultResult.ImpactPoint.ToString());
-
 	
 	return true;
 }
 
 FVector UTraversalComponent::FindWarpLocation(const FVector& Location, const FRotator& Rotation, float XOffset,
-	float ZOffset)
+	float ZOffset) const
 {
 	FVector XOffsetVector = VectorDirectionMoveWithRotation(Location, UGT.Traversal_Direction_Forward, XOffset, Rotation);
 	FVector ZOffsetVector = VectorDirectionMove(XOffsetVector, UGT.Traversal_Direction_Up, ZOffset);
@@ -601,120 +655,6 @@ void UTraversalComponent::MeasureWall()
 
 	UE_LOG(TraversalComponent, Log, TEXT("Wall Height: [%f], Wall Depth: [%f], Vault Height: [%f]"), WallHeight, WallDepth, VaultHeight);
 }
-
-void UTraversalComponent::PlayTraversalMontage()
-{
-	if (WallTopResult.ImpactPoint == FVector::ZeroVector)
-	{
-		//UE_LOG(TraversalComponent, Error, TEXT("Warp Location is Zero Vector!"));
-		SetTraversalAction(UGT.Traversal_Action_NoAction);
-		return;
-	}
-
-	SetTraversalState(CurrentActionData.InState);
-	
-	FVector TopResultWarpLocation = FindWarpLocation(WallTopResult.ImpactPoint, WallRotation, CurrentActionData.Warp1XOffset, CurrentActionData.Warp1ZOffset);
-	MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation("TopResultWarp", TopResultWarpLocation, WallRotation);
-
-	FVector BalanceWarpLocation = FindWarpLocation(WallTopResult.ImpactPoint, WallRotation, CurrentActionData.Warp2XOffset, CurrentActionData.Warp2ZOffset);
-	MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation("BalanceWarp", BalanceWarpLocation, WallRotation);
-
-	FVector DepthResultWarpLocation = FindWarpLocation(WallDepthResult.ImpactPoint, WallRotation, CurrentActionData.Warp2XOffset, CurrentActionData.Warp2ZOffset);
-	MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation("DepthResultWarp", DepthResultWarpLocation, WallRotation);
-
-	FVector VaultResultWarpLocation = FindWarpLocation(WallVaultResult.ImpactPoint, WallRotation, CurrentActionData.Warp3XOffset, CurrentActionData.Warp3ZOffset);
-	MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation("VaultResultWarp", VaultResultWarpLocation, WallRotation);
-	
-	if (AnimInstance)
-	{
-		FOnMontageBlendingOutStarted BlendingOutStarted = FOnMontageBlendingOutStarted::CreateWeakLambda(this,
-			[this](UAnimMontage*, bool)
-		{
-				SetTraversalState(CurrentActionData.OutState);
-		}
-		);
-
-		FOnMontageEnded Ended = FOnMontageEnded::CreateWeakLambda(this, [this](UAnimMontage*, bool)
-		{
-				SetTraversalAction(UGT.Traversal_Action_NoAction);
-		});
-		
-		AnimInstance->Montage_Play(CurrentActionData.Montage);
-		AnimInstance->Montage_SetBlendingOutDelegate(BlendingOutStarted);
-		AnimInstance->Montage_SetEndDelegate(Ended);
-	}
-}
-
-float UTraversalComponent::ClimbValues(const FGameplayTag& NewClimbStyle, float Braced, float FreeHang) const
-{
-	return ClimbStyle.MatchesTagExact(FUmbraGameplayTags::Get().Traversal_ClimbStyle_BracedClimb) ? Braced : FreeHang;
-}
-
-float UTraversalComponent::DirectionValues(const FGameplayTag& Direction, float Forward, float ForwardRight, float Right,
-		float BackwardRight, float Backward, float BackwardLeft, float Left, float ForwardLeft) const
-{
-	if (Direction.MatchesTagExact(UGT.Traversal_Direction_Forward))
-	{
-		return Forward;
-	}
-	if (Direction.MatchesTagExact(UGT.Traversal_Direction_ForwardRight))
-	{
-		return ForwardRight;
-	}
-	if (Direction.MatchesTagExact(UGT.Traversal_Direction_Right))
-	{
-		return Right;
-	}
-	if (Direction.MatchesTagExact(UGT.Traversal_Direction_BackwardRight))
-	{
-		return BackwardRight;
-	}
-	if (Direction.MatchesTagExact(UGT.Traversal_Direction_Backward))
-	{
-		return Backward;
-	}
-	if (Direction.MatchesTagExact(UGT.Traversal_Direction_BackwardLeft))
-	{
-		return BackwardLeft;
-	}
-	if (Direction.MatchesTagExact(UGT.Traversal_Direction_Left))
-	{
-		return Left;
-	}
-	if (Direction.MatchesTagExact(UGT.Traversal_Direction_ForwardLeft))
-	{
-		return ForwardLeft;
-	}
-	return Forward;
-}
-
-float UTraversalComponent::TraversalStateValues(const FGameplayTag& State, float FreeRoam, float ReadyToClimb,
-	float Climb, float Mantle, float Vault) const
-{
-	if (State.MatchesTagExact(UGT.Traversal_State_FreeRoam))
-	{
-		return FreeRoam;
-	}
-	if (State.MatchesTagExact(UGT.Traversal_State_ReadyToClimb))
-	{
-		return ReadyToClimb;
-	}
-	if (State.MatchesTagExact(UGT.Traversal_State_Climb))
-	{
-		return Climb;
-	}
-	if (State.MatchesTagExact(UGT.Traversal_State_Mantle))
-	{
-		return Mantle;
-	}
-	if (State.MatchesTagExact(UGT.Traversal_State_Vault))
-	{
-		return Vault;
-	}
-
-	return FreeRoam;
-}
-
 
 void UTraversalComponent::DecideTraversalType(bool JumpAction)
 {
@@ -888,7 +828,6 @@ void UTraversalComponent::DecideClimbOrHope()
 	SetTraversalAction(DecideHopAction());
 }
 
-
 /********************* Climbing **********************/
 
 void UTraversalComponent::AddMovementInput(float ScaleValue, bool Front)
@@ -906,6 +845,39 @@ void UTraversalComponent::AddMovementInput(float ScaleValue, bool Front)
 	{
 		AnimInstance->IsAnyMontagePlaying() ? StopClimbMovement() : ClimbMovement();
 	}
+}
+
+bool UTraversalComponent::ValidateClimbSurface(const FVector& Location, const FRotator& Rotation) const
+{
+	FVector DownOffset = VectorDirectionMove(
+		Location,
+		UGT.Traversal_Direction_Down,
+		Capsule->GetScaledCapsuleHalfHeight());
+
+	FVector CapsuleTraceLocation = VectorDirectionMoveWithRotation(
+		DownOffset,
+		UGT.Traversal_Direction_Backward,
+		Capsule->GetScaledCapsuleRadius() + ValidateClimbSurfaceAdditiveBackwardOffset,
+		Rotation);
+
+	FHitResult ClimbSurface;
+	UKismetSystemLibrary::CapsuleTraceSingle(
+		this,
+		CapsuleTraceLocation,
+		CapsuleTraceLocation,
+		Capsule->GetScaledCapsuleRadius(),
+		Capsule->GetScaledCapsuleHalfHeight(),
+		UEngineTypes::ConvertToTraceType(ECC_Visibility),
+		false,
+		TArray<AActor*>(),
+		GetDebugType(ClimbSurfaceValidationDebugType),
+		ClimbSurface,
+		true,
+		ClimbSurfaceValidationDebugTraceColor,
+		ClimbSurfaceValidationDebugHitColor,
+		ClimbSurfaceValidationDebugTime);
+
+	return !ClimbSurface.bBlockingHit;
 }
 
 void UTraversalComponent::ClimbMovement()
@@ -966,16 +938,17 @@ void UTraversalComponent::ClimbMovement()
 			this,
 			WallDetectionTraceStart,
 			WallDetectionTraceEnd,
-			5.f,
+			ClimbMovementWallDetectionSphereRadius,
 			UEngineTypes::ConvertToTraceType(ECC_Visibility),
 			false,
 			TArray<AActor*>(),
-			EDrawDebugTrace::None,
+			GetDebugType(ClimbMovementWallDetectionDebugType),
 			ClimbWallHitResult,
-			true
-		);
-
-
+			true,
+			ClimbMovementWallDetectionDebugTraceColor,
+			ClimbMovementWallDetectionDebugHitColor,
+			ClimbMovementWallDetectionDebugTime);
+		
 		if (!ClimbWallHitResult.bStartPenetrating)
 		{
 			if (!ClimbWallHitResult.bBlockingHit)
@@ -1022,13 +995,16 @@ void UTraversalComponent::ClimbMovement()
 						this,
 						TopDetectionTraceStart,
 						TopDetectionTraceEnd,
-						2.5f,
+						ClimbMovementTopDetectionSphereRadius,
 						UEngineTypes::ConvertToTraceType(ECC_Visibility),
 						false,
 						TArray<AActor*>(),
-						EDrawDebugTrace::None,
+						GetDebugType(ClimbMovementTopDetectionDebugType),
 						ClimbTopHitResult,
-						true);
+						true,
+						ClimbMovementTopDetectionDebugTraceColor,
+						ClimbMovementTopDetectionDebugHitColor,
+						ClimbMovementTopDetectionDebugTime);
 		
 					if (ClimbTopHitResult.bStartPenetrating
 						&& WallDetectionIndex == (ClimbMovementWallDetectionIterations - 1)
@@ -1074,25 +1050,6 @@ void UTraversalComponent::StopClimbMovement()
 	SetClimbDirection(UGT.Traversal_Direction_NoDirection);
 }
 
-void UTraversalComponent::DropFromClimb()
-{
-	if (bInLand)
-	{
-		return;
-	}
-
-	if (TraversalState.MatchesTagExact(UGT.Traversal_State_Climb))
-	{
-		SetTraversalState(UGT.Traversal_State_FreeRoam);
-		bIsDropping = true;
-		FTimerHandle TimerHandle;
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this]()
-		{
-			bIsDropping = false;
-		}, IsDroppingResetTime, false);
-	}
-}
-
 bool UTraversalComponent::ClimbCheckForSides(const FVector& ImpactPoint)
 {
 	for (int32 i = 0; i < ClimbCheckForSidesIterations; i++)
@@ -1121,9 +1078,12 @@ bool UTraversalComponent::ClimbCheckForSides(const FVector& ImpactPoint)
 			UEngineTypes::ConvertToTraceType(ECC_Visibility),
 			false,
 			TArray<AActor*>(),
-			EDrawDebugTrace::None,
+			GetDebugType(ClimbCheckForSidesDebugType),
 			HitResult,
-			true);
+			true,
+			ClimbCheckForSidesDebugTraceColor,
+			ClimbCheckForSidesDebugHitColor,
+			ClimbCheckForSidesDebugTime);
 
 		if (HitResult.bBlockingHit && i == ClimbCheckForSidesIterations - 1)
 		{
@@ -1138,7 +1098,7 @@ bool UTraversalComponent::ClimbCheckForSides(const FVector& ImpactPoint)
 	return false;
 }
 
-bool UTraversalComponent::ValidateClimbMovementSurface(const FVector& MovementImpactLocation)
+bool UTraversalComponent::ValidateClimbMovementSurface(const FVector& MovementImpactLocation) const
 {
 	FRotator CharacterRotation = OwnerCharacter->GetActorRotation();
 	
@@ -1170,19 +1130,22 @@ bool UTraversalComponent::ValidateClimbMovementSurface(const FVector& MovementIm
 		this,
 		TraceStart,
 		TraceEnd,
-		5.f,
-		82.f,
+		ClimbMovementSurfaceValidationCapsuleRadius,
+		ClimbMovementSurfaceValidationCapsuleHalfHeight,
 		UEngineTypes::ConvertToTraceType(ECC_Visibility),
 		false,
 		TArray<AActor*>(),
-		EDrawDebugTrace::None,
+		GetDebugType(ClimbMovementSurfaceValidationDebugType),
 		HitResult,
-		true);
+		true,
+		ClimbMovementSurfaceValidationDebugTraceColor,
+		ClimbMovementSurfaceValidationHitColor,
+		ClimbMovementSurfaceValidationDebugTime);
 
 	return !HitResult.bBlockingHit;
 }
 
-bool UTraversalComponent::ValidateAirHang()
+bool UTraversalComponent::ValidateAirHang() const
 {
 
 	if (!NextClimbResult.bBlockingHit)
@@ -1194,12 +1157,10 @@ bool UTraversalComponent::ValidateAirHang()
 	float CharacterHeadZ = SkeletalMesh->GetBoneLocation("Head").Z;
 	float HeightDifference = CharacterHeadZ - ClimbLocationZ;
 	float Distance = FVector::Distance(NextClimbResult.ImpactPoint, SkeletalMesh->GetBoneLocation("Head"));
-
-	//DrawDebugSphere(GetWorld(), NextClimbResult.ImpactPoint, 4, 8, FColor::Green, false, 10.f);
-	//DrawDebugSphere(GetWorld(), SkeletalMesh->GetBoneLocation("Head"), 4, 8, FColor::Blue, false, 10.f);
+	
 	UE_LOG(TraversalComponent, Log, TEXT("ValidateAirHang: Distance = [%f]"), Distance);
 	
-	if (HeightDifference < 30 || Distance > 50.f)
+	if (HeightDifference < AirHangMaxHeightDifference || Distance > AirHangMinDistance)
 	{
 		return false;
 	}
@@ -1212,38 +1173,7 @@ bool UTraversalComponent::ValidateAirHang()
 	return true;
 }
 
-bool UTraversalComponent::ValidateMantleSurface()
-{
-
-	float CharacterCapsuleHalfHeight = Capsule->GetScaledCapsuleHalfHeight();
-	float CharacterCapsuleRadius = Capsule->GetScaledCapsuleRadius();
-
-	if (WallTopResult.ImpactPoint == FVector::ZeroVector)
-	{
-		return false;
-	}
-	
-	FVector CapsuleLocation = VectorDirectionMove(
-		WallTopResult.ImpactPoint,
-		UGT.Traversal_Direction_Up,
-		CharacterCapsuleHalfHeight + MantleSurfaceValidationCapsuleVerticalOffset);
-
-	FHitResult HitResult;
-	UKismetSystemLibrary::CapsuleTraceSingle(
-		this,
-		CapsuleLocation,
-		CapsuleLocation,
-		CharacterCapsuleRadius,
-		CharacterCapsuleHalfHeight,
-		UEngineTypes::ConvertToTraceType(ECC_Visibility),
-		false,
-		TArray<AActor*>(),
-		EDrawDebugTrace::None,
-		HitResult,
-		true);
-
-	return !HitResult.bBlockingHit;
-}
+/********************* IK **********************/
 
 void UTraversalComponent::NextClimbHandIK(const bool bLeftHand)
 {
@@ -1265,10 +1195,27 @@ void UTraversalComponent::NextClimbHandIK(const bool bLeftHand)
 	
 	for (int32 WallDetectionIndex = 0; WallDetectionIndex < WallDetectionMaxIndex; ++WallDetectionIndex)
 	{
-		float MoveValue = bLeftHand ? (WallDetectionMaxIndex - WallDetectionIndex * 2) * -1.f : (WallDetectionMaxIndex - WallDetectionIndex * 2) * 1.f;
-		FVector WallDetectionInitialVector = VectorDirectionMoveWithRotation(NextClimbResult.ImpactPoint, UGT.Traversal_Direction_Right, MoveValue, WallRotation);
-		FVector TraceStart = VectorDirectionMoveWithRotation(WallDetectionInitialVector, UGT.Traversal_Direction_Backward, HandIKTraceDistance, WallRotation);
-		FVector TraceEnd = VectorDirectionMoveWithRotation(WallDetectionInitialVector, UGT.Traversal_Direction_Forward, HandIKTraceDistance, WallRotation);
+		float MoveValue = bLeftHand ? 
+			(WallDetectionMaxIndex - WallDetectionIndex * 2) * -1.f :
+			(WallDetectionMaxIndex - WallDetectionIndex * 2) * 1.f;
+		
+		FVector WallDetectionInitialVector = VectorDirectionMoveWithRotation(
+			NextClimbResult.ImpactPoint,
+			UGT.Traversal_Direction_Right,
+			MoveValue,
+			WallRotation);
+		
+		FVector TraceStart = VectorDirectionMoveWithRotation(
+			WallDetectionInitialVector,
+			UGT.Traversal_Direction_Backward,
+			HandIKTraceDistance, 
+			WallRotation);
+		
+		FVector TraceEnd = VectorDirectionMoveWithRotation(
+			WallDetectionInitialVector,
+			UGT.Traversal_Direction_Forward,
+			HandIKTraceDistance,
+			WallRotation);
 		
 		bool bHit = UKismetSystemLibrary::SphereTraceSingle(
 			GetWorld(),
@@ -1278,9 +1225,12 @@ void UTraversalComponent::NextClimbHandIK(const bool bLeftHand)
 			UEngineTypes::ConvertToTraceType(ECC_Visibility),
 			false,
 			TArray<AActor*>(),
-			EDrawDebugTrace::None,
+			GetDebugType(HandIKWallDetectionDebugType),
 			ClimbWallHitResult,
-			true);
+			true,
+			HandIKWallDetectionDebugTraceColor,
+			HandIKWallDetectionDebugHitColor,
+			HandIKWallDetectionDebugTime);
 
 		if (!ClimbWallHitResult.bBlockingHit)
 		{
@@ -1304,9 +1254,12 @@ void UTraversalComponent::NextClimbHandIK(const bool bLeftHand)
 				UEngineTypes::ConvertToTraceType(ECC_Visibility),
 				false,
 				TArray<AActor*>(),
-				EDrawDebugTrace::None,
+				GetDebugType(HandIKTopDetectionDebugType),
 				ClimbTopHitResult,
-				true);
+				true,
+				HandIKTopDetectionDebugTraceColor,
+				HandIKTopDetectionDebugHitColor,
+				HandIKTopDetectionDebugTime);
 
 			if (!ClimbTopHitResult.bBlockingHit || ClimbTopHitResult.bStartPenetrating)
 			{
@@ -1327,7 +1280,6 @@ void UTraversalComponent::NextClimbHandIK(const bool bLeftHand)
 	UE_LOG(TraversalComponent, Log, TEXT("Next Climb Ik: Hand = [%d]"), bLeftHand);
 	UE_LOG(TraversalComponent, Log, TEXT("Next Climb IK: Location = [%s]"), *ClimbHandLocation.ToString());
 	UE_LOG(TraversalComponent, Log, TEXT("Next Climb IK: Rotation = [%s]"), *ClimbHandRotation.ToString());
-	DrawDebugSphere(GetWorld(), ClimbHandLocation, 4, 8, FColor::Yellow, false, 12.f);
 	
 	if (bLeftHand)
 	{
@@ -1407,9 +1359,12 @@ void UTraversalComponent::NextClimbFootIK(const bool bLeftFoot)
 			UEngineTypes::ConvertToTraceType(ECC_Visibility),
 			false,
 			TArray<AActor*>(),
-			EDrawDebugTrace::None,
+			GetDebugType(FootIKDebugType),
 			ClimbWallHitResult,
-			true);
+			true,
+			FootIKDebugTraceColor,
+			FootIKDebugHitColor,
+			FootIKDebugTime);
 
 		if (ClimbWallHitResult.bBlockingHit)
 		{
@@ -1436,6 +1391,19 @@ void UTraversalComponent::NextClimbFootIK(const bool bLeftFoot)
 			ITraversalInterface::Execute_SetRightFootClimbLocation(AnimInstance, FootIKLocation);
 		}
 	}
+}
+
+void UTraversalComponent::ClimbMovementIK()
+{
+	if (!TraversalState.MatchesTagExact(UGT.Traversal_State_Climb))
+	{
+		return;
+	}
+
+	UpdateHandIK(false);
+	UpdateHandIK(true);
+	UpdateFootIK(false);
+	UpdateFootIK(true);
 }
 
 void UTraversalComponent::UpdateHandIK(const bool bLeftHand)
@@ -1490,9 +1458,12 @@ void UTraversalComponent::UpdateHandIK(const bool bLeftHand)
 			UEngineTypes::ConvertToTraceType(ECC_Visibility),
 			false,
 			TArray<AActor*>(),
-			EDrawDebugTrace::None,
+			GetDebugType(HandIKUpdateWallDetectionDebugType),
 			ClimbWallHitResult,
-			true);
+			true,
+			HandIKUpdateWallDetectionDebugTraceColor,
+			HandIKUpdateWallDetectionDebugHitColor,
+			HandIKUpdateWallDetectionDebugTime);
 
 		if (ClimbWallHitResult.bBlockingHit && !ClimbWallHitResult.bStartPenetrating)
 		{
@@ -1534,9 +1505,12 @@ void UTraversalComponent::UpdateHandIK(const bool bLeftHand)
 			UEngineTypes::ConvertToTraceType(ECC_Visibility),
 			false,
 			TArray<AActor*>(),
-			EDrawDebugTrace::None,
+			GetDebugType(HandIKUpdateTopDetectionDebugType),
 			ClimbTopHitResult,
-			true);
+			true,
+			HandIKUpdateTopDetectionDebugTraceColor,
+			HandIKUpdateTopDetectionDebugHitColor,
+			HandIKUpdateTopDetectionDebugTime);
 
 		if (ClimbTopHitResult.bBlockingHit && !ClimbTopHitResult.bStartPenetrating)
 		{
@@ -1553,9 +1527,6 @@ void UTraversalComponent::UpdateHandIK(const bool bLeftHand)
 		ClimbWallHitResult.ImpactPoint.X,
 		ClimbWallHitResult.ImpactPoint.Y,
 		VectorDirectionMove(ClimbTopHitResult.ImpactPoint, UGT.Traversal_Direction_Down, 9.f).Z);
-
-	//UE_LOG(TraversalComponent, Log, TEXT("Update Climb IK: Hand = [%d] | Location = [%s]"), bLeftHand, *ClimbHandLocation.ToString());
-	//UE_LOG(TraversalComponent, Log, TEXT("Update Climb IK: Hand = [%d] | Rotation = [%s]"), bLeftHand, *ClimbHandRotation.ToString());
 	
 	if (bLeftHand)
 	{
@@ -1642,9 +1613,12 @@ void UTraversalComponent::UpdateFootIK(const bool bLeftFoot)
 			UEngineTypes::ConvertToTraceType(ECC_Visibility),
 			false,
 			TArray<AActor*>(),
-			EDrawDebugTrace::None,
+			GetDebugType(FootIKUpdateWallDetectionDebugType),
 			ClimbWallHitResult,
-			true);
+			true,
+			FootIKUpdateWallDetectionDebugTraceColor,
+			FootIKUpdateWallDetectionDebugHitColor,
+			FootIKUpdateWallDetectionDebugTime);
 
 		if (ClimbWallHitResult.bBlockingHit && !ClimbWallHitResult.bStartPenetrating)
 		{
@@ -1676,7 +1650,7 @@ void UTraversalComponent::UpdateFootIK(const bool bLeftFoot)
 	}
 }
 
-void UTraversalComponent::ResetFootIK()
+void UTraversalComponent::ResetFootIK() const
 {
 	if (AnimInstance && AnimInstance->GetClass()->ImplementsInterface(UTraversalInterface::StaticClass()))
 	{
@@ -1685,33 +1659,73 @@ void UTraversalComponent::ResetFootIK()
 	}
 }
 
-float UTraversalComponent::GetVerticalHopDistance()
+/********************* Mantle **********************/
+
+bool UTraversalComponent::ValidateMantleSurface() const
 {
-	return DirectionValues(GetControllerDirection(),
-		1.0f,
-		0.5f,
-		-2.5f,
-		-4.0f,
-		-7.5f,
-		-4.0f,
-		-2.5f,
-		0.5f) * HopVerticalDistanceMultiplier;
+
+	float CharacterCapsuleHalfHeight = Capsule->GetScaledCapsuleHalfHeight();
+	float CharacterCapsuleRadius = Capsule->GetScaledCapsuleRadius();
+
+	if (WallTopResult.ImpactPoint == FVector::ZeroVector)
+	{
+		return false;
+	}
+	
+	FVector CapsuleLocation = VectorDirectionMove(
+		WallTopResult.ImpactPoint,
+		UGT.Traversal_Direction_Up,
+		CharacterCapsuleHalfHeight + MantleSurfaceValidationCapsuleVerticalOffset);
+
+	FHitResult HitResult;
+	UKismetSystemLibrary::CapsuleTraceSingle(
+		this,
+		CapsuleLocation,
+		CapsuleLocation,
+		CharacterCapsuleRadius,
+		CharacterCapsuleHalfHeight,
+		UEngineTypes::ConvertToTraceType(ECC_Visibility),
+		false,
+		TArray<AActor*>(),
+		GetDebugType(MantleSurfaceValidationDebugType),
+		HitResult,
+		true,
+		MantleSurfaceValidationDebugTraceColor,
+		MantleSurfaceValidationDebugHitColor,
+		MantleSurfaceValidationDebugTime);
+
+	return !HitResult.bBlockingHit;
 }
 
-float UTraversalComponent::GetHorizontalHopDistance()
+/********************* Hop **********************/
+
+float UTraversalComponent::GetVerticalHopDistance() const
 {
 	return DirectionValues(GetControllerDirection(),
-	0.0f,
-	0.75f,
-	1.f,
-	0.75,
-	0,
-	-0.75f,
-	-1.0f,
-	-0.75f) * HopHorizontalDistanceMultiplier; 
+		HopForwardDirectionVerticalDistance,
+		HopForwardRightDirectionVerticalDistance,
+		HopRightDirectionVerticalDistance,
+		HopBackwardRightDirectionVerticalDistance,
+		HopBackwardDirectionVerticalDistance,
+		HopBackwardLeftDirectionVerticalDistance,
+		HopLeftDirectionVerticalDistance,
+		HopForwardLeftDirectionVerticalDistance) * HopVerticalDistanceMultiplier;
 }
 
-FGameplayTag UTraversalComponent::DecideHopAction()
+float UTraversalComponent::GetHorizontalHopDistance() const
+{
+	return DirectionValues(GetControllerDirection(),
+	HopForwardDirectionHorizontalDistance,
+	HopForwardRightDirectionHorizontalDistance,
+	HopRightDirectionHorizontalDistance,
+	HopBackwardRightDirectionHorizontalDistance,
+	HopBackwardDirectionHorizontalDistance,
+	HopBackwardLeftHorizontalDistance,
+	HopLeftDirectionHorizontalDistance,
+	HopForwardLeftDirectionHorizontalDistance) * HopHorizontalDistanceMultiplier; 
+}
+
+FGameplayTag UTraversalComponent::DecideHopAction() const
 {
 	FGameplayTag Direction = GetControllerDirection();
 
@@ -1798,10 +1812,12 @@ void UTraversalComponent::FindHopLocation()
 		OwnerCharacter->GetActorRotation());
 
 	UE_LOG(TraversalComponent, Log, TEXT("Find Hop Location: Grid Scan Location = [%s]"), *ScanLocation.ToString());
-	GridScan(5, 20, ScanLocation, WallRotation);
+	GridScan(HopGridScanWidth, HopGridScanHeight, ScanLocation, WallRotation);
 }
 
-bool UTraversalComponent::ValidateVaultSurface()
+/********************* Vault **********************/
+
+bool UTraversalComponent::ValidateVaultSurface() const
 {
 	float OnObstacleCapsuleTraceHeight = Capsule->GetScaledCapsuleHalfHeight() / 2.f;
 	float CapsuleRadius = Capsule->GetScaledCapsuleRadius();
@@ -1809,7 +1825,7 @@ bool UTraversalComponent::ValidateVaultSurface()
 	FVector OnObstacleCapsuleTraceLocation = VectorDirectionMove(
 		WallTopResult.ImpactPoint,
 		UGT.Traversal_Direction_Up,
-		OnObstacleCapsuleTraceHeight + 20.f);
+		OnObstacleCapsuleTraceHeight + VaultOnObstacleCapsuleTraceVerticalOffset);
 
 	FHitResult OnObstacleHitResult;
 	UKismetSystemLibrary::CapsuleTraceSingle(
@@ -1821,16 +1837,19 @@ bool UTraversalComponent::ValidateVaultSurface()
 		UEngineTypes::ConvertToTraceType(ECC_Visibility),
 		false,
 		TArray<AActor*>(),
-		EDrawDebugTrace::None,
+		GetDebugType(VaultOnObstacleSurfaceValidationDebugType),
 		OnObstacleHitResult,
-		true);
+		true,
+		VaultOnObstacleSurfaceValidationDebugTraceColor,
+		VaultOnObstacleSurfaceValidationDebugHitColor,
+		VaultOnObstacleSurfaceValidationDebugTime);
 
 	float VaultCapsuleTraceHeight = Capsule->GetScaledCapsuleHalfHeight();
 
 	FVector VaultCapsuleLocation = VectorDirectionMove(
 		WallVaultResult.ImpactPoint,
 		UGT.Traversal_Direction_Up,
-		VaultCapsuleTraceHeight + 10.f);
+		VaultCapsuleTraceHeight + VaultCapsuleTraceVerticalOffset);
 
 	FHitResult VaultHitResult;
 	UKismetSystemLibrary::CapsuleTraceSingle(
@@ -1842,51 +1861,38 @@ bool UTraversalComponent::ValidateVaultSurface()
 		UEngineTypes::ConvertToTraceType(ECC_Visibility),
 		false,
 		TArray<AActor*>(),
-		EDrawDebugTrace::None,
+		GetDebugType(VaultSurfaceValidationDebugType),
 		VaultHitResult,
-		true);
+		true,
+		VaultSurfaceValidationDebugTraceColor,
+		VaultSurfaceValidationDebugHitColor,
+		VaultSurfaceValidationDebugTime);
 
 	return !OnObstacleHitResult.bBlockingHit && !VaultHitResult.bBlockingHit;
 }
 
+/********************* Drop **********************/
 
-void UTraversalComponent::ClimbMovementIK()
+void UTraversalComponent::DropFromClimb()
 {
-	if (!TraversalState.MatchesTagExact(UGT.Traversal_State_Climb))
+	if (bInLand)
 	{
 		return;
 	}
 
-	UpdateHandIK(false);
-	UpdateHandIK(true);
-	UpdateFootIK(false);
-	UpdateFootIK(true);
-}
-
-void UTraversalComponent::ValidateIsInLand()
-{
 	if (TraversalState.MatchesTagExact(UGT.Traversal_State_Climb))
 	{
-		bInLand = false;
-		return;
+		SetTraversalState(UGT.Traversal_State_FreeRoam);
+		bIsDropping = true;
+		FTimerHandle TimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this]()
+		{
+			bIsDropping = false;
+		}, IsDroppingResetTime, false);
 	}
-
-	FHitResult HitResult;
-	FCollisionQueryParams QueryParams;
-	QueryParams.AddIgnoredActor(OwnerCharacter);
-	
-	bInLand = GetWorld()->SweepSingleByChannel(
-		HitResult,
-		SkeletalMesh->GetSocketLocation("root"),
-		SkeletalMesh->GetSocketLocation("root"),
-		FQuat::Identity,
-		ECC_Visibility,
-		FCollisionShape::MakeBox(FVector(10.f, 10.f, 4.f)),
-		QueryParams);
 }
 
-
-
+/********************* Helpers **********************/
 
 void UTraversalComponent::ResetMovement()
 {
@@ -1895,7 +1901,7 @@ void UTraversalComponent::ResetMovement()
 	SetClimbDirection(UGT.Traversal_Direction_NoDirection);
 }
 
-FVector UTraversalComponent::VectorDirectionMove(const FVector& Source, const FGameplayTag& Direction, const float& MoveValue)
+FVector UTraversalComponent::VectorDirectionMove(const FVector& Source, const FGameplayTag& Direction, const float& MoveValue) const
 {
 	if (Direction.MatchesTagExact(UGT.Traversal_Direction_Up))
 	{
@@ -1926,7 +1932,7 @@ FVector UTraversalComponent::VectorDirectionMove(const FVector& Source, const FG
 }
 
 FVector UTraversalComponent::VectorDirectionMoveWithRotation(const FVector& Source, const FGameplayTag& Direction,
-	const float& MoveValue, const FRotator& Rotation)
+	const float& MoveValue, const FRotator& Rotation) const
 {
 
 	FRotationMatrix RotationMatrix(Rotation);
@@ -1956,7 +1962,7 @@ FRotator UTraversalComponent::ReverseNormal(const FVector& Normal)
 	return FRotator(0.f, DeltaRotator.Yaw, 0.f);
 }
 
-FGameplayTag UTraversalComponent::GetControllerDirection()
+FGameplayTag UTraversalComponent::GetControllerDirection() const
 {
 	if (ForwardValue > 0 && RightValue == 0)
 	{
@@ -1993,11 +1999,28 @@ FGameplayTag UTraversalComponent::GetControllerDirection()
 	return UGT.Traversal_Direction_Forward;
 }
 
-float UTraversalComponent::GetCharacterHandHeight()
+float UTraversalComponent::GetCharacterHandHeight() const
 {
 	return FMath::Max(
 		SkeletalMesh->GetBoneLocation("hand_l").Z,
 		SkeletalMesh->GetBoneLocation("hand_r").Z);
+}
+
+EDrawDebugTrace::Type UTraversalComponent::GetDebugType(ETraversalDebugType DebugValue) const
+{
+	switch (DebugValue)
+	{
+	case ETraversalDebugType::None:
+		return EDrawDebugTrace::Type::None;
+	case ETraversalDebugType::ForOneFrame:
+		return EDrawDebugTrace::ForOneFrame;
+	case ETraversalDebugType::ForDuration:
+		return EDrawDebugTrace::ForDuration;
+	case ETraversalDebugType::Persistent:
+		return EDrawDebugTrace::Persistent;
+	default:
+		return EDrawDebugTrace::Type::None;	
+	}
 }
 
 void UTraversalComponent::ResetTraversalResults()
@@ -2013,6 +2036,96 @@ void UTraversalComponent::ResetTraversalResults()
 	VaultHeight = 0;
 }
 
+float UTraversalComponent::ClimbValues(const FGameplayTag& NewClimbStyle, float Braced, float FreeHang) const
+{
+	return ClimbStyle.MatchesTagExact(FUmbraGameplayTags::Get().Traversal_ClimbStyle_BracedClimb) ? Braced : FreeHang;
+}
 
+float UTraversalComponent::DirectionValues(const FGameplayTag& Direction, float Forward, float ForwardRight, float Right,
+		float BackwardRight, float Backward, float BackwardLeft, float Left, float ForwardLeft) const
+{
+	if (Direction.MatchesTagExact(UGT.Traversal_Direction_Forward))
+	{
+		return Forward;
+	}
+	if (Direction.MatchesTagExact(UGT.Traversal_Direction_ForwardRight))
+	{
+		return ForwardRight;
+	}
+	if (Direction.MatchesTagExact(UGT.Traversal_Direction_Right))
+	{
+		return Right;
+	}
+	if (Direction.MatchesTagExact(UGT.Traversal_Direction_BackwardRight))
+	{
+		return BackwardRight;
+	}
+	if (Direction.MatchesTagExact(UGT.Traversal_Direction_Backward))
+	{
+		return Backward;
+	}
+	if (Direction.MatchesTagExact(UGT.Traversal_Direction_BackwardLeft))
+	{
+		return BackwardLeft;
+	}
+	if (Direction.MatchesTagExact(UGT.Traversal_Direction_Left))
+	{
+		return Left;
+	}
+	if (Direction.MatchesTagExact(UGT.Traversal_Direction_ForwardLeft))
+	{
+		return ForwardLeft;
+	}
+	return Forward;
+}
+
+float UTraversalComponent::TraversalStateValues(const FGameplayTag& State, float FreeRoam, float ReadyToClimb,
+	float Climb, float Mantle, float Vault) const
+{
+	if (State.MatchesTagExact(UGT.Traversal_State_FreeRoam))
+	{
+		return FreeRoam;
+	}
+	if (State.MatchesTagExact(UGT.Traversal_State_ReadyToClimb))
+	{
+		return ReadyToClimb;
+	}
+	if (State.MatchesTagExact(UGT.Traversal_State_Climb))
+	{
+		return Climb;
+	}
+	if (State.MatchesTagExact(UGT.Traversal_State_Mantle))
+	{
+		return Mantle;
+	}
+	if (State.MatchesTagExact(UGT.Traversal_State_Vault))
+	{
+		return Vault;
+	}
+
+	return FreeRoam;
+}
+
+void UTraversalComponent::ValidateIsInLand()
+{
+	if (TraversalState.MatchesTagExact(UGT.Traversal_State_Climb))
+	{
+		bInLand = false;
+		return;
+	}
+
+	FHitResult HitResult;
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(OwnerCharacter);
+	
+	bInLand = GetWorld()->SweepSingleByChannel(
+		HitResult,
+		SkeletalMesh->GetSocketLocation("root"),
+		SkeletalMesh->GetSocketLocation("root"),
+		FQuat::Identity,
+		ECC_Visibility,
+		FCollisionShape::MakeBox(FVector(10.f, 10.f, 4.f)),
+		QueryParams);
+}
 
 
