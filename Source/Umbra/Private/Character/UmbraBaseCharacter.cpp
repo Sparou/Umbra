@@ -13,7 +13,6 @@ AUmbraBaseCharacter::AUmbraBaseCharacter()
 	PrimaryActorTick.bCanEverTick = false;
 	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>("Motion Warping");
 	TraversalComponent = CreateDefaultSubobject<UTraversalComponent>("Traversal Component");
-	//TraversalComponent->DestroyComponent();
 	WeaponMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("Weapon Mesh");
 	WeaponMeshComponent->SetupAttachment(GetMesh(), FName("WeaponHandSocket"));
 	AbilitySystemComponent = CreateDefaultSubobject<UUmbraAbilitySystemComponent>("Ability System");
@@ -85,6 +84,12 @@ void AUmbraBaseCharacter::BeginPlay()
 		InitializeDefaultAttributes();
 	}
 }
+
+void AUmbraBaseCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+}
+
 
 UTagManager* AUmbraBaseCharacter::GetTagManager()
 {

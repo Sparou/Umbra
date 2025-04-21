@@ -39,8 +39,65 @@ protected:
 
     UPROPERTY(EditAnywhere, Category="Actions")
     TObjectPtr<UTraversalActionsData> TraversalActions;
+	
+	/*
+	 * Определяет максимальную высоту стены, при которой
+	 * пероснаж, стоящий на земле, может соврешить действие climb
+	 */
+	float ClimbMaximumWallHeight = 250.f;
+	
+    /*
+     * Определяет минимальную высоту стены, при которой
+     * могут быть совершены действия Mantle и Vault
+     */
+    UPROPERTY(EditAnywhere, Category="Transitions")
+    float MantleMinimumWallHeight = 45.f;
+
+    
+    /*
+     * Определяет максимальную высоту стены, при которой
+     * могут быть совершены действия Mantle и Vault
+     */
+    UPROPERTY(EditAnywhere, Category="Transitions")
+    float MantleMaximumWallHeight = 160.f;
+
+	/*
+	 * Определяет минимальную глубину стены, при которой
+	 * может быть совершено действие Vault.
+	 */
+	UPROPERTY(EditAnywhere, Category="Transitions")
+	float VaultMinimumDepth = 0.0f;
+
+	/*
+	 * Определяет максимальную глубину стены, при которой
+	 * может быть совершено действие Vault
+	 */
+	UPROPERTY(EditAnywhere, Category="Transitions")
+	float VaultMaximumDepth = 120.f;
+    
+    /*
+     * Определяет минимальную высоту Wall Depth относительно
+     * Wall Vault, при которой может быть совершено действие vault
+     */
+    UPROPERTY(EditAnywhere, Category="Transitions")
+    float VaultMinimumHeight = 60.f;
 
 
+    /*
+     * Определяет максимальную высоту Wall Depth относительно
+     * Wall Vault, при которой может быть совершено действие vault
+     */
+    UPROPERTY(EditAnywhere, Category="Transitions")
+    float VaultMaximumHeight = 120.f;
+    
+    /*
+     * Определяет минимальную velocity персонажа, при
+     * которой может быть совершенно действие vault
+     */
+    UPROPERTY(EditAnywhere, Category="Transitions")
+    float VaultMinimumVelocity = 20.f;
+
+    
     
     /* Wall Detection */
     
@@ -698,25 +755,53 @@ public:
     void ResetMovement(); 
     void DropFromClimb();
 
+	UFUNCTION(BlueprintCallable)
+	FGameplayTag GetCurrentTraversalState() const { return TraversalState; };
+	UFUNCTION(BlueprintCallable)
+	FGameplayTag GetCurrentTraversalAction() const { return TraversalAction; };
+
 private:
+	UPROPERTY(ReplicatedUsing=OnRep_TraversalState)
     FGameplayTag TraversalState = FUmbraGameplayTags::Get().Traversal_State_FreeRoam;
+
+	UFUNCTION()
+	void OnRep_TraversalState()
+	{
+		UE_LOG(LogTemp, Error, TEXT("REPLICATED!"));
+	}
+	
+	UPROPERTY(Replicated)
     FGameplayTag ClimbStyle = FUmbraGameplayTags::Get().Traversal_ClimbStyle_BracedClimb;
+	UPROPERTY(Replicated)
     FGameplayTag ClimbDirection = FUmbraGameplayTags::Get().Traversal_Direction_NoDirection;
+	UPROPERTY(Replicated)
     FGameplayTag TraversalAction = FUmbraGameplayTags::Get().Traversal_Action_NoAction;
-    
-    FRotator WallRotation = FRotator();
+
+	UPROPERTY(Replicated)
     FHitResult WallHitResult = FHitResult();
+	UPROPERTY(Replicated)
     FHitResult WallEdgeResult = FHitResult();
+	UPROPERTY(Replicated)
     FHitResult WallTopResult = FHitResult();
+	UPROPERTY(Replicated)
     FHitResult WallDepthResult = FHitResult();
+	UPROPERTY(Replicated)
     FHitResult WallVaultResult = FHitResult();
+	UPROPERTY(Replicated)
     FHitResult NextClimbResult = FHitResult();
+	UPROPERTY(Replicated)
     FHitResult CurrentClimbResult = FHitResult();
 
+	
+	UPROPERTY(Replicated)
+	FRotator WallRotation = FRotator();
+	UPROPERTY(Replicated)
     float WallHeight;
+	UPROPERTY(Replicated)
     float WallDepth;
+	UPROPERTY(Replicated)
     float VaultHeight;
-    
+	
     bool bInLand = true;
     bool bIsDropping = false;
 
@@ -734,7 +819,12 @@ private:
     float RightValue;
 
     FUmbraGameplayTags UGT = FUmbraGameplayTags::Get();
-    
+
+protected:
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+private:
     
     void InitializeReferences();
 

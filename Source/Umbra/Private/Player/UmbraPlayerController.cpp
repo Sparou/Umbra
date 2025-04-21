@@ -1,8 +1,6 @@
 // Copyrighted by Vorona Games
 
-
 #include "Player/UmbraPlayerController.h"
-
 #include "AbilitySystemBlueprintLibrary.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
@@ -14,7 +12,6 @@
 #include "Character/Data/PlayerCharacterInfo.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Input/UmbraInputComponent.h"
-#include "Interface/UmbraAnimationInterface.h"
 #include "Kismet/GameplayStatics.h"
 
 void AUmbraPlayerController::SwitchToDefaultContext()
@@ -43,9 +40,6 @@ void AUmbraPlayerController::BeginPlay()
 	check(InputContext); 
 	check(CameraOnlyInputContext);
 	SwitchToDefaultContext();
-
-	TraversalComponent = GetPawn()->FindComponentByClass<UTraversalComponent>();
-	check(TraversalComponent);
 }
 
 void AUmbraPlayerController::SetupInputComponent()
@@ -88,6 +82,16 @@ UUmbraAbilitySystemComponent* AUmbraPlayerController::GetAbilitySystemComponent(
 	}
 
 	return AbilitySystemComponent;
+}
+
+UTraversalComponent* AUmbraPlayerController::GetTraversalComponent()
+{
+	if (TraversalComponent == nullptr)
+	{
+		TraversalComponent = GetCharacter()->GetComponentByClass<UTraversalComponent>();
+	}
+
+	return TraversalComponent;
 }
 
 UAnimInstance* AUmbraPlayerController::GetAnimInstance()
@@ -159,7 +163,7 @@ void AUmbraPlayerController::Move(const FInputActionValue& InputActionValue)
 	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-	if (TraversalComponent)
+	if (GetTraversalComponent())
 	{
 		TraversalComponent->AddMovementInput(InputAxisVector.Y, true);
 		TraversalComponent->AddMovementInput(InputAxisVector.X, false);
@@ -186,7 +190,7 @@ void AUmbraPlayerController::OnStartMoving()
 void AUmbraPlayerController::OnStopMoving()
 {
 	GetTagManager()->RemoveTag(FUmbraGameplayTags::Get().State_Movement_Moving);
-	if (TraversalComponent)
+	if (GetTraversalComponent())
 	{
 		TraversalComponent->ResetMovement();
 	}
@@ -226,17 +230,11 @@ void AUmbraPlayerController::OnStopWalking()
 
 void AUmbraPlayerController::OnStartJumping()
 {
-	if (GetControlledCharacter() && TraversalComponent)
+	if (GetControlledCharacter() && GetTraversalComponent())
 	{
 		GetTagManager()->AddTag(FUmbraGameplayTags::Get().State_Movement_Falling);
 		TraversalComponent->TriggerTraversalAction(true);
 	}
-	
-	// if (GetControlledCharacter())
-	// {
-	// 	ControlledCharacter->Jump();
-	// 	GetTagManager()->AddTag(FUmbraGameplayTags::Get().State_Movement_Falling);
-	// }
 }
 
 void AUmbraPlayerController::OnStopJumping()
@@ -268,7 +266,7 @@ void AUmbraPlayerController::OnStopCrouch()
 
 void AUmbraPlayerController::OnStartDrop()
 {
-	if (TraversalComponent)
+	if (GetTraversalComponent())
 	{
 		TraversalComponent->DropFromClimb();
 	}

@@ -10,6 +10,8 @@
 #include "TraversalSystem/TraversalInterface.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Net/UnrealNetwork.h"
+#include "Net/Core/PushModel/PushModel.h"
 
 DEFINE_LOG_CATEGORY(TraversalComponent)
 
@@ -22,6 +24,39 @@ void UTraversalComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	InitializeReferences();
+}
+
+void UTraversalComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UTraversalComponent, TraversalState);
+	
+	// DOREPLIFETIME(ThisClass, TraversalState);
+	// DOREPLIFETIME(ThisClass, TraversalAction);
+	// DOREPLIFETIME(ThisClass, ClimbStyle);
+	// DOREPLIFETIME(ThisClass, ClimbDirection);
+	
+	// FDoRepLifetimeParams RepParams;
+	// RepParams.bIsPushBased = true;
+	//
+	// DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, TraversalState, RepParams);
+	// DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, ClimbStyle, RepParams);
+	// DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, ClimbDirection, RepParams);
+	// DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, TraversalAction, RepParams);
+	//
+	// DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, WallHitResult, RepParams);
+	// DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, WallEdgeResult, RepParams);
+	// DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, WallDepthResult, RepParams);
+	// DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, WallVaultResult, RepParams);
+	// DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, NextClimbResult, RepParams);
+	// DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, CurrentClimbResult, RepParams);
+	//
+	// DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, WallRotation, RepParams);
+	// DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, WallHeight, RepParams);
+	// DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, WallDepth, RepParams);
+	// DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, VaultHeight, RepParams);
+	
 }
 
 void UTraversalComponent::InitializeReferences()
@@ -51,8 +86,7 @@ void UTraversalComponent::InitializeReferences()
 void UTraversalComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	GEngine->AddOnScreenDebugMessage(3, 0.f, FColor::Green, *TraversalState.ToString());
-	GEngine->AddOnScreenDebugMessage(4, 0.f, FColor::Green, *TraversalAction.ToString());
+
 	
 	ValidateIsInLand();
 	if (bInLand)
@@ -226,7 +260,7 @@ void UTraversalComponent::SetClimbDirection(const FGameplayTag& NewClimbDirectio
 	}
 	
 	ClimbDirection = NewClimbDirection;
-
+	
 	if (AnimInstance && AnimInstance->GetClass()->ImplementsInterface(UTraversalInterface::StaticClass()))
 	{
 		ITraversalInterface::Execute_SetClimbDirection(AnimInstance, NewClimbDirection);
@@ -241,6 +275,7 @@ void UTraversalComponent::SetTraversalAction(const FGameplayTag& NewTraversalAct
 	}
 
 	TraversalAction = NewTraversalAction;
+
 	UE_LOG(TraversalComponent, Log, TEXT("New Traversal Action = [%s]"), *TraversalAction.ToString());
 	if (ITraversalInterface *TraversalAnimInstance = Cast<ITraversalInterface>(AnimInstance))
 	{
@@ -332,7 +367,7 @@ void UTraversalComponent::GridScan(int GridWidth, int GridHeight, const FVector&
 	{
 		return;
 	}
-
+	
 	// Если состояние не "Climb", вычисляем поворот стены на основе обратного нормали
 	WallRotation = ScanRotation;
 	if (!TraversalState.MatchesTagExact(FUmbraGameplayTags::Get().Traversal_State_Climb))
@@ -538,7 +573,7 @@ bool UTraversalComponent::FindWallTop(const FHitResult& WallEdgeHit, const FRota
 	}
 	
 	OutLastTopHit = LastTopHit;
-
+	
 	if (!bFoundTop)
 	{
 		UE_LOG(TraversalComponent, Warning, TEXT("Wall Top Not Found!"));
@@ -652,7 +687,8 @@ void UTraversalComponent::MeasureWall()
 	WallHeight = WallTopResult.ImpactPoint.Z - SkeletalMesh->GetSocketLocation("root").Z;
 	WallDepth = WallTopResult.bBlockingHit && WallDepthResult.bBlockingHit ? FVector::Dist(WallTopResult.ImpactPoint, WallDepthResult.ImpactPoint) : 0.f;
 	VaultHeight = WallDepthResult.bBlockingHit && WallVaultResult.bBlockingHit ? WallDepthResult.ImpactPoint.Z - WallVaultResult.ImpactPoint.Z : 0.f;
-
+	
+	
 	UE_LOG(TraversalComponent, Log, TEXT("Wall Height: [%f], Wall Depth: [%f], Vault Height: [%f]"), WallHeight, WallDepth, VaultHeight);
 }
 
@@ -680,13 +716,13 @@ void UTraversalComponent::DecideTraversalType(bool JumpAction)
 		if (bInLand)
 		{
 			UE_LOG(TraversalComponent, Warning, TEXT("DecideTraversalType: bInLand = [%d]"), bInLand);
-			if (WallHeight >= 45.f && WallHeight <= 160.f)
+			if (WallHeight >= MantleMinimumWallHeight && WallHeight <= MantleMaximumWallHeight)
 			{
-				if (WallDepth >= 0.f && WallDepth <= 120.f)
+				if (WallDepth >= VaultMinimumDepth && WallDepth <= VaultMaximumDepth)
 				{
-					if (VaultHeight >= 60.f && VaultHeight <= 120.f)
+					if (VaultHeight >= VaultMinimumHeight && VaultHeight <= VaultMaximumHeight)
 					{
-						if (CharacterMovement->Velocity.Length() > 20)
+						if (CharacterMovement->Velocity.Length() > VaultMinimumVelocity)
 						{
 							if (ValidateVaultSurface())
 							{
@@ -718,12 +754,15 @@ void UTraversalComponent::DecideTraversalType(bool JumpAction)
 			}
 			else
 			{
-				if (WallHeight < 250.f && ValidateClimbSurface(WallTopResult.ImpactPoint, WallRotation))
+				if (WallHeight < ClimbMaximumWallHeight && ValidateClimbSurface(WallTopResult.ImpactPoint, WallRotation))
 				{
 					UE_LOG(TraversalComponent, Log, TEXT("DecideTraversalType: [%s]"), *UGT.Traversal_State_Climb.ToString());
 					DecideClimbStyle(WallTopResult.ImpactPoint, WallRotation);
 					NextClimbResult = WallTopResult;
-					ClimbStyle.MatchesTagExact(UGT.Traversal_ClimbStyle_BracedClimb) ? SetTraversalAction(UGT.Traversal_Action_BracedClimb) : SetTraversalAction(UGT.Traversal_Action_FreeHang);
+					
+					ClimbStyle.MatchesTagExact(UGT.Traversal_ClimbStyle_BracedClimb) ?
+						SetTraversalAction(UGT.Traversal_Action_BracedClimb) :
+						SetTraversalAction(UGT.Traversal_Action_FreeHang);
 				}
 				else
 				{
@@ -750,7 +789,10 @@ void UTraversalComponent::DecideTraversalType(bool JumpAction)
 		UE_LOG(TraversalComponent, Log, TEXT("DecideTraversalType: [%s]"), *UGT.Traversal_State_Climb.ToString());
 		DecideClimbStyle(WallTopResult.ImpactPoint, WallRotation);
 		NextClimbResult = WallTopResult;
-		ClimbStyle.MatchesTagExact(UGT.Traversal_ClimbStyle_BracedClimb) ? SetTraversalAction(UGT.Traversal_Action_BracedClimb) : SetTraversalAction(UGT.Traversal_Action_FreeHang);
+		
+		ClimbStyle.MatchesTagExact(UGT.Traversal_ClimbStyle_BracedClimb) ?
+			SetTraversalAction(UGT.Traversal_Action_BracedClimb) :
+			SetTraversalAction(UGT.Traversal_Action_FreeHang);
 	}
 }
 
@@ -1242,9 +1284,19 @@ void UTraversalComponent::NextClimbHandIK(const bool bLeftHand)
 		
 		for (int32 TopDetectionIndex = 0; TopDetectionIndex < HandIKTopDetectionIterations; TopDetectionIndex++)
 		{
-			FVector TopDetectionInitialVector = VectorDirectionMoveWithRotation(ClimbWallHitResult.ImpactPoint, UGT.Traversal_Direction_Forward, 2.f, WallRotation);
-			TraceStart = VectorDirectionMove(TopDetectionInitialVector, UGT.Traversal_Direction_Up, TopDetectionIndex * HandIKTopDetectionVerticalOffsetMultiplier);
-			TraceEnd = VectorDirectionMove(TopDetectionInitialVector, UGT.Traversal_Direction_Down, HandIKTopDetectionTraceDistance);
+			FVector TopDetectionInitialVector = VectorDirectionMoveWithRotation(
+				ClimbWallHitResult.ImpactPoint,
+				UGT.Traversal_Direction_Forward,
+				HandIKTopDetectionForwardOffset,
+				WallRotation);
+			
+			TraceStart = VectorDirectionMove(TopDetectionInitialVector,
+				UGT.Traversal_Direction_Up,
+				TopDetectionIndex * HandIKTopDetectionVerticalOffsetMultiplier);
+			
+			TraceEnd = VectorDirectionMove(TopDetectionInitialVector,
+				UGT.Traversal_Direction_Down,
+				HandIKTopDetectionTraceDistance);
 			
 			UKismetSystemLibrary::SphereTraceSingle(
 				GetWorld(),

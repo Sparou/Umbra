@@ -105,6 +105,7 @@ private:
 	TObjectPtr<UTagManager> TagManager;
 
 	UUmbraAbilitySystemComponent* GetAbilitySystemComponent();
+	UTraversalComponent* GetTraversalComponent();
 	UAnimInstance* GetAnimInstance();
 	UTagManager* GetTagManager();
 	AUmbraBaseCharacter* GetControlledCharacter();
