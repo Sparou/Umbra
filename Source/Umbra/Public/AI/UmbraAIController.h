@@ -23,6 +23,8 @@ public:
 	AUmbraAIController();
 	bool InitializeBlackboardDefaultValues(const UUmbraEnemyAttributeSet* AttributeSet) const;
 
+	bool ReactToEvent(FName EventName);
+
 protected:
 	UPROPERTY()
 	TObjectPtr<UBehaviorTreeComponent> BehaviorTreeComponent;
@@ -33,9 +35,18 @@ protected:
 	// UPROPERTY(VisibleAnywhere, Category = "AI")
 	// TObjectPtr<UPawnNoiseEmitterComponent> NoiseEmitter;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Emotion")
+	TObjectPtr<UDataTable> EmotionReactionTable;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Emotion")
+	TObjectPtr<UCurveTable> EmotionModifierTable;
+
 #pragma region Blackboard value names
 	UPROPERTY(EditDefaultsOnly, Category = "Blackboard|Patrolling")
 	FName NextPatrollingPoint = "NextPatrollingPoint";
+
+	UPROPERTY(EditDefaultsOnly, Category = "Blackboard|Vision")
+	FName EverSeenEnemy = "EverSeenEnemy";
 
 	UPROPERTY(EditDefaultsOnly, Category = "Blackboard|Vision")
 	FName EnemyLocation = "EnemyLocation";
@@ -60,6 +71,11 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Blackboard|Hear")
 	FName SoundLocation = "SoundLocation";
+#pragma endregion
+
+#pragma region GameplayTags names
+	UPROPERTY(EditDefaultsOnly, Category = "GameplayTag")
+	FName InvisibleTag = "Ability.Invisibility";
 #pragma endregion
 	
 private:

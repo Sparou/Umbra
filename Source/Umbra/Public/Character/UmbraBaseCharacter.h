@@ -34,6 +34,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
 	float BaseCrouchSpeed = 300.f;
 
+	TObjectPtr<UAbilitySystemComponent> GetAbilitySystemComponent() { return AbilitySystemComponent; }
+
 	/** ICombatInterface implementation */
 	virtual FWeaponSocketLocations GetWeaponSocketLocations_Implementation() const override;
 	virtual UAnimMontage* GetRandomHitReactMontage_Implementation() override;

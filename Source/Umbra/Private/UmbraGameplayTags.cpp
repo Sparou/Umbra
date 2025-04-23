@@ -32,4 +32,10 @@ void FUmbraGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Ability_Melee = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Melee"));
 	GameplayTags.Ability_Stealth_Kill = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Stealth.Kill"));
 	GameplayTags.Ability_Stealth_Victim = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Stealth.Victim"));
+
+	/** AI Event Tags */
+	GameplayTags.AI_Event_HearNoise = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("AI.Event.HearNoise"));
+	GameplayTags.AI_Event_SeeAlly = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("AI.Event.SeeAlly"));
+	GameplayTags.AI_Event_SeeEnemy = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("AI.Event.SeeEnemy"));
+	GameplayTags.AI_Event_TakeDamage = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("AI.Event.TakeDamage"));
 }

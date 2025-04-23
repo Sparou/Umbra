@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTags.h"
-
 /**
  *  Singleton containing native Gameplay Tags
  */
@@ -39,6 +38,12 @@ public:
 	FGameplayTag Ability_Melee;
 	FGameplayTag Ability_Stealth_Kill;
 	FGameplayTag Ability_Stealth_Victim;
+
+	/** AI Event Tags */
+	FGameplayTag AI_Event_HearNoise;
+	FGameplayTag AI_Event_SeeAlly;
+	FGameplayTag AI_Event_SeeEnemy;
+	FGameplayTag AI_Event_TakeDamage;
 	
 private:
 	static FUmbraGameplayTags GameplayTags;

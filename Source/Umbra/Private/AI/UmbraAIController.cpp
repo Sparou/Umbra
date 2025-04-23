@@ -4,8 +4,11 @@
 #include "AI/UmbraAIController.h"
 #include "AbilitySystem/UmbraEnemyAttributeSet.h"
 #include "AI/UmbraAIPerceptionComponent.h"
+#include "AI/Data/FEmotionReactionRow.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Character/UmbraEnemyCharacter.h"
+#include "Character/UmbraPlayerCharacter.h"
 #include "Perception/AISense_Hearing.h"
 #include "Perception/AISense_Sight.h"
 
@@ -39,6 +42,41 @@ bool AUmbraAIController::InitializeBlackboardDefaultValues(const UUmbraEnemyAttr
 	return true;
 }
 
+bool AUmbraAIController::ReactToEvent(FName EventName)
+{
+	if(!EmotionReactionTable) return false;
+	if(!EmotionModifierTable) return false;
+
+	const FEmotionReactionRow* ReactionRow = EmotionReactionTable->FindRow<FEmotionReactionRow>(EventName, TEXT("EmotionReaction"));
+	if(!ReactionRow) return false;
+	
+	AUmbraEnemyCharacter* EnemyCharacter = Cast<AUmbraEnemyCharacter>(GetPawn());
+	if(!EnemyCharacter) return false;
+
+	const UAbilitySystemComponent* AbilitySystemComponent = EnemyCharacter->GetAbilitySystemComponent();
+	if(!AbilitySystemComponent) return false;
+
+	const UUmbraEnemyAttributeSet* AttributeSet = AbilitySystemComponent->GetSet<UUmbraEnemyAttributeSet>();
+	if(!AttributeSet) return false;
+
+	const FRealCurve* AggressivenessModifierCurve = EmotionModifierTable->FindCurve(FName("Aggressiveness"), TEXT("EmotionModifier"));
+	if(!AggressivenessModifierCurve) return false;
+
+	float AggressivenessModifier = AggressivenessModifierCurve->Eval(AttributeSet->GetAggressiveness());
+
+	FRealCurve* FearfulnessModifierCurve = EmotionModifierTable->FindCurve(FName("Fearfulness"), TEXT("EmotionModifier"));
+	if(!FearfulnessModifierCurve) return false;
+
+	float FearfulnessModifier = FearfulnessModifierCurve->Eval(AttributeSet->GetFearfulness());
+
+	const float NewBelligerenceValue = Blackboard->GetValueAsFloat(Belligerence) + ReactionRow->BelligerenceDelta * AggressivenessModifier;
+	const float NewFearValue = Blackboard->GetValueAsFloat(Fear) + ReactionRow->FearDelta * FearfulnessModifier;
+	Blackboard->SetValueAsFloat(Belligerence, NewBelligerenceValue);
+	Blackboard->SetValueAsFloat(Fear, NewFearValue);	
+	
+	return true;
+}
+
 void AUmbraAIController::OnPercepted(AActor* SourceActor, const FAIStimulus Stimulus)
 {
 	FString Message = "Stimuled by" + Stimulus.Type.Name.ToString() + "strength = " + FString::SanitizeFloat(Stimulus.Strength);
@@ -48,8 +86,16 @@ void AUmbraAIController::OnPercepted(AActor* SourceActor, const FAIStimulus Stim
 	{
 		if(Stimulus.WasSuccessfullySensed())
 		{
-			Blackboard->SetValueAsObject(CurrentEnemy, SourceActor);
-			Blackboard->SetValueAsVector(EnemyLocation, Stimulus.StimulusLocation);
+			if(AUmbraPlayerCharacter* PlayerActor = Cast<AUmbraPlayerCharacter>(SourceActor))
+			{
+				//TODO: check if bot sees player after ending invisibility when stimulus was already received 
+				if(!PlayerActor->GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(InvisibleTag)))
+				{
+					Blackboard->SetValueAsBool(EverSeenEnemy, true);
+					Blackboard->SetValueAsObject(CurrentEnemy, SourceActor);
+					Blackboard->SetValueAsVector(EnemyLocation, Stimulus.StimulusLocation);
+				}
+			}
 		}
 		else
 		{
@@ -63,7 +109,12 @@ void AUmbraAIController::OnPercepted(AActor* SourceActor, const FAIStimulus Stim
 	{
 		if(Stimulus.WasSuccessfullySensed())
 		{
-			Blackboard->SetValueAsVector(SoundLocation, Stimulus.StimulusLocation);	
+			Blackboard->SetValueAsVector(SoundLocation, Stimulus.StimulusLocation);
+
+			float NewFearValue = Blackboard->GetValueAsFloat(Fear);
+			ReactToEvent("HearNoise");
+			NewFearValue = NewFearValue;
+			//Blackboard->SetValueAsFloat(Fear, );
 		}
 		else
 		{
