@@ -5,11 +5,14 @@
 
 #include "Character/Component/InteractionComponent.h"
 #include "AbilitySystem/UmbraAttributeSet.h"
+#include "Stealth/LightingDetection.h"
 
-AUmbraPlayerCharacter::AUmbraPlayerCharacter(const FObjectInitializer& ObjInit)
+	AUmbraPlayerCharacter::AUmbraPlayerCharacter(const FObjectInitializer& ObjInit)
 {
 	AttributeSet = CreateDefaultSubobject<UUmbraAttributeSet>("Attribute Set");
 	InteractionComponent = CreateDefaultSubobject<UInteractionComponent>("Interaction Component");
+	// Создаём компонент определения уровня освещённости
+	LightingDetector = CreateDefaultSubobject<ULightingDetection>(TEXT("LightingDetection"));
 }
 
 AActor* AUmbraPlayerCharacter::GetOverlappedActorFromInteractionComponent() const

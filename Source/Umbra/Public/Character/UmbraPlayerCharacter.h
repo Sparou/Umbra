@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UmbraCoreTypes.h"
 #include "Character/UmbraBaseCharacter.h"
+#include "Stealth/LightingDetection.h"
 #include "UmbraPlayerCharacter.generated.h"
 
 class UInteractionComponent;
@@ -50,5 +51,8 @@ protected:
 	TArray<FStealthKillMontages> StealthKillMontagesFromRight;
 	
 
-	virtual void InitAbilityActorInfo() override;
+	virtual void InitAbilityActorInfo() override;private:
+	/** Компонент для определения уровня освещённости */
+	UPROPERTY(VisibleAnywhere, Category = "Lighting")
+	ULightingDetection* LightingDetector;
 };
