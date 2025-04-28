@@ -34,6 +34,7 @@ void UUmbraStealthVictimAbility::ActivateAbility(
 		PlayMontageTask->OnCompleted.AddDynamic(this, &UUmbraStealthVictimAbility::OnMontageCompleted);
 		PlayMontageTask->OnInterrupted.AddDynamic(this, &UUmbraStealthVictimAbility::OnMontageInterrupted);
 		PlayMontageTask->OnCancelled.AddDynamic(this, &UUmbraStealthVictimAbility::OnMontageCancelled);
+		PlayMontageTask->OnBlendOut.AddDynamic(this, &UUmbraStealthVictimAbility::OnMontageBlendingOut);
 		PlayMontageTask->ReadyForActivation();
 	}
 
@@ -58,6 +59,15 @@ void UUmbraStealthVictimAbility::OnMontageCancelled()
 	//EnableMovement();
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 	UE_LOG(LogTemp, Warning, TEXT("Stealth kill cancelled"));
+}
+
+void UUmbraStealthVictimAbility::OnMontageBlendingOut()
+{
+	if(GetAvatarActorFromActorInfo()->HasAuthority())
+	{
+		AUmbraPlayerCharacter* AvatarCharacter = Cast<AUmbraPlayerCharacter>(GetAvatarActorFromActorInfo());
+		AvatarCharacter->MulticastHandleDeath();
+	}
 }
 
 void UUmbraStealthVictimAbility::EnableMovement() const

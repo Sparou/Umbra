@@ -190,41 +190,37 @@ void AUmbraPlayerController::OnStartMoving()
 void AUmbraPlayerController::OnStopMoving()
 {
 	GetTagManager()->RemoveTag(FUmbraGameplayTags::Get().State_Movement_Moving);
+
 	if (GetTraversalComponent())
 	{
-		TraversalComponent->ResetMovement();
+		if (HasAuthority())
+		{
+			TraversalComponent->ResetMovement();
+		}
+		else
+		{
+			TraversalComponent->ServerResetMovement();
+		}
 	}
 }
 
 void AUmbraPlayerController::OnStartWalking()
 {
-	if (GetControlledCharacter())
+	SetWalking(true);
+
+	if (!HasAuthority())
 	{
-		if (ControlledCharacter->GetCharacterMovement()->IsCrouching())
-		{
-			ControlledCharacter->GetCharacterMovement()->MaxWalkSpeedCrouched = ControlledCharacter->GetMoveSpeed(FUmbraGameplayTags::Get().State_Stance_Crouching, FUmbraGameplayTags::Get().State_Locomotion_Walking);
-		}
-		else
-		{
-			ControlledCharacter->GetCharacterMovement()->MaxWalkSpeed = ControlledCharacter->GetMoveSpeed(FUmbraGameplayTags::Get().State_Stance_Standing, FUmbraGameplayTags::Get().State_Locomotion_Walking);
-		}
-		GetTagManager()->AddTag(FUmbraGameplayTags::Get().State_Locomotion_Walking);
+		ServerSetWalking(true);
 	}
 }
 
 void AUmbraPlayerController::OnStopWalking()
 {
-	if (GetControlledCharacter())
+	SetWalking(false);
+
+	if (!HasAuthority())
 	{
-		if (ControlledCharacter->GetCharacterMovement()->IsCrouching())
-		{
-			ControlledCharacter->GetCharacterMovement()->MaxWalkSpeedCrouched = ControlledCharacter->GetMoveSpeed(FUmbraGameplayTags::Get().State_Stance_Crouching, FUmbraGameplayTags::Get().State_Locomotion_Running);
-		}
-		else
-		{
-			ControlledCharacter->GetCharacterMovement()->MaxWalkSpeed = ControlledCharacter->GetMoveSpeed(FUmbraGameplayTags::Get().State_Stance_Standing, FUmbraGameplayTags::Get().State_Locomotion_Running);
-		}
-		GetTagManager()->RemoveTag(FUmbraGameplayTags::Get().State_Locomotion_Walking);
+		ServerSetWalking(false);
 	}
 }
 
@@ -232,8 +228,14 @@ void AUmbraPlayerController::OnStartJumping()
 {
 	if (GetControlledCharacter() && GetTraversalComponent())
 	{
-		GetTagManager()->AddTag(FUmbraGameplayTags::Get().State_Movement_Falling);
-		TraversalComponent->TriggerTraversalAction(true);
+		if (HasAuthority())
+		{
+			TraversalComponent->TriggerTraversalAction(true);
+		}
+		else
+		{
+			TraversalComponent->ServerTriggerTraversalAction(true);
+		}
 	}
 }
 
@@ -268,7 +270,7 @@ void AUmbraPlayerController::OnStartDrop()
 {
 	if (GetTraversalComponent())
 	{
-		TraversalComponent->DropFromClimb();
+		HasAuthority() ? TraversalComponent->DropFromClimb() : TraversalComponent->ServerDropFromClimb();
 	}
 }
 
@@ -287,6 +289,54 @@ void AUmbraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 {
 	if (GetAbilitySystemComponent() == nullptr) return;
 	GetAbilitySystemComponent()->AbilityInputTagHeld(InputTag);
+}
+
+void AUmbraPlayerController::SetWalking(bool bWalking)
+{
+	if (!GetControlledCharacter()) return;
+
+	if (bWalking)
+	{
+		if (ControlledCharacter->GetCharacterMovement()->IsCrouching())
+		{
+			ControlledCharacter->GetCharacterMovement()->MaxWalkSpeedCrouched = ControlledCharacter->GetMoveSpeed(
+				FUmbraGameplayTags::Get().State_Stance_Crouching,
+				FUmbraGameplayTags::Get().State_Locomotion_Walking);
+		}
+		else
+		{
+			ControlledCharacter->GetCharacterMovement()->MaxWalkSpeed = ControlledCharacter->GetMoveSpeed(
+				FUmbraGameplayTags::Get().State_Stance_Standing,
+				FUmbraGameplayTags::Get().State_Locomotion_Walking);
+		}
+		GetTagManager()->AddTag(FUmbraGameplayTags::Get().State_Locomotion_Walking);
+	}
+	else
+	{
+		if (ControlledCharacter->GetCharacterMovement()->IsCrouching())
+		{
+			ControlledCharacter->GetCharacterMovement()->MaxWalkSpeedCrouched = ControlledCharacter->GetMoveSpeed(
+				FUmbraGameplayTags::Get().State_Stance_Crouching,
+				FUmbraGameplayTags::Get().State_Locomotion_Running);
+		}
+		else
+		{
+			ControlledCharacter->GetCharacterMovement()->MaxWalkSpeed = ControlledCharacter->GetMoveSpeed(
+				FUmbraGameplayTags::Get().State_Stance_Standing,
+				FUmbraGameplayTags::Get().State_Locomotion_Running);
+		}
+		GetTagManager()->RemoveTag(FUmbraGameplayTags::Get().State_Locomotion_Walking);
+	}
+}
+
+void AUmbraPlayerController::MulticastSetWalking_Implementation(bool bWalking)
+{
+	SetWalking(bWalking);
+}
+
+void AUmbraPlayerController::ServerSetWalking_Implementation(bool bWalking)
+{
+	SetWalking(bWalking);
 }
 
 

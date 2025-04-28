@@ -4,6 +4,7 @@
 #include "Character/Component/TagManager.h"
 
 #include "GameplayTagContainer.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values for this component's properties
 UTagManager::UTagManager()
@@ -14,7 +15,6 @@ UTagManager::UTagManager()
 
 
 }
-
 
 // Called when the game starts
 void UTagManager::BeginPlay()
@@ -52,7 +52,7 @@ void UTagManager::DrawDebug()
 	{
 		for (int32 i = 0; i < GameplayTags.Num(); ++i)
 		{
-			GEngine->AddOnScreenDebugMessage(i, 3.f, FColor::Blue, GameplayTags.GetByIndex(i).ToString());
+			GEngine->AddOnScreenDebugMessage(i, 0.f, FColor::Blue, GameplayTags.GetByIndex(i).ToString());
 		}
 	}
 }

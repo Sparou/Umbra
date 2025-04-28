@@ -133,4 +133,10 @@ private:
 	void AbilityInputTagPressed(FGameplayTag InputTag);
 	void AbilityInputTagReleased(FGameplayTag InputTag);
 	void AbilityInputTagHeld(FGameplayTag InputTag);
+
+	void SetWalking(bool bWalking);
+	UFUNCTION(Server, Reliable)
+	void ServerSetWalking(bool bWalking);
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastSetWalking(bool bWalking);
 };

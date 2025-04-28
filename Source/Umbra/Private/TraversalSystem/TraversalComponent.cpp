@@ -11,13 +11,13 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Net/UnrealNetwork.h"
-#include "Net/Core/PushModel/PushModel.h"
 
 DEFINE_LOG_CATEGORY(TraversalComponent)
 
 UTraversalComponent::UTraversalComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	SetIsReplicatedByDefault(true);
 }
 
 void UTraversalComponent::BeginPlay()
@@ -29,34 +29,12 @@ void UTraversalComponent::BeginPlay()
 void UTraversalComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
+	
 	DOREPLIFETIME(UTraversalComponent, TraversalState);
-	
-	// DOREPLIFETIME(ThisClass, TraversalState);
-	// DOREPLIFETIME(ThisClass, TraversalAction);
-	// DOREPLIFETIME(ThisClass, ClimbStyle);
-	// DOREPLIFETIME(ThisClass, ClimbDirection);
-	
-	// FDoRepLifetimeParams RepParams;
-	// RepParams.bIsPushBased = true;
-	//
-	// DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, TraversalState, RepParams);
-	// DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, ClimbStyle, RepParams);
-	// DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, ClimbDirection, RepParams);
-	// DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, TraversalAction, RepParams);
-	//
-	// DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, WallHitResult, RepParams);
-	// DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, WallEdgeResult, RepParams);
-	// DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, WallDepthResult, RepParams);
-	// DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, WallVaultResult, RepParams);
-	// DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, NextClimbResult, RepParams);
-	// DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, CurrentClimbResult, RepParams);
-	//
-	// DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, WallRotation, RepParams);
-	// DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, WallHeight, RepParams);
-	// DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, WallDepth, RepParams);
-	// DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, VaultHeight, RepParams);
-	
+	DOREPLIFETIME(UTraversalComponent, TraversalAction);
+	DOREPLIFETIME(UTraversalComponent, ClimbStyle);
+	DOREPLIFETIME(UTraversalComponent, ClimbDirection);
+	DOREPLIFETIME(UTraversalComponent, bIsDropping);
 }
 
 void UTraversalComponent::InitializeReferences()
@@ -81,12 +59,21 @@ void UTraversalComponent::InitializeReferences()
 
 	AnimInstance = SkeletalMesh->GetAnimInstance();
 	checkf(AnimInstance, TEXT("Traversal Component: Anim Instance is null"));
+
 }
 
 void UTraversalComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	// if (GetOwnerRole() == ROLE_Authority && GEngine)
+	// {
+	// 	GEngine->AddOnScreenDebugMessage(1, 0.f, FColor::Green, *WallTopResult.ImpactPoint.ToString());
+	// 	GEngine->AddOnScreenDebugMessage(2, 0, FColor::Blue, *TraversalState.ToString());
+	// 	GEngine->AddOnScreenDebugMessage(3, 0, FColor::Red, *TraversalAction.ToString());
+	// 	GEngine->AddOnScreenDebugMessage(4, 0, FColor::Yellow, *ClimbStyle.ToString());
+	// 	GEngine->AddOnScreenDebugMessage(5, 0, FColor::Black, *ClimbDirection.ToString());
+	// }
 	
 	ValidateIsInLand();
 	if (bInLand)
@@ -100,11 +87,16 @@ void UTraversalComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 	{
 		if (TraversalState.MatchesTagExact(UGT.Traversal_State_FreeRoam) && !bIsDropping)
 		{
-			TriggerTraversalAction(false);
+			if (GetOwnerRole() < ROLE_Authority)
+				ServerTriggerTraversalAction(false);
+			else
+				TriggerTraversalAction(false);
 		}
 	}
-	
-	ClimbMovementIK();
+	if (GetNetMode() != NM_DedicatedServer)
+	{
+		ClimbMovementIK();
+	}
 }
 
 void UTraversalComponent::TriggerTraversalAction(bool JumpAction)
@@ -114,18 +106,36 @@ void UTraversalComponent::TriggerTraversalAction(bool JumpAction)
 		WallHitResult = DetectWall();
 		if (!WallHitResult.bBlockingHit && JumpAction)
 		{
-			OwnerCharacter->Jump();
+			//OwnerCharacter->Jump();
+			MulticastJump();
 			return;
+		}  
+
+		float GridScanHeight;
+		
+		if(GetNetMode() == NM_DedicatedServer)
+		{
+			GridScanHeight = TraversalStateValues(
+				TraversalState,
+				WallHitResult.ImpactPoint.Z,
+				0.f,
+				ClimbStyle.MatchesTagExact(UGT.Traversal_ClimbStyle_BracedClimb) ?
+						OwnerCharacter->GetActorLocation().Z + ClimbMovementDedicatedServerBracedHandZOffset :
+						OwnerCharacter->GetActorLocation().Z + ClimbMovementDedicatedServerFreeHangHandZOffset,
+				0.f,
+				0.f);
 		}
-
-		float GridScanHeight = TraversalStateValues(
-			TraversalState,
-			WallHitResult.ImpactPoint.Z,
-			0.f,
-			GetCharacterHandHeight(),
-			0.f,
-			0.f);
-
+		else
+		{
+			GridScanHeight = TraversalStateValues(
+				TraversalState,
+				WallHitResult.ImpactPoint.Z,
+				0.f,
+				GetCharacterHandHeight(),
+				0.f,
+				0.f);
+		}
+		
 		FVector GridScanLocation = FVector(
 			WallHitResult.ImpactPoint.X,
 			WallHitResult.ImpactPoint.Y,
@@ -156,34 +166,70 @@ void UTraversalComponent::PlayTraversalMontage()
 	SetTraversalState(CurrentActionData.InState);
 	
 	FVector TopResultWarpLocation = FindWarpLocation(WallTopResult.ImpactPoint, WallRotation, CurrentActionData.Warp1XOffset, CurrentActionData.Warp1ZOffset);
-	MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation("TopResultWarp", TopResultWarpLocation, WallRotation);
+	//MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation("TopResultWarp", TopResultWarpLocation, WallRotation);
 
 	FVector BalanceWarpLocation = FindWarpLocation(WallTopResult.ImpactPoint, WallRotation, CurrentActionData.Warp2XOffset, CurrentActionData.Warp2ZOffset);
-	MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation("BalanceWarp", BalanceWarpLocation, WallRotation);
+	//MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation("BalanceWarp", BalanceWarpLocation, WallRotation);
 
 	FVector DepthResultWarpLocation = FindWarpLocation(WallDepthResult.ImpactPoint, WallRotation, CurrentActionData.Warp2XOffset, CurrentActionData.Warp2ZOffset);
-	MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation("DepthResultWarp", DepthResultWarpLocation, WallRotation);
+	//MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation("DepthResultWarp", DepthResultWarpLocation, WallRotation);
 
 	FVector VaultResultWarpLocation = FindWarpLocation(WallVaultResult.ImpactPoint, WallRotation, CurrentActionData.Warp3XOffset, CurrentActionData.Warp3ZOffset);
-	MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation("VaultResultWarp", VaultResultWarpLocation, WallRotation);
+	//MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation("VaultResultWarp", VaultResultWarpLocation, WallRotation);
+
+	if(GetOwnerRole() == ROLE_Authority)
+	{
+		MulticastPlayTraversalMontage(
+			TraversalAction,
+			TopResultWarpLocation,
+			BalanceWarpLocation,
+			DepthResultWarpLocation,
+			VaultResultWarpLocation,
+			WallRotation,
+			NextClimbResult
+		);
+	}
+	
+}
+
+void UTraversalComponent::MulticastPlayTraversalMontage_Implementation(
+	FGameplayTag ActionTag,
+	FVector TopResultWarpLocation,
+	FVector BalanceWarpLocation,
+	FVector DepthResultWarpLocation,
+	FVector VaultResultWarpLocation,
+	FRotator WallRot,
+	FHitResult NextClimb)
+{
+	
+	CurrentActionData = TraversalActions->FindActionDataByTag(ActionTag);
+	WallRotation = WallRot;
+	NextClimbResult = NextClimb;
+	
+	MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation("TopResultWarp", TopResultWarpLocation, WallRot);
+	MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation("BalanceWarp",BalanceWarpLocation, WallRot);
+	MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation("DepthResultWarp", DepthResultWarpLocation, WallRot);
+	MotionWarping->AddOrUpdateWarpTargetFromLocationAndRotation("VaultResultWarp", VaultResultWarpLocation, WallRot);
 	
 	if (AnimInstance)
 	{
-		FOnMontageBlendingOutStarted BlendingOutStarted = FOnMontageBlendingOutStarted::CreateWeakLambda(this,
-			[this](UAnimMontage*, bool)
-		{
-				SetTraversalState(CurrentActionData.OutState);
-		}
-		);
-
-		FOnMontageEnded Ended = FOnMontageEnded::CreateWeakLambda(this, [this](UAnimMontage*, bool)
-		{
-				SetTraversalAction(UGT.Traversal_Action_NoAction);
-		});
-		
 		AnimInstance->Montage_Play(CurrentActionData.Montage);
+
+		if (GetOwnerRole() == ROLE_Authority)
+		{
+			FOnMontageEnded Ended = FOnMontageEnded::CreateWeakLambda(this, [this](UAnimMontage*, bool)
+			{
+					SetTraversalAction(UGT.Traversal_Action_NoAction);
+			});
+			AnimInstance->Montage_SetEndDelegate(Ended);
+		}
+
+		FOnMontageBlendingOutStarted BlendingOutStarted = FOnMontageBlendingOutStarted::CreateWeakLambda(this,[this](UAnimMontage*, bool)
+		{
+			SetTraversalState(CurrentActionData.OutState);
+		});
 		AnimInstance->Montage_SetBlendingOutDelegate(BlendingOutStarted);
-		AnimInstance->Montage_SetEndDelegate(Ended);
+		
 	}
 }
 
@@ -191,10 +237,10 @@ void UTraversalComponent::PlayTraversalMontage()
 
 void UTraversalComponent::SetTraversalState(const FGameplayTag& NewTraversalState)
 {
-	if (NewTraversalState.MatchesTagExact(TraversalState))
-	{
-		return;
-	}
+	// if (NewTraversalState.MatchesTagExact(TraversalState))
+	// {
+	// 	return;
+	// }
 
 	TraversalState = NewTraversalState;
 	
@@ -258,7 +304,7 @@ void UTraversalComponent::SetClimbDirection(const FGameplayTag& NewClimbDirectio
 	{
 		return;
 	}
-	
+
 	ClimbDirection = NewClimbDirection;
 	
 	if (AnimInstance && AnimInstance->GetClass()->ImplementsInterface(UTraversalInterface::StaticClass()))
@@ -269,10 +315,10 @@ void UTraversalComponent::SetClimbDirection(const FGameplayTag& NewClimbDirectio
 
 void UTraversalComponent::SetTraversalAction(const FGameplayTag& NewTraversalAction)
 {
-	if (NewTraversalAction.MatchesTagExact(TraversalAction))
-	{
-		return;
-	}
+	// if (NewTraversalAction.MatchesTagExact(TraversalAction))
+	// {
+	// 	return;
+	// }
 
 	TraversalAction = NewTraversalAction;
 
@@ -293,27 +339,57 @@ void UTraversalComponent::SetTraversalAction(const FGameplayTag& NewTraversalAct
 	}
 }
 
-void UTraversalComponent::SetNewClimbPosition(float NewLocationX, float NewLocationY, float NewLocationZ,
-	FRotator NewRotation)
-{
-	float X = FMath::FInterpTo(
-		OwnerCharacter->GetActorLocation().X,
-		NewLocationX, GetWorld()->GetDeltaSeconds(),
-		2.f);
-	
-	float Y = FMath::FInterpTo(
-		OwnerCharacter->GetActorLocation().Y,
-		NewLocationY, GetWorld()->GetDeltaSeconds(),
-		2.f);
 
-	float Z = FMath::FInterpTo(
-		OwnerCharacter->GetActorLocation().Z,
-		NewLocationZ - ClimbValues(ClimbStyle, ClimbMovementBracedZOffset, ClimbMovementFreeHangZOffset),
-		GetWorld()->GetDeltaSeconds(), 0.f);
+void UTraversalComponent::SetNewClimbPosition(float NewLocationX, float NewLocationY, float NewLocationZ,
+                                              FRotator NewRotation)
+{
 	
-	FVector NewActorLocation = FVector(X, Y, Z);	
+	FVector CurrentLocation = OwnerCharacter->GetActorLocation();
+	float DeltaTime = GetWorld()->GetDeltaSeconds();
+	if (DeltaTime < KINDA_SMALL_NUMBER)
+		return;
+
+	// Целевая позиция с учётом Z-офсета
+	float ZOffset = ClimbValues(ClimbStyle, ClimbMovementBracedZOffset, ClimbMovementFreeHangZOffset);
+	FVector DesiredLocation(NewLocationX, NewLocationY, NewLocationZ - ZOffset);
+
+	// Интерполяция вектора константной скоростью ClimbSpeed
+	FVector NewLocation = FMath::VInterpConstantTo(CurrentLocation, DesiredLocation, DeltaTime, ClimbSpeed);
+
+	// Вычисляем нужную скорость, чтобы за один тик попасть в NewLocation
+	FVector NeededVelocity = (NewLocation - CurrentLocation) / DeltaTime;
+	CharacterMovement->Velocity = NeededVelocity;
 	
-	OwnerCharacter->SetActorLocationAndRotation(NewActorLocation, NewRotation);
+	OwnerCharacter->SetActorRotation(NewRotation);
+}
+
+void UTraversalComponent::OnRep_TraversalState()
+{
+	SetTraversalState(TraversalState);
+}
+
+void UTraversalComponent::OnRep_TraversalAction()
+{
+	if (AnimInstance && AnimInstance->GetClass()->ImplementsInterface(UTraversalInterface::StaticClass()))
+	{
+		ITraversalInterface::Execute_SetTraversalAction(AnimInstance ,TraversalAction);
+	}
+}
+
+void UTraversalComponent::OnRep_ClimbStyle()
+{ 
+	if (AnimInstance && AnimInstance->GetClass()->ImplementsInterface(UTraversalInterface::StaticClass()))
+	{
+		ITraversalInterface::Execute_SetClimbStyle(AnimInstance ,ClimbStyle);
+	}
+}
+
+void UTraversalComponent::OnRep_ClimbDirection()
+{
+	if (AnimInstance && AnimInstance->GetClass()->ImplementsInterface(UTraversalInterface::StaticClass()))
+	{
+		ITraversalInterface::Execute_SetClimbDirection(AnimInstance, ClimbDirection);
+	}
 }
 
 /********************* Wall Detection **********************/
@@ -872,6 +948,11 @@ void UTraversalComponent::DecideClimbOrHope()
 
 /********************* Climbing **********************/
 
+void UTraversalComponent::MulticastJump_Implementation()
+{
+	OwnerCharacter->Jump();
+}
+
 void UTraversalComponent::AddMovementInput(float ScaleValue, bool Front)
 {
 	Front ? ForwardValue = ScaleValue : RightValue = ScaleValue;
@@ -883,9 +964,17 @@ void UTraversalComponent::AddMovementInput(float ScaleValue, bool Front)
 		OwnerCharacter->AddMovementInput(WorldDirection, ScaleValue, false);
 	}
 
-	else if (TraversalState.MatchesTagExact(UGT.Traversal_State_Climb))
+	else if (TraversalState.MatchesTagExact(UGT.Traversal_State_Climb) && GetOwnerRole())
 	{
-		AnimInstance->IsAnyMontagePlaying() ? StopClimbMovement() : ClimbMovement();
+		//AnimInstance->IsAnyMontagePlaying() ? StopClimbMovement() : ClimbMovement();
+		if(GetOwnerRole() == ROLE_Authority)
+		{
+			AnimInstance->IsAnyMontagePlaying() ? StopClimbMovement() : ClimbMovement();
+		}
+		else
+		{
+			AnimInstance->IsAnyMontagePlaying() ? ServerStopClimbMovement() : ServerSendClimbInput(ForwardValue, RightValue);
+		}
 	}
 }
 
@@ -1081,15 +1170,34 @@ void UTraversalComponent::ClimbMovement()
 		WallRotation);
 	
 	float NewLocationZ = ClimbTopHitResult.ImpactPoint.Z;
+
+	if (GetOwnerRole() < ROLE_Authority)
+	{
+		UE_LOG(TraversalComponent, Warning, TEXT("ClimbMovement: [Not Authority]"));
+		UE_LOG(TraversalComponent, Log, TEXT("X = [%f], Y = [%f], Z = [%f]"), HorizontalLocation.X, HorizontalLocation.Y, NewLocationZ);
+	}
 	
 	SetNewClimbPosition(HorizontalLocation.X, HorizontalLocation.Y, NewLocationZ, WallRotation);
 	DecideClimbStyle(ClimbTopHitResult.ImpactPoint, WallRotation);
 }
 
+void UTraversalComponent::ServerSendClimbInput_Implementation(float FValue, float RValue)
+{
+	ForwardValue = FValue;
+	RightValue = RValue;
+	ClimbMovement();
+}
+
+
 void UTraversalComponent::StopClimbMovement()
 {
 	CharacterMovement->StopMovementImmediately();
 	SetClimbDirection(UGT.Traversal_Direction_NoDirection);
+}
+
+void UTraversalComponent::ServerStopClimbMovement_Implementation()
+{
+	StopClimbMovement();
 }
 
 bool UTraversalComponent::ClimbCheckForSides(const FVector& ImpactPoint)
@@ -1329,6 +1437,7 @@ void UTraversalComponent::NextClimbHandIK(const bool bLeftHand)
 		ClimbWallHitResult.ImpactPoint.Y,
 		VectorDirectionMove(ClimbTopHitResult.ImpactPoint, UGT.Traversal_Direction_Down, HandIKLocationVerticalOffset).Z);
 
+	UE_LOG(TraversalComponent, Log, TEXT("Owner Role = [%d]"), GetOwnerRole());
 	UE_LOG(TraversalComponent, Log, TEXT("Next Climb Ik: Hand = [%d]"), bLeftHand);
 	UE_LOG(TraversalComponent, Log, TEXT("Next Climb IK: Location = [%s]"), *ClimbHandLocation.ToString());
 	UE_LOG(TraversalComponent, Log, TEXT("Next Climb IK: Rotation = [%s]"), *ClimbHandRotation.ToString());
@@ -1944,6 +2053,16 @@ void UTraversalComponent::DropFromClimb()
 	}
 }
 
+void UTraversalComponent::ServerDropFromClimb_Implementation()
+{
+	DropFromClimb();
+}
+
+void UTraversalComponent::ServerTriggerTraversalAction_Implementation(bool bJumpAction)
+{
+	TriggerTraversalAction(bJumpAction);
+}
+
 /********************* Helpers **********************/
 
 void UTraversalComponent::ResetMovement()
@@ -1951,6 +2070,17 @@ void UTraversalComponent::ResetMovement()
 	ForwardValue = 0.f;
 	RightValue = 0.f;
 	SetClimbDirection(UGT.Traversal_Direction_NoDirection);
+
+	if (TraversalAction.MatchesTagExact(UGT.Traversal_Action_NoAction) &&
+		TraversalState.MatchesTagExact(UGT.Traversal_State_Climb))
+	{
+		CharacterMovement->StopMovementImmediately();
+	}
+}
+
+void UTraversalComponent::ServerResetMovement_Implementation()
+{
+	ResetMovement();
 }
 
 FVector UTraversalComponent::VectorDirectionMove(const FVector& Source, const FGameplayTag& Direction, const float& MoveValue) const

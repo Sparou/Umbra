@@ -7,6 +7,7 @@
 #include "TraversalSystem/TraversalComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Net/UnrealNetwork.h"
 
 AUmbraBaseCharacter::AUmbraBaseCharacter()
 {
@@ -20,7 +21,6 @@ AUmbraBaseCharacter::AUmbraBaseCharacter()
 
 	GetCharacterMovement()->MaxWalkSpeed = StandRunSpeed;
 	GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchRunSpeed;
-	
 }
 
 float AUmbraBaseCharacter::GetMoveSpeed(const FGameplayTag& Stance, const FGameplayTag& Locomotion)
@@ -39,6 +39,16 @@ float AUmbraBaseCharacter::GetMoveSpeed(const FGameplayTag& Stance, const FGamep
 		return CrouchRunSpeed;
 	}
 	return StandRunSpeed;
+}
+
+float AUmbraBaseCharacter::GetTargetSpeed()
+{
+	return TargetSpeed;
+}
+
+void AUmbraBaseCharacter::SetTargetSpeed(float NewTargetSpeed)
+{
+	TargetSpeed = NewTargetSpeed;
 }
 
 FWeaponSocketLocations AUmbraBaseCharacter::GetWeaponSocketLocations_Implementation() const
@@ -90,6 +100,13 @@ void AUmbraBaseCharacter::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 }
 
+void AUmbraBaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AUmbraBaseCharacter, TargetSpeed);
+}
+
 
 UTagManager* AUmbraBaseCharacter::GetTagManager()
 {
@@ -125,6 +142,9 @@ void AUmbraBaseCharacter::InitAbilityActorInfo()
 void AUmbraBaseCharacter::MulticastHandleDeath_Implementation()
 {
 	//UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation(), GetActorRotation());
+
+	GetCharacterMovement()->DisableMovement();
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
 	WeaponMeshComponent->SetSimulatePhysics(true);
 	WeaponMeshComponent->SetEnableGravity(true);
@@ -134,7 +154,6 @@ void AUmbraBaseCharacter::MulticastHandleDeath_Implementation()
 	GetMesh()->SetEnableGravity(true);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
-
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
 	bIsDead = true;
 }

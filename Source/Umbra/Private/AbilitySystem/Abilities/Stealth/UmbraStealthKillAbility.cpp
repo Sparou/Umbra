@@ -193,6 +193,7 @@ void UUmbraStealthKillAbility::MoveToKillPosition()
 	}
 	
 	float Distance = (AvatarCharacter->GetActorLocation() - TargetActor->GetActorLocation()).Size();
+	//DrawDebugSphere(GetWorld(), TargetActor->GetActorLocation() + StealthKillMontages.KillerStarterLocation, 16, 32, FColor::Red, false, 5.f);
 	
 	if(UAbilityTask_ApplyRootMotionMoveToForce* MoveToForce = UAbilityTask_ApplyRootMotionMoveToForce::ApplyRootMotionMoveToForce(
 		this,
