@@ -23,7 +23,7 @@ void UUmbraStealthKillAbility::ActivateAbility(
 {
 	AvatarCharacter = Cast<AUmbraPlayerCharacter>(GetAvatarActorFromActorInfo());
 	UInteractionComponent* InteractionComponent = AvatarCharacter->GetComponentByClass<UInteractionComponent>();
-	TargetActor = InteractionComponent->GetCurrentTarget();
+	TargetActor = InteractionComponent->GetInteractionActor();
 	
 	if (!TargetActor)
 	{

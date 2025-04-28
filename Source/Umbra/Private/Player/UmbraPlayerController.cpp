@@ -12,6 +12,7 @@
 #include "Character/Data/PlayerCharacterInfo.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Input/UmbraInputComponent.h"
+#include "Interaction/InteractionInterface.h"
 #include "Kismet/GameplayStatics.h"
 
 void AUmbraPlayerController::SwitchToDefaultContext()
@@ -48,7 +49,7 @@ void AUmbraPlayerController::SetupInputComponent()
 
 	UUmbraInputComponent* UmbraInputComponent = CastChecked<UUmbraInputComponent>(InputComponent);
 	
-	UmbraInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AUmbraPlayerController::Interact);
+	UmbraInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AUmbraPlayerController::OnInteract);
 	UmbraInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::Move);
 	UmbraInputComponent->BindAction(MoveAction, ETriggerEvent::Started, this, &AUmbraPlayerController::OnStartMoving);
 	UmbraInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::OnStopMoving);
@@ -124,6 +125,16 @@ AUmbraBaseCharacter* AUmbraPlayerController::GetControlledCharacter()
 	return ControlledCharacter;
 }
 
+UInteractionComponent* AUmbraPlayerController::GetInteractionComponent()
+{
+	if (!InteractionComponent)
+	{
+		InteractionComponent = GetCharacter()->GetComponentByClass<UInteractionComponent>();
+	}
+
+	return InteractionComponent;
+}
+
 
 void AUmbraPlayerController::SwitchCharacter(FGameplayTag CharacterTag)
 {
@@ -146,13 +157,37 @@ void AUmbraPlayerController::SwitchCharacter(FGameplayTag CharacterTag)
 	}
 }
 
+void AUmbraPlayerController::OnInteract()
+{
+	if (IsLocalController())
+	{
+		ServerInteract();
+	}
+}
+
 void AUmbraPlayerController::Interact()
 {
-	APawn* CurrentPawn = GetPawn();
-	AUmbraPlayerCharacter* CurrentPlayerCharacter = Cast<AUmbraPlayerCharacter>(CurrentPawn);
-	UInteractionComponent* InteractionComponent = CurrentPlayerCharacter->GetComponentByClass<UInteractionComponent>();
-	AActor* Target = InteractionComponent->GetCurrentTarget();
-	UE_LOG(LogTemp, Warning, TEXT("Target: %s"), *Target->GetName());
+	if (!GetInteractionComponent())
+	{
+		return;
+	}
+
+	AActor* InteractionTarget = InteractionComponent->GetInteractionActor();
+
+	if (InteractionTarget && InteractionTarget->GetClass()->ImplementsInterface(UInteractionInterface::StaticClass()))
+	{
+		IInteractionInterface::Execute_Interact(InteractionTarget, GetCharacter());
+	}
+}
+
+void AUmbraPlayerController::ServerInteract_Implementation()
+{
+	MulticastInteract();
+}
+
+void AUmbraPlayerController::MulticastInteract_Implementation()
+{
+	Interact();
 }
 
 void AUmbraPlayerController::Move(const FInputActionValue& InputActionValue)

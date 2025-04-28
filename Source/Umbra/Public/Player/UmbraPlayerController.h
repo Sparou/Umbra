@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "UmbraPlayerController.generated.h"
 
+class UInteractionComponent;
 class UTraversalComponent;
 class UUmbraAbilitySystemComponent;
 class UUmbraInputConfig;
@@ -103,15 +104,25 @@ private:
 	TObjectPtr<UAnimInstance> AnimInstance;
 	UPROPERTY()
 	TObjectPtr<UTagManager> TagManager;
+	UPROPERTY()
+	TObjectPtr<UInteractionComponent> InteractionComponent;
 
 	UUmbraAbilitySystemComponent* GetAbilitySystemComponent();
 	UTraversalComponent* GetTraversalComponent();
 	UAnimInstance* GetAnimInstance();
 	UTagManager* GetTagManager();
 	AUmbraBaseCharacter* GetControlledCharacter();
+	UInteractionComponent* GetInteractionComponent();
 	
 	void SwitchCharacter(FGameplayTag CharacterTag);
+
+	
+	void OnInteract();
 	void Interact();
+	UFUNCTION(Server, Reliable)
+	void ServerInteract();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastInteract();
 	
 	void Move(const FInputActionValue& InputActionValue);
 	void Look(const FInputActionValue& InputActionValue);

@@ -7,7 +7,7 @@
 #include "InteractionInterface.generated.h"
 
 // This class does not need to be modified.
-UINTERFACE(MinimalAPI)
+UINTERFACE(MinimalAPI, Blueprintable)
 class UInteractionInterface : public UInterface
 {
 	GENERATED_BODY()
@@ -20,8 +20,8 @@ class UMBRA_API IInteractionInterface
 {
 	GENERATED_BODY()
 
-	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual void Interact(AActor* OtherActor) = 0;
-	bool bInInteraction = false;
+
+	UFUNCTION(BlueprintNativeEvent, Category = "Interaction")
+	void Interact(const AActor* InitiatorActor);
 };

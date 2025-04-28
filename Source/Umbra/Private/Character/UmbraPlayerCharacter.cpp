@@ -14,7 +14,7 @@ AUmbraPlayerCharacter::AUmbraPlayerCharacter(const FObjectInitializer& ObjInit)
 
 AActor* AUmbraPlayerCharacter::GetOverlappedActorFromInteractionComponent() const
 {
-	return InteractionComponent->GetCurrentTarget();
+	return InteractionComponent->GetInteractionActor();
 }
 
 FStealthKillMontages AUmbraPlayerCharacter::GetRandomStealthKillMontages(TArray<FStealthKillMontages> KillMontages) const

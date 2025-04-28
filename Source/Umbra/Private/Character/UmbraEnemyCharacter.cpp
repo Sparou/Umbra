@@ -23,13 +23,6 @@ void AUmbraEnemyCharacter::PossessedBy(AController* NewController)
 	UmbraAIController->RunBehaviorTree(BehaviorTree);
 }
 
-void AUmbraEnemyCharacter::Interact(AActor* OtherActor)
-{
-	bInInteraction = true;
-	GEngine->AddOnScreenDebugMessage(0, 3.f, FColor::Blue, FString("Interacted with object"));
-	bInInteraction = false;
-}
-
 AActor* AUmbraEnemyCharacter::GetCurrentDestinationPoint() const
 {
 	//Check index's variables validity

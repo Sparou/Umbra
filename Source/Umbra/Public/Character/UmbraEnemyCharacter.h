@@ -23,9 +23,6 @@ public:
 	AUmbraEnemyCharacter();
 	virtual void PossessedBy(AController* NewController) override;
 	
-	UFUNCTION(BlueprintCallable)
-	virtual void Interact(AActor* OtherActor) override;
-
 	/** Patrolling Interface */
 	virtual AActor* GetCurrentDestinationPoint() const override;
 	virtual void IncrementCurrentDestinationPoint() override;

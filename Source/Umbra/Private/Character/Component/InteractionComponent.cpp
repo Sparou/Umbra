@@ -1,57 +1,61 @@
 // Copyrighted by Vorona Games
 
-
 #include "Character/Component/InteractionComponent.h"
+#include "Interaction/InteractionInterface.h"
+#include "Kismet/GameplayStatics.h"
 
-#include "Camera/CameraComponent.h"
+DEFINE_LOG_CATEGORY(InteractionComponentLog)
 
 UInteractionComponent::UInteractionComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
+AActor* UInteractionComponent::GetInteractionActor() const
+{
+	return InteractionActor;
+}
+
 void UInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
                                           FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	
-	FVector TraceStart;
-	FRotator TraceRotation;
-	Owner->GetActorEyesViewPoint(TraceStart, TraceRotation);
-	FVector TraceEnd = TraceStart + (TraceRotation.Vector() * InteractionDistance);
-	CheckForTarget(TraceStart, TraceEnd);
+	InteractionTrace();
 }
 
 void UInteractionComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	Owner = GetOwner();
+	CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
+	checkf(CameraManager, TEXT("Interaction Component: Camera Manager initialization failed!"));
 }
 
-void UInteractionComponent::CheckForTarget(const FVector& TraceStart, const FVector& TraceEnd)
+void UInteractionComponent::InteractionTrace()
 {
-	FHitResult HitResult;
-	FCollisionQueryParams Params;
-	Params.AddIgnoredActor(Owner);
-
-	bool bHit = GetWorld()->LineTraceSingleByChannel(
-		HitResult,
-		TraceStart,
-		TraceEnd,
-		ECC_WorldDynamic,
-		Params
-	);
-
-#if WITH_EDITOR
-	//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Yellow);
-#endif
-	
-	if (bHit && HitResult.GetActor())
+	InteractionTraceStart = CameraManager->GetCameraLocation();
+	InteractionTraceEnd = InteractionTraceStart + CameraManager->GetActorForwardVector() * InteractionDistance;
+  
+	UKismetSystemLibrary::SphereTraceSingle(
+	  this,
+	  InteractionTraceStart,
+	  InteractionTraceEnd,
+	  InteractionTraceSphereRadius,
+	  UEngineTypes::ConvertToTraceType(ECC_Visibility),
+	  false,
+	  TArray<AActor*>(),
+	  EDrawDebugTrace::ForOneFrame,
+	  InteractionResult,
+	  true);
+  
+	if (!InteractionResult.bBlockingHit || !InteractionResult.GetActor()->GetClass()->ImplementsInterface(UInteractionInterface::StaticClass()))
 	{
-		Target = HitResult.GetActor();
+		InteractionActor = nullptr;
+		return;
 	}
-	else
+
+	if (InteractionActor != InteractionResult.GetActor())
 	{
-		Target = nullptr;
+		UE_LOG(InteractionComponentLog, Log, TEXT("Interaction Component: Target = [%s]"), *InteractionResult.GetActor()->GetName());
 	}
+	InteractionActor = InteractionResult.GetActor();
 }
