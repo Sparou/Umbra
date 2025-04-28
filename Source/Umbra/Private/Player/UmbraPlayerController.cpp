@@ -1,15 +1,14 @@
 // Copyrighted by Vorona Games
 
-
 #include "Player/UmbraPlayerController.h"
-
 #include "AbilitySystemBlueprintLibrary.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "AbilitySystem/UmbraAbilitySystemComponent.h"
-#include "Character/UmbraEnemyCharacter.h"
 #include "Character/UmbraPlayerCharacter.h"
 #include "Character/Component/InteractionComponent.h"
+#include "Character/Component/TagManager.h"
+#include "TraversalSystem/TraversalComponent.h"
 #include "Character/Data/PlayerCharacterInfo.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Input/UmbraInputComponent.h"
@@ -38,7 +37,7 @@ void AUmbraPlayerController::SwitchToCameraOnlyContext()
 void AUmbraPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	check(InputContext);
+	check(InputContext); 
 	check(CameraOnlyInputContext);
 	SwitchToDefaultContext();
 }
@@ -51,6 +50,8 @@ void AUmbraPlayerController::SetupInputComponent()
 	
 	UmbraInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AUmbraPlayerController::Interact);
 	UmbraInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::Move);
+	UmbraInputComponent->BindAction(MoveAction, ETriggerEvent::Started, this, &AUmbraPlayerController::OnStartMoving);
+	UmbraInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::OnStopMoving);
 	UmbraInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::Look);
 	UmbraInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AUmbraPlayerController::OnStartJumping);
 	UmbraInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::OnStopJumping);
@@ -58,6 +59,8 @@ void AUmbraPlayerController::SetupInputComponent()
 	UmbraInputComponent->BindAction(WalkAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::OnStopWalking);
 	UmbraInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &AUmbraPlayerController::OnStartCrouch);
 	UmbraInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::OnStopCrouch);
+	UmbraInputComponent->BindAction(DropAction, ETriggerEvent::Started, this, &AUmbraPlayerController::OnStartDrop);
+	
 	
 	UmbraInputComponent->BindAbilityActions(InputConfig, this, &AUmbraPlayerController::AbilityInputTagPressed,
 	                                        &AUmbraPlayerController::AbilityInputTagReleased, &AUmbraPlayerController::AbilityInputTagHeld);
@@ -69,6 +72,8 @@ void AUmbraPlayerController::SetupInputComponent()
 		&AUmbraPlayerController::SwitchCharacter, FUmbraGameplayTags::Get().Character_Trapper);
 }
 
+
+
 UUmbraAbilitySystemComponent* AUmbraPlayerController::GetAbilitySystemComponent()
 {
 	if (AbilitySystemComponent == nullptr)
@@ -78,6 +83,47 @@ UUmbraAbilitySystemComponent* AUmbraPlayerController::GetAbilitySystemComponent(
 
 	return AbilitySystemComponent;
 }
+
+UTraversalComponent* AUmbraPlayerController::GetTraversalComponent()
+{
+	if (TraversalComponent == nullptr)
+	{
+		TraversalComponent = GetCharacter()->GetComponentByClass<UTraversalComponent>();
+	}
+
+	return TraversalComponent;
+}
+
+UAnimInstance* AUmbraPlayerController::GetAnimInstance()
+{
+	if (AnimInstance == nullptr)
+	{
+		AnimInstance = GetCharacter()->GetMesh()->GetAnimInstance();
+	}
+
+	return AnimInstance;
+}
+
+UTagManager* AUmbraPlayerController::GetTagManager()
+{
+	if (TagManager == nullptr)
+	{
+		TagManager = GetCharacter()->GetComponentByClass<UTagManager>();
+	}
+
+	return TagManager;
+}
+
+AUmbraBaseCharacter* AUmbraPlayerController::GetControlledCharacter()
+{
+	if (!ControlledCharacter)
+	{
+		ControlledCharacter = Cast<AUmbraBaseCharacter>(GetCharacter());
+	}
+
+	return ControlledCharacter;
+}
+
 
 void AUmbraPlayerController::SwitchCharacter(FGameplayTag CharacterTag)
 {
@@ -117,7 +163,12 @@ void AUmbraPlayerController::Move(const FInputActionValue& InputActionValue)
 	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-	if (APawn* ControlledPawn = GetPawn<APawn>()) {
+	if (GetTraversalComponent())
+	{
+		TraversalComponent->AddMovementInput(InputAxisVector.Y, true);
+		TraversalComponent->AddMovementInput(InputAxisVector.X, false);
+	}
+	else if (APawn* ControlledPawn = GetPawn<APawn>()) {
 		ControlledPawn->AddMovementInput(ForwardDirection, InputAxisVector.Y);
 		ControlledPawn->AddMovementInput(RightDirection, InputAxisVector.X);
 	}
@@ -131,30 +182,60 @@ void AUmbraPlayerController::Look(const FInputActionValue& InputActionValue)
 	CurrentPawn->AddControllerPitchInput(-LookAxisVector.Y);
 }
 
+void AUmbraPlayerController::OnStartMoving()
+{
+	GetTagManager()->AddTag(FUmbraGameplayTags::Get().State_Movement_Moving);
+}
+
+void AUmbraPlayerController::OnStopMoving()
+{
+	GetTagManager()->RemoveTag(FUmbraGameplayTags::Get().State_Movement_Moving);
+
+	if (GetTraversalComponent())
+	{
+		if (HasAuthority())
+		{
+			TraversalComponent->ResetMovement();
+		}
+		else
+		{
+			TraversalComponent->ServerResetMovement();
+		}
+	}
+}
+
 void AUmbraPlayerController::OnStartWalking()
 {
-	bWantsToWalk = true;
-	if (AUmbraBaseCharacter* ControlledCharacter = Cast<AUmbraBaseCharacter>(GetCharacter()))
+	SetWalking(true);
+
+	if (!HasAuthority())
 	{
-		ControlledCharacter->GetCharacterMovement()->MaxWalkSpeed = ControlledCharacter->BaseWalkSpeed;
+		ServerSetWalking(true);
 	}
 }
 
 void AUmbraPlayerController::OnStopWalking()
 {
-	bWantsToWalk = false;
-	if (AUmbraBaseCharacter* ControlledCharacter = Cast<AUmbraBaseCharacter>(GetCharacter()))
+	SetWalking(false);
+
+	if (!HasAuthority())
 	{
-		ControlledCharacter->GetCharacterMovement()->MaxWalkSpeed = ControlledCharacter->BaseRunSpeed;
+		ServerSetWalking(false);
 	}
 }
 
 void AUmbraPlayerController::OnStartJumping()
 {
-	bWantsToJump = true;
-	if (AUmbraBaseCharacter* ControlledCharacter = Cast<AUmbraBaseCharacter>(GetCharacter()))
+	if (GetControlledCharacter() && GetTraversalComponent())
 	{
-		ControlledCharacter->Jump();
+		if (HasAuthority())
+		{
+			TraversalComponent->TriggerTraversalAction(true);
+		}
+		else
+		{
+			TraversalComponent->ServerTriggerTraversalAction(true);
+		}
 	}
 }
 
@@ -165,19 +246,31 @@ void AUmbraPlayerController::OnStopJumping()
 
 void AUmbraPlayerController::OnStartCrouch()
 {
-	bWantsToCrouch = true;
-	if (AUmbraBaseCharacter* ControlledCharacter = Cast<AUmbraBaseCharacter>(GetCharacter()))
+	if (GetControlledCharacter())
 	{
+		if (ControlledCharacter->GetCharacterMovement()->IsFalling())
+		{
+			return;
+		}
 		ControlledCharacter->Crouch();
+		GetTagManager()->AddTag(FUmbraGameplayTags::Get().State_Stance_Crouching);
 	}
 }
 
 void AUmbraPlayerController::OnStopCrouch()
 {
-	bWantsToJump = false;
-	if (AUmbraBaseCharacter* ControlledCharacter = Cast<AUmbraBaseCharacter>(GetCharacter()))
+	if (GetControlledCharacter())
 	{
 		ControlledCharacter->UnCrouch();
+		GetTagManager()->RemoveTag(FUmbraGameplayTags::Get().State_Stance_Crouching);
+	}
+}
+
+void AUmbraPlayerController::OnStartDrop()
+{
+	if (GetTraversalComponent())
+	{
+		HasAuthority() ? TraversalComponent->DropFromClimb() : TraversalComponent->ServerDropFromClimb();
 	}
 }
 
@@ -196,6 +289,49 @@ void AUmbraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 {
 	if (GetAbilitySystemComponent() == nullptr) return;
 	GetAbilitySystemComponent()->AbilityInputTagHeld(InputTag);
+}
+
+void AUmbraPlayerController::SetWalking(bool bWalking)
+{
+	if (!GetControlledCharacter()) return;
+	
+	if (bWalking)
+	{
+		if (ControlledCharacter->GetCharacterMovement()->IsCrouching())
+		{
+			ControlledCharacter->GetCharacterMovement()->MaxWalkSpeedCrouched = ControlledCharacter->GetMoveSpeed(
+				FUmbraGameplayTags::Get().State_Stance_Crouching,
+				FUmbraGameplayTags::Get().State_Locomotion_Walking);
+		}
+		else
+		{
+			ControlledCharacter->GetCharacterMovement()->MaxWalkSpeed = ControlledCharacter->GetMoveSpeed(
+				FUmbraGameplayTags::Get().State_Stance_Standing,
+				FUmbraGameplayTags::Get().State_Locomotion_Walking);
+		}
+		GetTagManager()->AddTag(FUmbraGameplayTags::Get().State_Locomotion_Walking);
+	}
+	else
+	{
+		if (ControlledCharacter->GetCharacterMovement()->IsCrouching())
+		{
+			ControlledCharacter->GetCharacterMovement()->MaxWalkSpeedCrouched = ControlledCharacter->GetMoveSpeed(
+				FUmbraGameplayTags::Get().State_Stance_Crouching,
+				FUmbraGameplayTags::Get().State_Locomotion_Running);
+		}
+		else
+		{
+			ControlledCharacter->GetCharacterMovement()->MaxWalkSpeed = ControlledCharacter->GetMoveSpeed(
+				FUmbraGameplayTags::Get().State_Stance_Standing,
+				FUmbraGameplayTags::Get().State_Locomotion_Running);
+		}
+		GetTagManager()->RemoveTag(FUmbraGameplayTags::Get().State_Locomotion_Walking);
+	}
+}
+
+void AUmbraPlayerController::ServerSetWalking_Implementation(bool bWalking)
+{
+	SetWalking(bWalking);
 }
 
 

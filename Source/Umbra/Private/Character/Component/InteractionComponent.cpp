@@ -24,6 +24,7 @@ void UInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 void UInteractionComponent::BeginPlay()
 {
+	Super::BeginPlay();
 	Owner = GetOwner();
 }
 
@@ -42,7 +43,7 @@ void UInteractionComponent::CheckForTarget(const FVector& TraceStart, const FVec
 	);
 
 #if WITH_EDITOR
-	DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Yellow);
+	//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Yellow);
 #endif
 	
 	if (bHit && HitResult.GetActor())

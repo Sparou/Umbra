@@ -27,6 +27,9 @@ private:
 
 	UFUNCTION()
 	void OnMontageCancelled();
+
+	UFUNCTION()
+	void OnMontageBlendingOut();
 	
 	void EnableMovement() const;
 };

@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "UmbraPlayerController.generated.h"
 
+class UTraversalComponent;
 class UUmbraAbilitySystemComponent;
 class UUmbraInputConfig;
 struct FInputActionValue;
@@ -17,6 +18,7 @@ class AUmbraBaseCharacter;
 class AUmbraPlayerCharacter;
 class UInputMappingContext;
 class UInputAction;
+class UTagManager;
 
 /**
  * 
@@ -72,6 +74,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Input|Basic")
 	TObjectPtr<UInputAction> CrouchAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input|Basic")
+	TObjectPtr<UInputAction> DropAction;
 	
 	UPROPERTY(EditAnywhere, Category = "Input|Characters")
 	TObjectPtr<UInputAction> SwitchToAssassinAction;
@@ -89,15 +94,30 @@ private:
 	TObjectPtr<UPlayerCharacterInfo> PlayerCharactersInfo;
 
 	UPROPERTY()
+	TObjectPtr<AUmbraBaseCharacter> ControlledCharacter;
+	UPROPERTY()
 	TObjectPtr<UUmbraAbilitySystemComponent> AbilitySystemComponent;
+	UPROPERTY()
+	TObjectPtr<UTraversalComponent> TraversalComponent;
+	UPROPERTY()
+	TObjectPtr<UAnimInstance> AnimInstance;
+	UPROPERTY()
+	TObjectPtr<UTagManager> TagManager;
 
 	UUmbraAbilitySystemComponent* GetAbilitySystemComponent();
+	UTraversalComponent* GetTraversalComponent();
+	UAnimInstance* GetAnimInstance();
+	UTagManager* GetTagManager();
+	AUmbraBaseCharacter* GetControlledCharacter();
 	
 	void SwitchCharacter(FGameplayTag CharacterTag);
 	void Interact();
 	
 	void Move(const FInputActionValue& InputActionValue);
 	void Look(const FInputActionValue& InputActionValue);
+
+	void OnStartMoving();
+	void OnStopMoving();
 	
 	void OnStartWalking();
 	void OnStopWalking();
@@ -107,8 +127,14 @@ private:
 
 	void OnStartCrouch();
 	void OnStopCrouch();
+
+	void OnStartDrop();
 	
 	void AbilityInputTagPressed(FGameplayTag InputTag);
 	void AbilityInputTagReleased(FGameplayTag InputTag);
 	void AbilityInputTagHeld(FGameplayTag InputTag);
+
+	void SetWalking(bool bWalking);
+	UFUNCTION(Server, Reliable)
+	void ServerSetWalking(bool bWalking);
 };
