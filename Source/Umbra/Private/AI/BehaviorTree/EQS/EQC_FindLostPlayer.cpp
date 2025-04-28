@@ -1,7 +1,7 @@
 // Copyrighted by Vorona Games
 
 
-#include "AI/EQS/EQC_FindLostPlayer.h"
+#include "AI/BehaviorTree/EQS/EQC_FindLostPlayer.h"
 
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"

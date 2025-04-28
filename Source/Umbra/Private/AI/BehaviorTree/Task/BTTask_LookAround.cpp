@@ -1,7 +1,7 @@
 // Copyrighted by Vorona Games
 
 
-#include "AI/BTTask_LookAround.h"
+#include "AI/BehaviorTree/Task/BTTask_LookAround.h"
 #include "AIController.h"
 
 UBTTask_LookAround::UBTTask_LookAround()

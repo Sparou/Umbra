@@ -42,7 +42,7 @@ bool AUmbraAIController::InitializeBlackboardDefaultValues(const UUmbraEnemyAttr
 	return true;
 }
 
-bool AUmbraAIController::ReactToEvent(FName EventName)
+bool AUmbraAIController::ReactToEvent(const FName EventName)
 {
 	if(!EmotionReactionTable) return false;
 	if(!EmotionModifierTable) return false;
@@ -89,13 +89,35 @@ void AUmbraAIController::OnPercepted(AActor* SourceActor, const FAIStimulus Stim
 			if(AUmbraPlayerCharacter* PlayerActor = Cast<AUmbraPlayerCharacter>(SourceActor))
 			{
 				//TODO: check if bot sees player after ending invisibility when stimulus was already received 
-				if(!PlayerActor->GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(InvisibleTag)))
-				{
-					Blackboard->SetValueAsBool(EverSeenEnemy, true);
-					Blackboard->SetValueAsObject(CurrentEnemy, SourceActor);
-					Blackboard->SetValueAsVector(EnemyLocation, Stimulus.StimulusLocation);
-				}
+				//if(!PlayerActor->GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(InvisibleTag)))
+				//{
+					if(!Blackboard->GetValueAsBool(EverSeenEnemy))
+					{
+						Blackboard->SetValueAsBool(EverSeenEnemy, true);
+					}
+					const FEnemyData EnemyData(SourceActor, Stimulus.StimulusLocation);
+					if(!KnownEnemies.Contains(EnemyData))
+					{
+						KnownEnemies.Add(EnemyData);
+						ReactToEvent(SeeEnemy);
+						
+					}
+
+					
+				
+					// if(SourceActor != Cast<AUmbraPlayerCharacter>(Blackboard->GetValueAsObject(CurrentEnemy)))
+					// {
+					// 	Blackboard->SetValueAsObject(CurrentEnemy, SourceActor);
+					// 	ReactToEvent(SeeEnemy);
+					// }
+					// Blackboard->SetValueAsVector(EnemyLocation, Stimulus.StimulusLocation);
+				//}
 			}
+			if(AUmbraEnemyCharacter* EnemyActor = Cast<AUmbraEnemyCharacter>(SourceActor))
+			{
+				ReactToEvent(SeeAlly);
+			}
+			//TODO: add reaction on a corpse 
 		}
 		else
 		{
@@ -110,11 +132,11 @@ void AUmbraAIController::OnPercepted(AActor* SourceActor, const FAIStimulus Stim
 		if(Stimulus.WasSuccessfullySensed())
 		{
 			Blackboard->SetValueAsVector(SoundLocation, Stimulus.StimulusLocation);
-
-			float NewFearValue = Blackboard->GetValueAsFloat(Fear);
-			ReactToEvent("HearNoise");
-			NewFearValue = NewFearValue;
-			//Blackboard->SetValueAsFloat(Fear, );
+			//TODO: call event only if it's emitting not by known enemy
+			if(!Blackboard->GetValueAsObject(CurrentEnemy))
+			{
+				ReactToEvent(HearNoise);
+			}
 		}
 		else
 		{

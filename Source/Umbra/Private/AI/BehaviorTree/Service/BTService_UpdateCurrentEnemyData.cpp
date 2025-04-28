@@ -1,7 +1,7 @@
 // Copyrighted by Vorona Games
 
 
-#include "AI/BTService_UpdateCurrentEnemyData.h"
+#include "AI/BehaviorTree/Service/BTService_UpdateCurrentEnemyData.h"
 
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"

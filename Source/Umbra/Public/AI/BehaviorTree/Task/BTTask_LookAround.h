@@ -7,9 +7,7 @@
 #include "BTTask_LookAround.generated.h"
 
 class UUmbraBlackboardComponent;
-/**
- * 
- */
+
 UCLASS()
 class UMBRA_API UBTTask_LookAround : public UBTTaskNode
 {

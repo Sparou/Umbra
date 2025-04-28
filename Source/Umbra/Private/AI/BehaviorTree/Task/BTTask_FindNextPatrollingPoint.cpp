@@ -1,12 +1,11 @@
 // Copyrighted by Vorona Games
 
 
-#include "AI/BTTask_FindNextPatrollingPoint.h"
+#include "AI/BehaviorTree/Task/BTTask_FindNextPatrollingPoint.h"
 
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/BTFunctionLibrary.h"
-#include "BehaviorTree/Blackboard/BlackboardKeyType.h"
 #include "Interface/PatrollingInterface.h"
 
 UBTTask_FindNextPatrollingPoint::UBTTask_FindNextPatrollingPoint()

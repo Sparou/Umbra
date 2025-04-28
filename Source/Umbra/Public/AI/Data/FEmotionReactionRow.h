@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameplayTagContainer.h"
 #include "FEmotionReactionRow.generated.h"
 
 USTRUCT(BlueprintType)

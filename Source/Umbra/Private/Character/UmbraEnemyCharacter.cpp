@@ -85,6 +85,7 @@ void AUmbraEnemyCharacter::BeginPlay()
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AUmbraAlarmBell::StaticClass(), FoundActors);
 
+	//TODO: change to subscribing on only chosen bells
 	for (AActor* Actor : FoundActors)
 	{
 		if (AUmbraAlarmBell* Bell = Cast<AUmbraAlarmBell>(Actor))

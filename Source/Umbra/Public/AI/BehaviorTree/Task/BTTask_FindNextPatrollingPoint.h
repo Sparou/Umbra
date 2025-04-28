@@ -6,9 +6,6 @@
 #include "BehaviorTree/BTTaskNode.h"
 #include "BTTask_FindNextPatrollingPoint.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class UMBRA_API UBTTask_FindNextPatrollingPoint : public UBTTaskNode
 {

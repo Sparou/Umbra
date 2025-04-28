@@ -1,7 +1,7 @@
 // Copyrighted by Vorona Games
 
 
-#include "AI/BTService_FindNearestPlayer.h"
+#include "AI/BehaviorTree/Service/BTService_FindNearestPlayer.h"
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Kismet/GameplayStatics.h"
