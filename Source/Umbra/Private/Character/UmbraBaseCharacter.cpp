@@ -41,16 +41,6 @@ float AUmbraBaseCharacter::GetMoveSpeed(const FGameplayTag& Stance, const FGamep
 	return StandRunSpeed;
 }
 
-float AUmbraBaseCharacter::GetTargetSpeed()
-{
-	return TargetSpeed;
-}
-
-void AUmbraBaseCharacter::SetTargetSpeed(float NewTargetSpeed)
-{
-	TargetSpeed = NewTargetSpeed;
-}
-
 FWeaponSocketLocations AUmbraBaseCharacter::GetWeaponSocketLocations_Implementation() const
 {
 	if (WeaponMeshComponent && WeaponMeshComponent->DoesSocketExist(WeaponBaseSocketName) && WeaponMeshComponent->DoesSocketExist(WeaponTipSocketName))
@@ -103,8 +93,6 @@ void AUmbraBaseCharacter::Tick(float DeltaSeconds)
 void AUmbraBaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME(AUmbraBaseCharacter, TargetSpeed);
 }
 
 

@@ -294,7 +294,7 @@ void AUmbraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 void AUmbraPlayerController::SetWalking(bool bWalking)
 {
 	if (!GetControlledCharacter()) return;
-
+	
 	if (bWalking)
 	{
 		if (ControlledCharacter->GetCharacterMovement()->IsCrouching())
@@ -327,11 +327,6 @@ void AUmbraPlayerController::SetWalking(bool bWalking)
 		}
 		GetTagManager()->RemoveTag(FUmbraGameplayTags::Get().State_Locomotion_Walking);
 	}
-}
-
-void AUmbraPlayerController::MulticastSetWalking_Implementation(bool bWalking)
-{
-	SetWalking(bWalking);
 }
 
 void AUmbraPlayerController::ServerSetWalking_Implementation(bool bWalking)

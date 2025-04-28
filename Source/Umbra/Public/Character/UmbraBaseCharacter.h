@@ -30,11 +30,6 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Movement")
 	float GetMoveSpeed(const FGameplayTag& Stance, const FGameplayTag& Locomotion);
 
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Movement")
-	float GetTargetSpeed();
-
-	void SetTargetSpeed(float NewTargetSpeed);
-
 	/** ICombatInterface implementation */
 	virtual FWeaponSocketLocations GetWeaponSocketLocations_Implementation() const override;
 	virtual UAnimMontage* GetRandomHitReactMontage_Implementation() override;
@@ -107,7 +102,4 @@ protected:
 private:
 
 	bool bIsDead = false;
-
-	UPROPERTY(Replicated)
-	float TargetSpeed = 0.f;
 };
