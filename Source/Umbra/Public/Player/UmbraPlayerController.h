@@ -118,11 +118,9 @@ private:
 
 	
 	void OnInteract();
-	void Interact();
+	void Interact(AActor* InteractionTarget);
 	UFUNCTION(Server, Reliable)
-	void ServerInteract();
-	UFUNCTION(NetMulticast, Reliable)
-	void MulticastInteract();
+	void ServerInteract(AActor* InteractionTarget);
 	
 	void Move(const FInputActionValue& InputActionValue);
 	void Look(const FInputActionValue& InputActionValue);

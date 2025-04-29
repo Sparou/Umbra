@@ -23,5 +23,5 @@ class UMBRA_API IInteractionInterface
 public:
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Interaction")
-	void Interact(const AActor* InitiatorActor);
+	void Interact(const AActor* InitiatorActor, bool bServerInteraction);
 };

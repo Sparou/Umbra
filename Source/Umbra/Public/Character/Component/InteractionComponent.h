@@ -35,6 +35,8 @@ protected:
 private:
 	
 	void InteractionTrace();
+	void HandleHit();
+	void HandleNoHit();
 
 	FHitResult InteractionResult;
 	FVector InteractionTraceStart;

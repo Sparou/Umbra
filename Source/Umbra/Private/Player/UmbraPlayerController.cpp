@@ -159,35 +159,32 @@ void AUmbraPlayerController::SwitchCharacter(FGameplayTag CharacterTag)
 
 void AUmbraPlayerController::OnInteract()
 {
-	if (IsLocalController())
-	{
-		ServerInteract();
-	}
-}
-
-void AUmbraPlayerController::Interact()
-{
 	if (!GetInteractionComponent())
 	{
 		return;
 	}
-
-	AActor* InteractionTarget = InteractionComponent->GetInteractionActor();
-
-	if (InteractionTarget && InteractionTarget->GetClass()->ImplementsInterface(UInteractionInterface::StaticClass()))
+	
+	if (IsLocalController())
 	{
-		IInteractionInterface::Execute_Interact(InteractionTarget, GetCharacter());
+		ServerInteract(InteractionComponent->GetInteractionActor());
+	}
+	else
+	{
+		Interact(InteractionComponent->GetInteractionActor());
 	}
 }
 
-void AUmbraPlayerController::ServerInteract_Implementation()
+void AUmbraPlayerController::Interact(AActor* InteractionTarget)
 {
-	MulticastInteract();
+	if (InteractionTarget && InteractionTarget->GetClass()->ImplementsInterface(UInteractionInterface::StaticClass()))
+	{
+		IInteractionInterface::Execute_Interact(InteractionTarget, GetCharacter(), true);
+	}
 }
 
-void AUmbraPlayerController::MulticastInteract_Implementation()
+void AUmbraPlayerController::ServerInteract_Implementation(AActor* InteractionTarget)
 {
-	Interact();
+	Interact(InteractionTarget);
 }
 
 void AUmbraPlayerController::Move(const FInputActionValue& InputActionValue)
