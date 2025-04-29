@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Interface/CombatInterface.h"
+#include "Interface/OutlineInterface.h"
 #include "UmbraBaseCharacter.generated.h"
 
 class UTagManager;
@@ -16,7 +17,7 @@ class UAttributeSet;
 class UGameplayEffect;
 
 UCLASS()
-class UMBRA_API AUmbraBaseCharacter : public ACharacter, public ICombatInterface
+class UMBRA_API AUmbraBaseCharacter : public ACharacter, public ICombatInterface, public IOutlineInterface
 {
 	GENERATED_BODY()
 
@@ -36,6 +37,8 @@ public:
 	virtual UNiagaraSystem* GetBloodEffect_Implementation() const override;
 	virtual bool IsDead_Implementation() const override;
 	virtual void Die() override;
+
+	/** IOutiline Interface **/
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	UTagManager* GetTagManager();
