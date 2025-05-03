@@ -13,13 +13,83 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b4809d47-763b-40b0-974e-4d753917bbb1" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Umbra/.idea/projectSettingsUpdater.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Umbra/.idea/projectSettingsUpdater.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Umbra/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Umbra/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Config/DefaultEngine.ini" beforeDir="false" afterPath="$PROJECT_DIR$/Config/DefaultEngine.ini" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/Blueprints/Game/BP_GameModeBase.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/Game/BP_GameModeBase.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/Levels/Prototype.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Levels/Prototype.umap" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Blueprints/Characters/PlayerCharacters/BP_Trapper.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/Characters/PlayerCharacters/BP_Trapper.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Blueprints/Characters/PlayerCharacters/BP_UmbraPlayerCharacter.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/Characters/PlayerCharacters/BP_UmbraPlayerCharacter.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/House10_SM_Bld_House_Base_07_002.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/House10_SM_Bld_House_Base_07_002.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/House11_SM_Bld_House_Base_07_002.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/House11_SM_Bld_House_Base_07_002.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/House12_SM_Bld_House_Addon_01_006.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/House12_SM_Bld_House_Addon_01_006.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/House12_SM_Bld_House_Base_Long_03_4_001.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/House12_SM_Bld_House_Base_Long_03_4_001.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/House12_SM_Bld_House_Base_Long_03_4_002.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/House12_SM_Bld_House_Base_Long_03_4_002.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/House12_SM_Bld_House_Base_Long_03_4_003.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/House12_SM_Bld_House_Base_Long_03_4_003.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/House13_SM_Bld_House_Base_Long_03_4_008.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/House13_SM_Bld_House_Base_Long_03_4_008.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/House13_SM_Bld_House_Roof_Long_Wood_01_2_002.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/House13_SM_Bld_House_Roof_Long_Wood_01_2_002.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/House14_SM_Env_Bridge_02_008.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/House14_SM_Env_Bridge_02_008.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/House15.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/House15.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/House1_SM_Bld_House_Addon_01_006.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/House1_SM_Bld_House_Addon_01_006.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/House1_SM_Bld_House_Base_Long_03_4_001.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/House1_SM_Bld_House_Base_Long_03_4_001.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/House20.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/House20.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/House21.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/House21.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/House22.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/House22.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/House2_SM_Bld_House_Addon_01_001.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/House2_SM_Bld_House_Addon_01_001.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/House2_SM_Bld_House_Base_Long_03_4_002.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/House2_SM_Bld_House_Base_Long_03_4_002.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/House3_SM_Bld_House_Addon_01_001.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/House3_SM_Bld_House_Addon_01_001.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/House3_SM_Bld_House_Base_Long_03_4_002.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/House3_SM_Bld_House_Base_Long_03_4_002.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/House4_SM_Bld_House_Addon_01_001.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/House4_SM_Bld_House_Addon_01_001.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/House4_SM_Bld_House_Base_Long_03_4_002.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/House4_SM_Bld_House_Base_Long_03_4_002.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/House5_SM_Bld_House_Base_Long_03_4_001.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/House5_SM_Bld_House_Base_Long_03_4_001.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/House6_SM_Bld_House_Base_Long_03_4_001.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/House6_SM_Bld_House_Base_Long_03_4_001.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/House7_SM_Bld_House_Base_07_002.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/House7_SM_Bld_House_Base_07_002.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/House8_SM_Bld_House_Base_07_002.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/House8_SM_Bld_House_Base_07_002.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/House9_SM_Bld_House_Base_07_002.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/House9_SM_Bld_House_Base_07_002.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/PolygonSamurai_Tex_02_Mat.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/PolygonSamurai_Tex_02_Mat.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/Road_SM_Env_Path_Straight_13_002.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/Road_SM_Env_Path_Straight_13_002.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/Road_SM_Env_Path_Straight_13_006.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/Road_SM_Env_Path_Straight_13_006.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/WallHouse1_SM_Bld_Room_Long_03_1_031.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/WallHouse1_SM_Bld_Room_Long_03_1_031.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/WallHouse2_SM_Bld_Room_Long_03_005.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/WallHouse2_SM_Bld_Room_Long_03_005.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/WallHouse3_SM_Bld_Room_Long_08_009.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/WallHouse3_SM_Bld_Room_Long_08_009.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/WallHouse4_SM_Bld_Room_Long_03_1_197.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/WallHouse4_SM_Bld_Room_Long_03_1_197.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/WallHouse6.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/WallHouse6.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/WallHouse6_SM_Bld_Room_Long_08_073.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/WallHouse6_SM_Bld_Room_Long_08_073.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/WallHouse7_SM_Bld_Room_Long_03_001.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/WallHouse7_SM_Bld_Room_Long_03_001.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/WallHouse7_SM_Bld_Room_Long_03_005.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/WallHouse7_SM_Bld_Room_Long_03_005.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/WallHouse7_SM_Bld_Room_Long_03_1_014.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/WallHouse7_SM_Bld_Room_Long_03_1_014.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/WallHouse7_SM_Bld_Room_Long_03_1_015.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/WallHouse7_SM_Bld_Room_Long_03_1_015.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/WallHouse7_SM_Bld_Room_Long_03_1_031.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/WallHouse7_SM_Bld_Room_Long_03_1_031.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/WallHouse7_SM_Bld_Room_Long_03_1_087.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/WallHouse7_SM_Bld_Room_Long_03_1_087.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/WallHouse7_SM_Bld_Room_Long_03_1_197.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/WallHouse7_SM_Bld_Room_Long_03_1_197.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/WallHouse7_SM_Bld_Room_Long_08_001.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/WallHouse7_SM_Bld_Room_Long_08_001.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/WallHouse7_SM_Bld_Room_Long_08_002.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/WallHouse7_SM_Bld_Room_Long_08_002.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/WallHouse7_SM_Bld_Room_Long_08_009.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/WallHouse7_SM_Bld_Room_Long_08_009.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/MainLocation.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/MainLocation.umap" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/PolygonSamurai/Materials/Mat_PolygonSamurai_01.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/PolygonSamurai/Materials/Mat_PolygonSamurai_01.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_Bamboo_Group_01.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_Bamboo_Group_01.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_Bamboo_Group_02.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_Bamboo_Group_02.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_Bamboo_Group_03.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_Bamboo_Group_03.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_Bamboo_Tree_01.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_Bamboo_Tree_01.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_Bamboo_Tree_02.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_Bamboo_Tree_02.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_Bamboo_Tree_03.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_Bamboo_Tree_03.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_Bamboo_Tree_04.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_Bamboo_Tree_04.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_Bamboo_Tree_05.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_Bamboo_Tree_05.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_FarmTerrace_05.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_FarmTerrace_05.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_RicePlant_01.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_RicePlant_01.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_RicePlant_02.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_RicePlant_02.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_SteppingStone_01.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_SteppingStone_01.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_SteppingStone_02.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_SteppingStone_02.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_SteppingStone_03.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_SteppingStone_03.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_SteppingStone_04.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_SteppingStone_04.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_Tree_01.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_Tree_01.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_Tree_02.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_Tree_02.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_Tree_03.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_Tree_03.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_Tree_04.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_Tree_04.uasset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/Umbra/Private/Character/UmbraPlayerCharacter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Umbra/Private/Character/UmbraPlayerCharacter.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Umbra/Private/Stealth/LightingDetection.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Umbra/Private/Stealth/LightingDetection.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Umbra/Private/Stealth/NPCDetection.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Umbra/Private/Stealth/NPCDetection.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/Umbra/Public/Character/UmbraPlayerCharacter.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Umbra/Public/Character/UmbraPlayerCharacter.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Umbra/Public/Stealth/LightingDetection.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Umbra/Public/Stealth/LightingDetection.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Umbra/Umbra.Build.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Umbra/Umbra.Build.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Umbra.uproject" beforeDir="false" afterPath="$PROJECT_DIR$/Umbra.uproject" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,10 +103,25 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/Source/Umbra/Private/Stealth/CandleFlickerComponent.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Source/Umbra/Private/Stealth/DayNightCycleManager.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Source/Umbra/Private/Stealth/LightLevelIndicator.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Source/Umbra/Private/Stealth/LightingDetection.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Source/Umbra/Private/Stealth/NPCDetection.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Source/Umbra/Private/Stealth/UDetectionUIComponent.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Source/Umbra/Public/Stealth/CandleFlickerComponent.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Source/Umbra/Public/Stealth/DayNightCycleManager.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Source/Umbra/Public/Stealth/LightLevelIndicator.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Source/Umbra/Public/Stealth/LightingDetection.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Source/Umbra/Public/Stealth/NPCDetection.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Source/Umbra/Public/Stealth/UDetectionUIComponent.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Unreal/UE_5.4/Engine/Plugins/Runtime/nDisplay/Source/DisplayClusterLightCardEditor/Private/Viewport/DisplayClusterLightCardEditorWidget.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Unreal/UE_5.4/Engine/Source/Runtime/UMG/Public/Blueprint/UserWidget.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Unreal/UE_5.4/Engine/Source/Runtime/UMG/Public/Components/ProgressBar.h" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 2
@@ -173,13 +258,21 @@
       <workItem from="1745413245886" duration="4000" />
       <workItem from="1745415208621" duration="2108000" />
       <workItem from="1745417991441" duration="478000" />
-      <workItem from="1745418574817" duration="8963000" />
+      <workItem from="1745418574817" duration="21955000" />
+      <workItem from="1745584213302" duration="2313000" />
+      <workItem from="1745747219956" duration="4819000" />
+      <workItem from="1745844445071" duration="1243000" />
+      <workItem from="1745917848489" duration="2706000" />
+      <workItem from="1746003991241" duration="2179000" />
+      <workItem from="1746196731013" duration="7521000" />
+      <workItem from="1746262402945" duration="20867000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+  <component name="UnityCheckinConfiguration" checkUnsavedScenes="true" />
   <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />

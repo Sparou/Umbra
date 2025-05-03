@@ -7,6 +7,7 @@
 #include "Engine/Engine.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
+#include "Stealth/UDetectionUIComponent.h"
 
 // Sets default values
 ANPCDetection::ANPCDetection()
@@ -33,14 +34,15 @@ void ANPCDetection::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// Если игрок не найден, не делаем ничего
 	if (!PlayerCharacter)
 	{
 		return;
 	}
 
 	// Проверка видимости
-	if (CanSeePlayer())
+	bool bPlayerVisible = CanSeePlayer();
+
+	if (bPlayerVisible)
 	{
 		GEngine->AddOnScreenDebugMessage(2, 0.f, FColor::Green, TEXT("NPC видит вас!"));
 	}
@@ -48,7 +50,14 @@ void ANPCDetection::Tick(float DeltaTime)
 	{
 		GEngine->AddOnScreenDebugMessage(3, 0.f, FColor::Red, TEXT("NPC вас не видит"));
 	}
+
+	// Передаём информацию в UI
+	if (UDetectionUIComponent* UIComponent = PlayerCharacter->FindComponentByClass<UDetectionUIComponent>())
+	{
+		UIComponent->bIsPlayerVisible = bPlayerVisible;
+	}
 }
+
 
 bool ANPCDetection::CanSeePlayer()
 {

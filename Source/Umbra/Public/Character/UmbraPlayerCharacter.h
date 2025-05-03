@@ -1,23 +1,22 @@
-// Copyrighted by Vorona Games
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "UmbraCoreTypes.h"
 #include "Character/UmbraBaseCharacter.h"
 #include "Stealth/LightingDetection.h"
+#include "Blueprint/UserWidget.h"
 #include "UmbraPlayerCharacter.generated.h"
 
 class UInteractionComponent;
-/**
- * 
- */
+
 UCLASS()
 class UMBRA_API AUmbraPlayerCharacter : public AUmbraBaseCharacter
 {
 	GENERATED_BODY()
+
 public:
-	AUmbraPlayerCharacter(const FObjectInitializer& ObjInit);
+	// Конструктор по-умолчанию
+	AUmbraPlayerCharacter();
 
 	UFUNCTION(BlueprintCallable)
 	AActor* GetOverlappedActorFromInteractionComponent() const;
@@ -29,30 +28,25 @@ public:
 	FStealthKillMontages GetStealthKillMontageForPosition(EStealthKillPosition KillPosition);
 
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components");
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
+	virtual void InitAbilityActorInfo() override;
+
+	/** Компонент взаимодействия */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UInteractionComponent> InteractionComponent;
 
+	/** Анимации для добивок */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stealth|Animations")
 	TArray<FStealthKillMontages> StealthKillMontagesFromBehind;
+	// ... остальные массивы аналогично
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stealth|Animations")
-	TArray<FStealthKillMontages> StealthKillMontagesFromFront;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stealth|Animations")
-	TArray<FStealthKillMontages> StealthKillMontagesFromTop;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stealth|Animations")
-	TArray<FStealthKillMontages> StealthKillMontagesFromLedge;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stealth|Animations")
-	TArray<FStealthKillMontages> StealthKillMontagesFromLeft;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stealth|Animations")
-	TArray<FStealthKillMontages> StealthKillMontagesFromRight;
-	
-
-	virtual void InitAbilityActorInfo() override;private:
-	/** Компонент для определения уровня освещённости */
+private:
+	/** Компонент определения освещённости */
 	UPROPERTY(VisibleAnywhere, Category = "Lighting")
 	ULightingDetection* LightingDetector;
+
+	/** Наш виджет-класс полоски */
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> LightWidgetClass;
 };
