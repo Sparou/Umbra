@@ -48,8 +48,8 @@ void UTraversalComponent::InitializeReferences()
 	MotionWarping = OwnerCharacter->FindComponentByClass<UMotionWarpingComponent>();
 	checkf(MotionWarping, TEXT("Traversal Component: Motion Warping is null"));
 
-	Camera = OwnerCharacter->FindComponentByClass<UCameraComponent>();
-	checkf(Camera, TEXT("Traversal Component: Camera is null"));
+	//Camera = OwnerCharacter->FindComponentByClass<UCameraComponent>();
+	//checkf(Camera, TEXT("Traversal Component: Camera is null"));
 
 	Capsule = OwnerCharacter->FindComponentByClass<UCapsuleComponent>();
 	checkf(Capsule, TEXT("Traversal Component: Capsule is null"));
@@ -58,7 +58,7 @@ void UTraversalComponent::InitializeReferences()
 	checkf(SkeletalMesh, TEXT("Traversal Component: Skeletal Mesh is NUll"));
 
 	AnimInstance = SkeletalMesh->GetAnimInstance();
-	checkf(AnimInstance, TEXT("Traversal Component: Anim Instance is null"));
+	//checkf(AnimInstance, TEXT("Traversal Component: Anim Instance is null"));
 
 }
 

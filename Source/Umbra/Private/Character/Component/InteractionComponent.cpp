@@ -54,7 +54,7 @@ void UInteractionComponent::InteractionTrace()
 			ECC_Visibility,
 			Sphere,
 			Params);
-
+	
 	if (!InteractionResult.bBlockingHit ||
 		!InteractionResult.GetActor()->GetClass()->ImplementsInterface(UInteractionInterface::StaticClass()))
 	{

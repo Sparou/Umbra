@@ -4,3 +4,7 @@
 
 #include "CoreMinimal.h"
 
+#define XRAY_STENCIL_VALUE 250
+
+
+

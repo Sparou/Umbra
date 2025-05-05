@@ -28,6 +28,9 @@ public:
 	FStealthKillMontages GetStealthKillMontageForPosition(EStealthKillPosition KillPosition);
 
 protected:
+
+	void BeginPlay() override;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components");
 	TObjectPtr<UInteractionComponent> InteractionComponent;
 

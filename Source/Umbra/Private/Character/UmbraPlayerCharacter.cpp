@@ -5,8 +5,9 @@
 
 #include "Character/Component/InteractionComponent.h"
 #include "AbilitySystem/UmbraAttributeSet.h"
+#include "Umbra/Umbra.h"
 
-AUmbraPlayerCharacter::AUmbraPlayerCharacter(const FObjectInitializer& ObjInit)
+	AUmbraPlayerCharacter::AUmbraPlayerCharacter(const FObjectInitializer& ObjInit)
 {
 	AttributeSet = CreateDefaultSubobject<UUmbraAttributeSet>("Attribute Set");
 	InteractionComponent = CreateDefaultSubobject<UInteractionComponent>("Interaction Component");
@@ -50,7 +51,23 @@ FStealthKillMontages AUmbraPlayerCharacter::GetStealthKillMontageForPosition(ESt
 	}
 }
 
-	void AUmbraPlayerCharacter::InitAbilityActorInfo()
+void AUmbraPlayerCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+		
+	GetMesh()->SetRenderCustomDepth(true);	
+	if (IsLocallyControlled())
+	{
+		GetMesh()->SetCustomDepthStencilValue(77);
+	}
+	else
+	{
+		GetMesh()->SetCustomDepthStencilValue(XRAY_STENCIL_VALUE);
+	}
+}
+
+void AUmbraPlayerCharacter::InitAbilityActorInfo()
 {
 	Super::InitAbilityActorInfo();
 }

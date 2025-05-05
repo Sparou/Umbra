@@ -8,6 +8,7 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
+#include "Umbra/Umbra.h"
 
 AUmbraBaseCharacter::AUmbraBaseCharacter()
 {
@@ -73,6 +74,25 @@ void AUmbraBaseCharacter::Die()
 {
 	WeaponMeshComponent->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
 	MulticastHandleDeath();
+}
+
+void AUmbraBaseCharacter::EnableOutline_Implementation(int32 StencilValue)
+{
+	if (GetMesh()->bRenderCustomDepth == true && GetMesh()->CustomDepthStencilValue == XRAY_STENCIL_VALUE)
+	{
+		return;
+	}
+	
+	GetMesh()->SetRenderCustomDepth(true);
+	GetMesh()->SetCustomDepthStencilValue(StencilValue);
+}
+
+void AUmbraBaseCharacter::DisableOutline_Implementation()
+{
+	if (GetMesh()->CustomDepthStencilValue != XRAY_STENCIL_VALUE)
+	{
+		GetMesh()->SetRenderCustomDepth(false);
+	}
 }
 
 void AUmbraBaseCharacter::BeginPlay()
