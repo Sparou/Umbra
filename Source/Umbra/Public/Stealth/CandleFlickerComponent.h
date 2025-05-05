@@ -6,7 +6,7 @@
 
 class ULightComponent;
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class UMBRA_API UCandleFlickerComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -20,19 +20,38 @@ protected:
 public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	/** Базовая сила света */
 	UPROPERTY(EditAnywhere, Category = "Flicker")
 	float BaseIntensity = 5000.f;
 
-	/** Максимальная амплитуда колебаний */
 	UPROPERTY(EditAnywhere, Category = "Flicker")
-	float FlickerAmount = 500.f;
+	float IntensityFlickerAmount = 600.f;
 
-	/** Скорость мерцания */
 	UPROPERTY(EditAnywhere, Category = "Flicker")
-	float FlickerSpeed = 10.f;
+	float RadiusFlickerAmount = 100.f;
+
+	UPROPERTY(EditAnywhere, Category = "Flicker")
+	float BaseAttenuationRadius = 600.f;
+
+	UPROPERTY(EditAnywhere, Category = "Flicker")
+	FLinearColor BaseLightColor = FLinearColor(1.0f, 0.55f, 0.3f);
+
+	UPROPERTY(EditAnywhere, Category = "Flicker")
+	FLinearColor ColorFlickerRange = FLinearColor(0.05f, 0.03f, 0.02f);
+
+	UPROPERTY(EditAnywhere, Category = "Flicker")
+	float BaseFlickerSpeed = 10.f;
+
+	UPROPERTY(EditAnywhere, Category = "Flicker")
+	float FlickerSpeedVariance = 5.f;
 
 private:
 	ULightComponent* Light = nullptr;
+	class UPointLightComponent* PointLight = nullptr;
+	class USpotLightComponent* SpotLight = nullptr;
+
 	float TimeAccumulator = 0.f;
+	float CurrentFlickerSpeed = 10.f;
+	float FlickerSpeedTimer = 0.f;
+
+	void UpdateFlickerSpeed();
 };

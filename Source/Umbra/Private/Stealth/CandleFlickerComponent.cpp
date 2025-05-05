@@ -1,11 +1,7 @@
-// Copyrighted by Vorona Games
-
-
 #include "Stealth/CandleFlickerComponent.h"
-#include "Components/LightComponent.h"
-#include "GameFramework/Actor.h"
 #include "Components/PointLightComponent.h"
 #include "Components/SpotLightComponent.h"
+#include "GameFramework/Actor.h"
 
 UCandleFlickerComponent::UCandleFlickerComponent()
 {
@@ -16,16 +12,30 @@ void UCandleFlickerComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Пытаемся найти первый компонент света
 	TArray<ULightComponent*> LightComponents;
 	GetOwner()->GetComponents<ULightComponent>(LightComponents);
-	if (LightComponents.Num() > 0)
+	for (ULightComponent* Comp : LightComponents)
 	{
-		Light = LightComponents[0];
-		if (Light)
+		if (auto* AsPoint = Cast<UPointLightComponent>(Comp))
 		{
-			BaseIntensity = Light->Intensity;
+			PointLight = AsPoint;
+			Light = AsPoint;
+			BaseAttenuationRadius = PointLight->AttenuationRadius;
+			break;
 		}
+		else if (auto* AsSpot = Cast<USpotLightComponent>(Comp))
+		{
+			SpotLight = AsSpot;
+			Light = AsSpot;
+			BaseAttenuationRadius = SpotLight->AttenuationRadius;
+			break;
+		}
+	}
+
+	if (Light)
+	{
+		BaseIntensity = Light->Intensity;
+		CurrentFlickerSpeed = BaseFlickerSpeed;
 	}
 }
 
@@ -33,15 +43,47 @@ void UCandleFlickerComponent::TickComponent(float DeltaTime, ELevelTick TickType
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (Light)
+	if (!Light) return;
+
+	FlickerSpeedTimer += DeltaTime;
+	if (FlickerSpeedTimer > 1.0f)
 	{
-		TimeAccumulator += DeltaTime * FlickerSpeed;
-
-		// Мерцание — синус + небольшой рандом
-		float Flicker = FMath::Sin(TimeAccumulator) + FMath::FRandRange(-0.2f, 0.2f);
-		float NewIntensity = BaseIntensity + Flicker * FlickerAmount;
-		NewIntensity = FMath::Clamp(NewIntensity, 0.f, BaseIntensity + FlickerAmount);
-
-		Light->SetIntensity(NewIntensity);
+		UpdateFlickerSpeed();
+		FlickerSpeedTimer = 0.f;
 	}
+
+	TimeAccumulator += DeltaTime * CurrentFlickerSpeed;
+
+	float Noise = FMath::Sin(TimeAccumulator * 1.5f) + FMath::FRandRange(-0.5f, 0.5f);
+	float NewIntensity = BaseIntensity + Noise * IntensityFlickerAmount;
+	NewIntensity = FMath::Clamp(NewIntensity, 0.f, BaseIntensity + IntensityFlickerAmount);
+	Light->SetIntensity(NewIntensity);
+
+	// Обновление радиуса
+	float RadiusNoise = FMath::FRandRange(-1.f, 1.f);
+	float NewRadius = BaseAttenuationRadius + RadiusNoise * RadiusFlickerAmount;
+	NewRadius = FMath::Clamp(NewRadius, 100.f, BaseAttenuationRadius + RadiusFlickerAmount);
+
+	if (PointLight)
+	{
+		PointLight->SetAttenuationRadius(NewRadius);
+	}
+	else if (SpotLight)
+	{
+		SpotLight->SetAttenuationRadius(NewRadius);
+	}
+
+	// Обновление цвета
+	FLinearColor ColorOffset = FLinearColor(
+		FMath::FRandRange(-ColorFlickerRange.R, ColorFlickerRange.R),
+		FMath::FRandRange(-ColorFlickerRange.G, ColorFlickerRange.G),
+		FMath::FRandRange(-ColorFlickerRange.B, ColorFlickerRange.B));
+	FLinearColor NewColor = (BaseLightColor + ColorOffset).GetClamped();
+	Light->SetLightColor(NewColor);
+}
+
+void UCandleFlickerComponent::UpdateFlickerSpeed()
+{
+	CurrentFlickerSpeed = BaseFlickerSpeed + FMath::FRandRange(-FlickerSpeedVariance, FlickerSpeedVariance);
+	CurrentFlickerSpeed = FMath::Max(1.f, CurrentFlickerSpeed);
 }

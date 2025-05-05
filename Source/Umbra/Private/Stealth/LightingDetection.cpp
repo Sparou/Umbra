@@ -1,9 +1,20 @@
-// -------------------- Implementation --------------------
-
+// -------------------- Includes --------------------
 #include "Stealth/LightingDetection.h"
-#include "GameFramework/Actor.h"
+#include "Engine/World.h"
+#include "EngineUtils.h"
+#include "Engine/PointLight.h"
+#include "Engine/SpotLight.h"
+#include "Engine/SkyLight.h"
+#include "Engine/DirectionalLight.h"
+#include "Components/PointLightComponent.h"
+#include "Components/SpotLightComponent.h"
+#include "Components/SkyLightComponent.h"
+#include "Components/DirectionalLightComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "DrawDebugHelpers.h"
+#include "Stealth/CandleFlickerComponent.h"
 
+// -------------------- Constructor --------------------
 ULightingDetection::ULightingDetection()
 {
     PrimaryComponentTick.bCanEverTick = true;
@@ -18,6 +29,7 @@ ULightingDetection::ULightingDetection()
     LightTypeWeights.Add(ELightType::Directional, 1.f);
 }
 
+// -------------------- Lifecycle --------------------
 void ULightingDetection::OnRegister()
 {
     Super::OnRegister();
@@ -33,6 +45,7 @@ void ULightingDetection::BeginPlay()
 void ULightingDetection::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
     AActor* Owner = GetOwner();
     if (!Owner) return;
     FVector OwnerLoc = Owner->GetActorLocation();
@@ -59,6 +72,7 @@ void ULightingDetection::TickComponent(float DeltaTime, ELevelTick TickType, FAc
     }
 }
 
+// -------------------- Light Gathering --------------------
 void ULightingDetection::GatherLightSources()
 {
     LightSources.Empty();
@@ -84,8 +98,26 @@ void ULightingDetection::GatherLightSources()
         if (auto Comp = It->FindComponentByClass<UDirectionalLightComponent>())
             LightSources.Add(Cast<ULightComponent>(Comp));
     }
+
+    // === Добавим свет от актёров с компонентом CandleFlickerComponent ===
+    for (TActorIterator<AActor> It(World); It; ++It)
+    {
+        AActor* Actor = *It;
+        if (Actor->FindComponentByClass<UCandleFlickerComponent>())
+        {
+            if (auto Point = Actor->FindComponentByClass<UPointLightComponent>())
+            {
+                LightSources.Add(Cast<ULightComponent>(Point));
+            }
+            else if (auto Spot = Actor->FindComponentByClass<USpotLightComponent>())
+            {
+                LightSources.Add(Cast<ULightComponent>(Spot));
+            }
+        }
+    }
 }
 
+// -------------------- Processing Light --------------------
 void ULightingDetection::ProcessLocalLight(ULightComponent* LightComp, const FVector& OwnerLoc, float& OutTotal)
 {
     ELightType Type = LightComp->IsA<USpotLightComponent>() ? ELightType::Spot : ELightType::Point;
@@ -147,6 +179,7 @@ void ULightingDetection::ProcessDirectionalLight(UDirectionalLightComponent* Dir
     OutTotal += Sum / Samples;
 }
 
+// -------------------- Occlusion Checks --------------------
 bool ULightingDetection::IsOccluded(const FVector& LightPos, const FVector& TargetPos) const
 {
     FHitResult Hit;

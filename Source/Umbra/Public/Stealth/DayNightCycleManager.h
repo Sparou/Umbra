@@ -2,11 +2,27 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Components/LightComponent.h" 
 #include "DayNightCycleManager.generated.h"
 
 class ADirectionalLight;
 class ASkyLight;
-class AActor;
+class UCandleFlickerComponent;
+
+USTRUCT()
+struct FManagedLight
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	ULightComponent* Light;
+
+	float BaseIntensity = 0.f;
+
+	FManagedLight() {}
+	FManagedLight(ULightComponent* InLight)
+		: Light(InLight), BaseIntensity(InLight->Intensity) {}
+};
 
 UCLASS()
 class UMBRA_API ADayNightCycleManager : public AActor
@@ -15,28 +31,40 @@ class UMBRA_API ADayNightCycleManager : public AActor
 
 public:
 	ADayNightCycleManager();
-	virtual void Tick(float DeltaTime) override;
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
 
-	/** Длительность полного дня в секундах */
-	UPROPERTY(EditAnywhere, Category = "DayNight")
-	float DayLengthInSeconds;
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight")
+	float DayLengthInSeconds = 600.f;
 
-	/** Направленный свет (солнце) */
-	UPROPERTY(EditAnywhere, Category = "DayNight")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight")
 	ADirectionalLight* SunLight;
 
-	/** Небесный свет (окружающий свет) */
-	UPROPERTY(EditAnywhere, Category = "DayNight")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight")
 	ASkyLight* SkyLight;
 
-	/** Актор небесной сферы (BP_Sky_Sphere) */
-	UPROPERTY(EditAnywhere, Category = "DayNight")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight")
 	AActor* SkySphereActor;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight|Lights")
+	float NightThreshold = 0.1f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight|Lights")
+	float FadeSpeed = 1.5f;
+
 private:
-	float CurrentTime;
+	float CurrentTime = 0.f;
+
+	UPROPERTY()
+	TArray<FManagedLight> ToggleableLights;
+
+	UPROPERTY()
+	TArray<UCandleFlickerComponent*> CandleFlickers;
+
 	void UpdateLighting(float NormalizedTime);
+	void CollectAllNightLights();
+	void UpdateNightLights(float SunIntensity, float DeltaTime);
 };
