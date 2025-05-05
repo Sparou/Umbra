@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UmbraCoreTypes.h"
 #include "Character/UmbraBaseCharacter.h"
+#include "Data/StealthKillsData.h"
 #include "UmbraPlayerCharacter.generated.h"
 
 class UInteractionComponent;
@@ -17,41 +17,19 @@ class UMBRA_API AUmbraPlayerCharacter : public AUmbraBaseCharacter
 	GENERATED_BODY()
 public:
 	AUmbraPlayerCharacter(const FObjectInitializer& ObjInit);
-
+	
 	UFUNCTION(BlueprintCallable)
-	AActor* GetOverlappedActorFromInteractionComponent() const;
-
-	UFUNCTION(BlueprintCallable)
-	FStealthKillMontages GetRandomStealthKillMontages(TArray<FStealthKillMontages> KillMontages) const;
-
-	UFUNCTION(BlueprintCallable)
-	FStealthKillMontages GetStealthKillMontageForPosition(EStealthKillPosition KillPosition);
+	FStealthKillMontages GetStealthKillMontagesForPosition(const FGameplayTag& Position);
 
 protected:
 
 	void BeginPlay() override;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components");
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UInteractionComponent> InteractionComponent;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stealth|Animations")
-	TArray<FStealthKillMontages> StealthKillMontagesFromBehind;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stealth|Animations")
-	TArray<FStealthKillMontages> StealthKillMontagesFromFront;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stealth|Animations")
-	TArray<FStealthKillMontages> StealthKillMontagesFromTop;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stealth|Animations")
-	TArray<FStealthKillMontages> StealthKillMontagesFromLedge;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stealth|Animations")
-	TArray<FStealthKillMontages> StealthKillMontagesFromLeft;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stealth|Animations")
-	TArray<FStealthKillMontages> StealthKillMontagesFromRight;
-	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Data")
+	TObjectPtr<UStealthKillsData> StealthKillData;
 
 	virtual void InitAbilityActorInfo() override;
 };

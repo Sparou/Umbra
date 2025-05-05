@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/UmbraBaseGameplayAbility.h"
 #include "Character/UmbraPlayerCharacter.h"
+#include "Character/Data/StealthKillsData.h"
 #include "UmbraStealthKillAbility.generated.h"
 
 /**
@@ -26,7 +27,7 @@ protected:
 	
 private:
 
-	EStealthKillPosition CheckAvatarActorPosition() const;
+	FGameplayTag CheckAvatarActorPosition() const;
 	void RotateCharacterToTarget(const FVector& TargetLocation, float RotationInRate);
 	void UpdateRotation();
 	void MoveToKillPosition();

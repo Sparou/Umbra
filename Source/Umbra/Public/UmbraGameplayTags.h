@@ -40,13 +40,23 @@ public:
 	FGameplayTag Ability_Stealth_Kill;
 	FGameplayTag Ability_Stealth_Victim;
 
+	/** Position Tags */ 
+	FGameplayTag Position_Front;
+	FGameplayTag Position_FrontRight;
+	FGameplayTag Position_Right;
+	FGameplayTag Position_BehindRight;
+	FGameplayTag Position_Behind;
+	FGameplayTag Position_BehindLeft;
+	FGameplayTag Position_Left;
+	FGameplayTag Position_FrontLeft;
+	FGameplayTag Position_Top;
+
 	FGameplayTag State_Locomotion_Walking;
 	FGameplayTag State_Locomotion_Running;
 	FGameplayTag State_Movement_Moving;
 	FGameplayTag State_Movement_Falling;
 	FGameplayTag State_Stance_Crouching;
 	FGameplayTag State_Stance_Standing;
-	
 	
 	/** Traversal Tags */
 	FGameplayTag Traversal_State_FreeRoam;

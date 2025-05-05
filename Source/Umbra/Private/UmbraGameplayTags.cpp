@@ -39,6 +39,16 @@ void FUmbraGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.State_Movement_Falling = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.Movement.Falling"));
 	GameplayTags.State_Stance_Standing = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.Stance.Standing"));
 	GameplayTags.State_Stance_Crouching = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.Stance.Crouching"));
+
+	/** Position Tags */
+	GameplayTags.Position_Front = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Position.Front"));
+	GameplayTags.Position_FrontRight = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Position.FrontRight"));
+	GameplayTags.Position_Right = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Position.Right"));
+	GameplayTags.Position_BehindRight = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Position.BehindRight"));
+	GameplayTags.Position_Behind = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Position.Behind"));
+	GameplayTags.Position_BehindLeft = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Position.BehindLeft"));
+	GameplayTags.Position_Left = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Position.Left"));
+	GameplayTags.Position_FrontLeft = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Position.FrontLeft"));
 	
 	/** Traversal Tags */
 	GameplayTags.Traversal_State_FreeRoam = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.State.FreeRoam"));

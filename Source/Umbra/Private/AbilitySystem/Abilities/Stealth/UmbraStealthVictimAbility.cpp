@@ -12,6 +12,9 @@ void UUmbraStealthVictimAbility::ActivateAbility(
 	const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
+
+	UE_LOG(LogTemp, Log, TEXT("Victim ability Started!"));
+	
 	AUmbraPlayerCharacter* AvatarCharacter = Cast<AUmbraPlayerCharacter>(GetAvatarActorFromActorInfo());
 
 	//TODO: Добавить отключение контроллера персонажам, подконтрольным ИИ.

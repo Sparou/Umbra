@@ -8,7 +8,6 @@
 #include "UmbraGameplayTags.h"
 #include "Character/UmbraPlayerCharacter.h"
 #include "Character//Component/InteractionComponent.h"
-#include "UmbraCoreTypes.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Player/UmbraPlayerController.h"
@@ -21,6 +20,14 @@ void UUmbraStealthKillAbility::ActivateAbility(
 {
 	AvatarCharacter = Cast<AUmbraPlayerCharacter>(GetAvatarActorFromActorInfo());
 	UInteractionComponent* InteractionComponent = AvatarCharacter->GetComponentByClass<UInteractionComponent>();
+
+	if (!InteractionComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Interaction Component is null!"));
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+		return;
+	}
+	
 	TargetActor = InteractionComponent->GetInteractionActor();
 	
 	if (!TargetActor)
@@ -29,45 +36,15 @@ void UUmbraStealthKillAbility::ActivateAbility(
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 		return;
 	}
-	
-	switch (const EStealthKillPosition KillPosition = CheckAvatarActorPosition())
-	{
-	case EStealthKillPosition::Behind:
-		StealthKillMontages = AvatarCharacter->GetStealthKillMontageForPosition(EStealthKillPosition::Behind);
-		break;
-	
-	case EStealthKillPosition::Front:
-		StealthKillMontages = AvatarCharacter->GetStealthKillMontageForPosition(EStealthKillPosition::Front);
-		break;
-	
-	case EStealthKillPosition::Top:
-		StealthKillMontages = AvatarCharacter->GetStealthKillMontageForPosition(EStealthKillPosition::Top);
-		break;
-	
-	case EStealthKillPosition::Ledge:
-		StealthKillMontages = AvatarCharacter->GetStealthKillMontageForPosition(EStealthKillPosition::Ledge);
-		break;
-	
-	case EStealthKillPosition::Left:
-		StealthKillMontages = AvatarCharacter->GetStealthKillMontageForPosition(EStealthKillPosition::Left);
-		break;
-	
-	case EStealthKillPosition::Right:
-		StealthKillMontages = AvatarCharacter->GetStealthKillMontageForPosition(EStealthKillPosition::Right);
-		break;
-	
-	default:
-		UE_LOG(LogTemp, Error, TEXT("Unknown KillPosition: %d"), static_cast<int32>(KillPosition));
-		break;
-	}
 
+	StealthKillMontages = AvatarCharacter->GetStealthKillMontagesForPosition(CheckAvatarActorPosition());
+	
 	if (!StealthKillMontages.KillerMontage || !StealthKillMontages.VictimMontage)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Stealth Kill Ability: No animation found!"));
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 		return;
 	}
-	
 
 	if (AUmbraPlayerController* UmbraPlayerController = Cast<AUmbraPlayerController>(AvatarCharacter->GetController()))
 	{
@@ -80,24 +57,19 @@ void UUmbraStealthKillAbility::ActivateAbility(
 }
 
 
-EStealthKillPosition UUmbraStealthKillAbility::CheckAvatarActorPosition() const
+FGameplayTag UUmbraStealthKillAbility::CheckAvatarActorPosition() const
 {
-	AActor* AvatarActor = GetAvatarActorFromActorInfo();
-	
-	if (!AvatarActor || !TargetActor)
-	{
-		return EStealthKillPosition::Behind;
-	}
-	
-	FVector AvatarLocation = AvatarActor->GetActorLocation();
+	FUmbraGameplayTags UGT = FUmbraGameplayTags::Get();
+  
+	FVector AvatarLocation = AvatarCharacter->GetActorLocation();
 	FVector TargetLocation = TargetActor->GetActorLocation();
 
 	float HeightDifference = AvatarLocation.Z - TargetLocation.Z;
 	if (HeightDifference > HeightDifferenceThreshold)
 	{
-		return EStealthKillPosition::Top;
+		return UGT.Position_Top;
 	}
-	
+  
 	FVector TargetForwardVector = TargetActor->GetActorForwardVector();
 	FVector TargetRightVector = TargetActor->GetActorRightVector();
 	FVector Direction = AvatarLocation - TargetLocation;
@@ -112,25 +84,26 @@ EStealthKillPosition UUmbraStealthKillAbility::CheckAvatarActorPosition() const
 
 	if (ForwardDot > 0.5f) // Угол < 60° — игрок находится спереди
 	{
-		return EStealthKillPosition::Front;
+		return UGT.Position_Front;
 	}
-	else if (ForwardDot < -0.5f) // Угол > 120° — игрок находится сзади
+	if (ForwardDot < -0.5f) // Угол > 120° — игрок находится сзади
 	{
-		return EStealthKillPosition::Behind;
+		return UGT.Position_Behind;
 	}
 
 	// Убийца находится слева или справа?
 	if (RightDot > 0.5f) // Угол < 60° — справа
 	{
-		return EStealthKillPosition::Right;
+		return UGT.Position_Right;
 	}
-	else if (RightDot < -0.5f) // Угол > 120° — слева
+	if (RightDot < -0.5f) // Угол > 120° — слева
 	{
-		return EStealthKillPosition::Left;
+		return UGT.Position_Left;
 	}
 
-	return EStealthKillPosition::Behind;
+	return UGT.Position_Behind;
 }
+
 
 void UUmbraStealthKillAbility::RotateCharacterToTarget(const FVector& TargetLocation, float RotationInRate)
 {
@@ -246,6 +219,7 @@ void UUmbraStealthKillAbility::StartStealthKill()
 		EventData.OptionalObject = StealthKillMontages.VictimMontage;
 		
 		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(TargetActor, AbilityTag, EventData);
+		UE_LOG(LogTemp, Log, TEXT("Event was sent!"));
 	}
 	else
 	{
