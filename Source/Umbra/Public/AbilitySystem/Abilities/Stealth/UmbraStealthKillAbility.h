@@ -34,7 +34,7 @@ private:
 	void StartStealthKill();
 
 	UFUNCTION()
-	void OnMoveCompleted();
+	void OnMoveCompleted(bool bTimedOut, bool bReachedDestination, FVector FinalTargetLocation);
 	
 	UFUNCTION()
 	void OnMontageCompleted();
@@ -50,6 +50,8 @@ private:
 	FStealthKillMontages StealthKillMontages;
 	TObjectPtr<AActor> TargetActor;
 	AUmbraPlayerCharacter* AvatarCharacter;
+
+	UTraversalComponent* TraversalComponent;
 	
 	FRotator DesiredRotation;
 	FTimerHandle RotationTimerHandle;

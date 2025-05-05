@@ -69,6 +69,7 @@ void AUmbraEnemyCharacter::InitAbilityActorInfo()
 	if(HasAuthority())
 	{
 		InitializeDefaultAttributes();
+		Super::InitAbilityActorInfo();
 	}
 }
 

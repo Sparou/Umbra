@@ -74,6 +74,11 @@ void UInteractionComponent::HandleHit()
 		{
 			IOutlineInterface::Execute_EnableOutline(InteractionResult.GetActor(), 1);
 		}
+
+		if (InteractionActor)
+		{
+			IOutlineInterface::Execute_DisableOutline(InteractionActor);
+		}
 	}
 	InteractionActor = InteractionResult.GetActor();
 }

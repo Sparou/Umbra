@@ -3,8 +3,13 @@
 #include "AbilitySystem/Abilities/Stealth/UmbraStealthVictimAbility.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "AIController.h"
+#include "BrainComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "Character/UmbraEnemyCharacter.h"
 #include "Character/UmbraPlayerCharacter.h"
+#include "Components/CapsuleComponent.h"
+
 
 void UUmbraStealthVictimAbility::ActivateAbility(
 	const FGameplayAbilitySpecHandle Handle,
@@ -12,12 +17,17 @@ void UUmbraStealthVictimAbility::ActivateAbility(
 	const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
+	AUmbraEnemyCharacter* AvatarCharacter = Cast<AUmbraEnemyCharacter>(GetAvatarActorFromActorInfo());
+	AvatarCharacter->GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 
-	UE_LOG(LogTemp, Log, TEXT("Victim ability Started!"));
-	
-	AUmbraPlayerCharacter* AvatarCharacter = Cast<AUmbraPlayerCharacter>(GetAvatarActorFromActorInfo());
-
-	//TODO: Добавить отключение контроллера персонажам, подконтрольным ИИ.
+	if (AvatarCharacter)
+	{
+		if (AAIController* AIController = Cast<AAIController>(AvatarCharacter->GetController()))
+		{
+			AIController->StopMovement();
+			AIController->BrainComponent->StopLogic("Stealth Victim");
+		}
+	}
 	
 	const UAnimMontage* VictimAnimMontageConst = Cast<UAnimMontage>(TriggerEventData->OptionalObject);
 	UAnimMontage* VictimAnimMontage = const_cast<UAnimMontage*>(VictimAnimMontageConst);
@@ -68,16 +78,9 @@ void UUmbraStealthVictimAbility::OnMontageBlendingOut()
 {
 	if(GetAvatarActorFromActorInfo()->HasAuthority())
 	{
-		AUmbraPlayerCharacter* AvatarCharacter = Cast<AUmbraPlayerCharacter>(GetAvatarActorFromActorInfo());
+		AUmbraBaseCharacter* AvatarCharacter = Cast<AUmbraBaseCharacter>(GetAvatarActorFromActorInfo());
 		AvatarCharacter->MulticastHandleDeath();
 	}
-}
-
-void UUmbraStealthVictimAbility::EnableMovement() const
-{
-	AUmbraPlayerCharacter* AvatarCharacter = Cast<AUmbraPlayerCharacter>(GetAvatarActorFromActorInfo());
-	APlayerController* AvatarController = Cast<APlayerController>(AvatarCharacter->GetController());
-	//InstigatorController->EnableInput(InstigatorController);
 }
 
 

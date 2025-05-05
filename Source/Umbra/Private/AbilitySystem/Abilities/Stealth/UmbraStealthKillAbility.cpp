@@ -6,11 +6,14 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "UmbraGameplayTags.h"
+#include "Abilities/Tasks/AbilityTask_ApplyRootMotionMoveToActorForce.h"
 #include "Character/UmbraPlayerCharacter.h"
 #include "Character//Component/InteractionComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Player/UmbraPlayerController.h"
+#include "TraversalSystem/TraversalComponent.h"
 
 void UUmbraStealthKillAbility::ActivateAbility(
 	const FGameplayAbilitySpecHandle Handle,
@@ -164,24 +167,43 @@ void UUmbraStealthKillAbility::MoveToKillPosition()
 	}
 	
 	float Distance = (AvatarCharacter->GetActorLocation() - TargetActor->GetActorLocation()).Size();
-	//DrawDebugSphere(GetWorld(), TargetActor->GetActorLocation() + StealthKillMontages.KillerStarterLocation, 16, 32, FColor::Red, false, 5.f);
 	
-	if(UAbilityTask_ApplyRootMotionMoveToForce* MoveToForce = UAbilityTask_ApplyRootMotionMoveToForce::ApplyRootMotionMoveToForce(
+	TraversalComponent = AvatarCharacter->GetComponentByClass<UTraversalComponent>();
+	if (TraversalComponent)
+	{
+		TraversalComponent->SetComponentTickEnabled(false);
+	}
+
+	FVector AdditionalVerticalOffset = AvatarCharacter->bIsCrouched ?
+		FVector(0, 0, -(AvatarCharacter->GetDefaultHalfHeight() - AvatarCharacter->GetCharacterMovement()->GetCrouchedHalfHeight())) :
+		FVector::ZeroVector;
+
+	float MaxSpeed = AvatarCharacter->bIsCrouched ?
+		AvatarCharacter->GetCharacterMovement()->MaxWalkSpeedCrouched :
+		AvatarCharacter->GetCharacterMovement()->MaxWalkSpeed;
+	
+	if(UAbilityTask_ApplyRootMotionMoveToActorForce* MoveToActorForce = UAbilityTask_ApplyRootMotionMoveToActorForce::ApplyRootMotionMoveToActorForce(
 		this,
 		NAME_None,
-		TargetActor->GetActorLocation() + StealthKillMontages.KillerStarterLocation,
-		Distance / AvatarCharacter->GetCharacterMovement()->MaxWalkSpeedCrouched,
+		TargetActor,
+		StealthKillMontages.KillerStarterLocation + AdditionalVerticalOffset,
+		ERootMotionMoveToActorTargetOffsetType::AlignToTargetForward,
+		Distance / MaxSpeed,
+		nullptr,
+		nullptr,
 		false,
-		EMovementMode::MOVE_Walking,
+		MOVE_Walking,
 		false,
+		nullptr,
 		nullptr,
 		ERootMotionFinishVelocityMode::MaintainLastRootMotionVelocity,
 		FVector::ZeroVector,
-		0.0f))
+		0.0f,
+		false,
+		10.f))
 	{
-		MoveToForce->OnTimedOutAndDestinationReached.AddDynamic(this, &UUmbraStealthKillAbility::OnMoveCompleted);
-		MoveToForce->OnTimedOut.AddDynamic(this, &UUmbraStealthKillAbility::OnMoveCompleted);
-		MoveToForce->ReadyForActivation();
+		MoveToActorForce->OnFinished.AddDynamic(this, &UUmbraStealthKillAbility::OnMoveCompleted);
+		MoveToActorForce->ReadyForActivation();
 	}
 	else
 	{
@@ -192,7 +214,7 @@ void UUmbraStealthKillAbility::MoveToKillPosition()
 }
 
 
-void UUmbraStealthKillAbility::OnMoveCompleted()
+void UUmbraStealthKillAbility::OnMoveCompleted(bool bTimedOut, bool bReachedDestination, FVector FinalTargetLocation)
 {
 	TimerCallback = [this](){StartStealthKill();};
 	RotateCharacterToTarget(TargetActor->GetActorLocation(), 0.008f);
@@ -271,6 +293,11 @@ void UUmbraStealthKillAbility::EnableMovement() const
 	if (AUmbraPlayerController* UmbraPlayerController = Cast<AUmbraPlayerController>(AvatarCharacter->GetController()))
 	{
 		UmbraPlayerController->SwitchToDefaultContext();
+	}
+
+	if (TraversalComponent)
+	{
+		TraversalComponent->SetComponentTickEnabled(true);
 	}
 }
 

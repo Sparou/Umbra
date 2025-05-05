@@ -30,6 +30,4 @@ private:
 
 	UFUNCTION()
 	void OnMontageBlendingOut();
-	
-	void EnableMovement() const;
 };
