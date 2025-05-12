@@ -37,11 +37,4 @@ void UUmbraDamageGameplayAbility::WeaponTrace(TArray<AActor*>& OutHitActors,
 	{
 		OutHitActors.AddUnique(Hit.GetActor());
 	}
-	
-#if WITH_EDITOR
-	FColor TraceColor = bHit ? FColor::Red : FColor::Green;
-	DrawDebugSphere(World, TraceStart, Radius, 12, TraceColor, false, 1.0f);
-	DrawDebugSphere(World, TraceEnd, Radius, 12, TraceColor, false, 1.0f);
-	DrawDebugLine(World, TraceStart, TraceEnd, TraceColor, false, 1.0f, 0, 1.0f);
-#endif
 }

@@ -46,8 +46,13 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FStealthKillMontages GetRandomStealthKillMontagesForPosition(const FGameplayTag& Position);
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FStealthKillMontages GetRandomStealthKillMontagesForPositionWithSeed(const FGameplayTag& Position, int32 Seed);
 
 private:
 
 	FStealthKillMontages GetRandomStealthKillFromContainer(const FStealthKillMontagesContainer& StealthKillMontagesContainer);
+
+	FStealthKillMontages GetRandomStealthKillFromContainerWithSeed(const FStealthKillMontagesContainer& StealthKillMontagesContainer, int32 Seed);
 };

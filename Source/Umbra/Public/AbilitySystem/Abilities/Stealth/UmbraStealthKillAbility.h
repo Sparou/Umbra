@@ -26,12 +26,16 @@ protected:
 	float HeightDifferenceThreshold = 100.f;
 	
 private:
-
-	FGameplayTag CheckAvatarActorPosition() const;
+	
 	void RotateCharacterToTarget(const FVector& TargetLocation, float RotationInRate);
 	void UpdateRotation();
+
+	UFUNCTION()
 	void MoveToKillPosition();
+	UFUNCTION()
 	void StartStealthKill();
+
+	void SendEventToTarget();
 
 	UFUNCTION()
 	void OnMoveCompleted(bool bTimedOut, bool bReachedDestination, FVector FinalTargetLocation);
@@ -39,6 +43,9 @@ private:
 	UFUNCTION()
 	void OnMontageCompleted();
 
+	UFUNCTION()
+	void OnMontageBlendingOut();
+	
 	UFUNCTION()
 	void OnMontageInterrupted();
 
@@ -52,6 +59,9 @@ private:
 	AUmbraPlayerCharacter* AvatarCharacter;
 
 	UTraversalComponent* TraversalComponent;
+
+	FVector AdditionalVerticalOffset;
+	float MaxSpeed;
 	
 	FRotator DesiredRotation;
 	FTimerHandle RotationTimerHandle;

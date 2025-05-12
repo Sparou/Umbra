@@ -32,15 +32,21 @@ protected:
 
 	void BeginPlay() override;
 
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 private:
 	
 	void InteractionTrace();
 	void HandleHit();
 	void HandleNoHit();
 
+	UFUNCTION(Server, Reliable)
+	void ServerSetInteractionActor(AActor* NewInteractionActor);
+	
 	FHitResult InteractionResult;
 	FVector InteractionTraceStart;
 	FVector InteractionTraceEnd;
+	
 	AActor* InteractionActor;
 	
 	UPROPERTY()

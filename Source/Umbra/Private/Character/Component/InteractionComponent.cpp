@@ -4,6 +4,7 @@
 #include "Interaction/InteractionInterface.h"
 #include "Interface/OutlineInterface.h"
 #include "Kismet/GameplayStatics.h"
+#include "Net/UnrealNetwork.h"
 
 DEFINE_LOG_CATEGORY(InteractionComponentLog)
 
@@ -25,6 +26,11 @@ void UInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	{
 		return;
 	}
+	if (GetOwnerRole() == ROLE_SimulatedProxy)
+	{
+		return;
+	}
+	
 	InteractionTrace();
 }
 
@@ -33,6 +39,13 @@ void UInteractionComponent::BeginPlay()
 	Super::BeginPlay();
 	CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
 	checkf(CameraManager, TEXT("Interaction Component: Camera Manager initialization failed!"));
+}
+
+void UInteractionComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
+	//DOREPLIFETIME(UInteractionComponent, InteractionActor);
 }
 
 void UInteractionComponent::InteractionTrace()
@@ -80,6 +93,12 @@ void UInteractionComponent::HandleHit()
 			IOutlineInterface::Execute_DisableOutline(InteractionActor);
 		}
 	}
+
+	if (GetOwnerRole() != ROLE_Authority)
+	{
+		ServerSetInteractionActor(InteractionResult.GetActor());
+	}
+	
 	InteractionActor = InteractionResult.GetActor();
 }
 
@@ -89,5 +108,16 @@ void UInteractionComponent::HandleNoHit()
 	{
 		IOutlineInterface::Execute_DisableOutline(InteractionActor);
 	}
+	
+	if (GetOwnerRole() != ROLE_Authority)
+	{
+		ServerSetInteractionActor(nullptr);
+	}
+	
 	InteractionActor = nullptr;
+}
+
+void UInteractionComponent::ServerSetInteractionActor_Implementation(AActor* NewInteractionActor)
+{
+	InteractionActor = NewInteractionActor;
 }

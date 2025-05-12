@@ -8,6 +8,8 @@
 #include "UmbraPlayerCharacter.generated.h"
 
 class UInteractionComponent;
+class UTraversalComponent;
+
 /**
  * 
  */
@@ -19,7 +21,7 @@ public:
 	AUmbraPlayerCharacter(const FObjectInitializer& ObjInit);
 	
 	UFUNCTION(BlueprintCallable)
-	FStealthKillMontages GetStealthKillMontagesForPosition(const FGameplayTag& Position);
+	UStealthKillsData* GetStealthKillData();
 
 protected:
 
@@ -28,6 +30,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UInteractionComponent> InteractionComponent;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TObjectPtr<UTraversalComponent> TraversalComponent;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Data")
 	TObjectPtr<UStealthKillsData> StealthKillData;
 

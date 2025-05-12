@@ -18,7 +18,15 @@ void UUmbraStealthVictimAbility::ActivateAbility(
 	const FGameplayEventData* TriggerEventData)
 {
 	AUmbraEnemyCharacter* AvatarCharacter = Cast<AUmbraEnemyCharacter>(GetAvatarActorFromActorInfo());
-	AvatarCharacter->GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+
+	if (AvatarCharacter->HasAuthority())
+	{
+		// AvatarCharacter->GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+		// AvatarCharacter->GetMesh()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+		AvatarCharacter->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		AvatarCharacter->GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+
 
 	if (AvatarCharacter)
 	{

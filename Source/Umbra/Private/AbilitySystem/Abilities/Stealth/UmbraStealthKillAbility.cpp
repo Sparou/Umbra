@@ -2,11 +2,12 @@
 
 #include "AbilitySystem/Abilities/Stealth/UmbraStealthKillAbility.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
-#include "Abilities/Tasks/AbilityTask_ApplyRootMotionMoveToForce.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "UmbraGameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_ApplyRootMotionMoveToActorForce.h"
+#include "Abilities/Tasks/AbilityTask_NetworkSyncPoint.h"
+#include "AbilitySystem/Abilities/GameplayAbilitiesFunctionLibrary.h"
 #include "Character/UmbraPlayerCharacter.h"
 #include "Character//Component/InteractionComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -21,6 +22,8 @@ void UUmbraStealthKillAbility::ActivateAbility(
 	const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
+	UE_LOG(LogTemp, Log, TEXT("Kill ablitiy started!"));
+	
 	AvatarCharacter = Cast<AUmbraPlayerCharacter>(GetAvatarActorFromActorInfo());
 	UInteractionComponent* InteractionComponent = AvatarCharacter->GetComponentByClass<UInteractionComponent>();
 
@@ -40,7 +43,11 @@ void UUmbraStealthKillAbility::ActivateAbility(
 		return;
 	}
 
-	StealthKillMontages = AvatarCharacter->GetStealthKillMontagesForPosition(CheckAvatarActorPosition());
+	StealthKillMontages = AvatarCharacter->GetStealthKillData()->GetRandomStealthKillMontagesForPosition(
+		UGameplayAbilitiesFunctionLibrary::GetActorPositionRelativeToTarget(
+			AvatarCharacter,
+			TargetActor,
+			HeightDifferenceThreshold));
 	
 	if (!StealthKillMontages.KillerMontage || !StealthKillMontages.VictimMontage)
 	{
@@ -54,59 +61,18 @@ void UUmbraStealthKillAbility::ActivateAbility(
 		UmbraPlayerController->SwitchToCameraOnlyContext();
 	}
 
-	TimerCallback = [this](){MoveToKillPosition();};
+	AvatarCharacter->GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	
+	TimerCallback = [this]()
+	{
+		UAbilityTask_NetworkSyncPoint* SyncTask =
+			UAbilityTask_NetworkSyncPoint::WaitNetSync(this, /*SyncType=*/EAbilityTaskNetSyncType::BothWait);
+		SyncTask->OnSync.AddDynamic(this, &UUmbraStealthKillAbility::MoveToKillPosition);
+		SyncTask->ReadyForActivation();
+	};
 	RotateCharacterToTarget(TargetActor->GetActorLocation() - StealthKillMontages.KillerStarterLocation, 0.008f);
 	
 }
-
-
-FGameplayTag UUmbraStealthKillAbility::CheckAvatarActorPosition() const
-{
-	FUmbraGameplayTags UGT = FUmbraGameplayTags::Get();
-  
-	FVector AvatarLocation = AvatarCharacter->GetActorLocation();
-	FVector TargetLocation = TargetActor->GetActorLocation();
-
-	float HeightDifference = AvatarLocation.Z - TargetLocation.Z;
-	if (HeightDifference > HeightDifferenceThreshold)
-	{
-		return UGT.Position_Top;
-	}
-  
-	FVector TargetForwardVector = TargetActor->GetActorForwardVector();
-	FVector TargetRightVector = TargetActor->GetActorRightVector();
-	FVector Direction = AvatarLocation - TargetLocation;
-
-	float Distance = Direction.Size();
-	Direction.Normalize();
-
-	// Убийца находится спереди или сзади?
-	float ForwardDot = FVector::DotProduct(TargetForwardVector, Direction);
-	float RightDot = FVector::DotProduct(TargetRightVector, Direction);
-	UE_LOG(LogTemp, Warning, TEXT("ForwardDot: %f, RightDot: %f"), ForwardDot, RightDot);
-
-	if (ForwardDot > 0.5f) // Угол < 60° — игрок находится спереди
-	{
-		return UGT.Position_Front;
-	}
-	if (ForwardDot < -0.5f) // Угол > 120° — игрок находится сзади
-	{
-		return UGT.Position_Behind;
-	}
-
-	// Убийца находится слева или справа?
-	if (RightDot > 0.5f) // Угол < 60° — справа
-	{
-		return UGT.Position_Right;
-	}
-	if (RightDot < -0.5f) // Угол > 120° — слева
-	{
-		return UGT.Position_Left;
-	}
-
-	return UGT.Position_Behind;
-}
-
 
 void UUmbraStealthKillAbility::RotateCharacterToTarget(const FVector& TargetLocation, float RotationInRate)
 {
@@ -165,42 +131,43 @@ void UUmbraStealthKillAbility::MoveToKillPosition()
 			FAttachmentTransformRules::KeepWorldTransform
 		);
 	}
-	
-	float Distance = (AvatarCharacter->GetActorLocation() - TargetActor->GetActorLocation()).Size();
-	
+
 	TraversalComponent = AvatarCharacter->GetComponentByClass<UTraversalComponent>();
 	if (TraversalComponent)
 	{
 		TraversalComponent->SetComponentTickEnabled(false);
 	}
-
-	FVector AdditionalVerticalOffset = AvatarCharacter->bIsCrouched ?
+	
+	float Distance = (AvatarCharacter->GetActorLocation() - TargetActor->GetActorLocation()).Size();
+	
+	AdditionalVerticalOffset = AvatarCharacter->bIsCrouched ?
 		FVector(0, 0, -(AvatarCharacter->GetDefaultHalfHeight() - AvatarCharacter->GetCharacterMovement()->GetCrouchedHalfHeight())) :
 		FVector::ZeroVector;
 
-	float MaxSpeed = AvatarCharacter->bIsCrouched ?
+	MaxSpeed = AvatarCharacter->bIsCrouched ?
 		AvatarCharacter->GetCharacterMovement()->MaxWalkSpeedCrouched :
 		AvatarCharacter->GetCharacterMovement()->MaxWalkSpeed;
 	
+	UE_LOG(UmbraAbilitiesLog, Log, TEXT("Time = [%f]"), GetWorld()->GetTimeSeconds());
 	if(UAbilityTask_ApplyRootMotionMoveToActorForce* MoveToActorForce = UAbilityTask_ApplyRootMotionMoveToActorForce::ApplyRootMotionMoveToActorForce(
-		this,
-		NAME_None,
-		TargetActor,
-		StealthKillMontages.KillerStarterLocation + AdditionalVerticalOffset,
-		ERootMotionMoveToActorTargetOffsetType::AlignToTargetForward,
-		Distance / MaxSpeed,
-		nullptr,
-		nullptr,
-		false,
-		MOVE_Walking,
-		false,
-		nullptr,
-		nullptr,
-		ERootMotionFinishVelocityMode::MaintainLastRootMotionVelocity,
-		FVector::ZeroVector,
-		0.0f,
-		false,
-		10.f))
+	this,
+	NAME_None,
+	TargetActor,
+	StealthKillMontages.KillerStarterLocation + AdditionalVerticalOffset + FVector(0, 0, -30),
+	ERootMotionMoveToActorTargetOffsetType::AlignToTargetForward,
+	Distance / MaxSpeed,
+	nullptr,
+	nullptr,
+	false,
+	MOVE_Walking,
+	false,
+	nullptr,
+	nullptr,
+	ERootMotionFinishVelocityMode::MaintainLastRootMotionVelocity,
+	FVector::ZeroVector,
+	0.0f,
+	false,
+	10.f))
 	{
 		MoveToActorForce->OnFinished.AddDynamic(this, &UUmbraStealthKillAbility::OnMoveCompleted);
 		MoveToActorForce->ReadyForActivation();
@@ -216,9 +183,16 @@ void UUmbraStealthKillAbility::MoveToKillPosition()
 
 void UUmbraStealthKillAbility::OnMoveCompleted(bool bTimedOut, bool bReachedDestination, FVector FinalTargetLocation)
 {
-	TimerCallback = [this](){StartStealthKill();};
+	TimerCallback = [this]()
+	{
+		UAbilityTask_NetworkSyncPoint* FinishSync =
+			UAbilityTask_NetworkSyncPoint::WaitNetSync(this, /*SyncType=*/EAbilityTaskNetSyncType::BothWait);
+		FinishSync->OnSync.AddDynamic(this, &UUmbraStealthKillAbility::StartStealthKill);
+		FinishSync->ReadyForActivation();
+	};
 	RotateCharacterToTarget(TargetActor->GetActorLocation(), 0.008f);
 }
+
 
 void UUmbraStealthKillAbility::StartStealthKill()
 {
@@ -229,7 +203,27 @@ void UUmbraStealthKillAbility::StartStealthKill()
 			FAttachmentTransformRules::KeepWorldTransform
 		);
 	}
+
+	SendEventToTarget();
+
+	UAbilityTask_PlayMontageAndWait* PlayMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+		this,
+		NAME_None,
+		StealthKillMontages.KillerMontage,
+		1.f,
+		NAME_None,
+		true,
+		1.0f);
 	
+	PlayMontageTask->OnCompleted.AddDynamic(this, &UUmbraStealthKillAbility::OnMontageCompleted);
+	PlayMontageTask->OnBlendOut.AddDynamic(this, &UUmbraStealthKillAbility::OnMontageBlendingOut);
+	PlayMontageTask->OnInterrupted.AddDynamic(this, &UUmbraStealthKillAbility::OnMontageInterrupted);
+	PlayMontageTask->OnCancelled.AddDynamic(this, &UUmbraStealthKillAbility::OnMontageCancelled);
+	PlayMontageTask->ReadyForActivation();
+}
+
+void UUmbraStealthKillAbility::SendEventToTarget()
+{
 	if (UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor))
 	{
 		FGameplayTag AbilityTag = FUmbraGameplayTags::Get().Ability_Stealth_Victim;
@@ -248,30 +242,25 @@ void UUmbraStealthKillAbility::StartStealthKill()
 		UE_LOG(LogTemp, Error, TEXT("Stealth Kill Ability: Target actor doesn't have ability system component!"));
 		EnableMovement();
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
-		return;
 	}
-	
-	UAbilityTask_PlayMontageAndWait* PlayMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-		this,
-		NAME_None,
-		StealthKillMontages.KillerMontage,
-		1.0f,
-		NAME_None,
-		false,
-		1.0f);
-
-	PlayMontageTask->OnCompleted.AddDynamic(this, &UUmbraStealthKillAbility::OnMontageCompleted);
-	PlayMontageTask->OnInterrupted.AddDynamic(this, &UUmbraStealthKillAbility::OnMontageInterrupted);
-	PlayMontageTask->OnCancelled.AddDynamic(this, &UUmbraStealthKillAbility::OnMontageCancelled);
-	PlayMontageTask->ReadyForActivation();
 }
 
 
 void UUmbraStealthKillAbility::OnMontageCompleted()
 {
+	if (AvatarCharacter->IsLocallyControlled())
+	{
+		AvatarCharacter->GetCharacterMovement()->NetworkSmoothingMode = ENetworkSmoothingMode::Linear; // или Exponential, как у вас по умолчанию
+	}
+	
 	EnableMovement();
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 	UE_LOG(LogTemp, Warning, TEXT("Stealth kill completed"));
+}
+
+void UUmbraStealthKillAbility::OnMontageBlendingOut()
+{
+	AvatarCharacter->GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
 }
 
 void UUmbraStealthKillAbility::OnMontageInterrupted()

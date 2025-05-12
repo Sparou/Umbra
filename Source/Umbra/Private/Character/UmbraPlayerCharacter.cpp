@@ -3,6 +3,7 @@
 
 #include "Character/UmbraPlayerCharacter.h"
 #include "Character/Component/InteractionComponent.h"
+#include "TraversalSystem/TraversalComponent.h"
 #include "AbilitySystem/UmbraAttributeSet.h"
 #include "Umbra/Umbra.h"
 
@@ -10,11 +11,12 @@ AUmbraPlayerCharacter::AUmbraPlayerCharacter(const FObjectInitializer& ObjInit)
 {
 	AttributeSet = CreateDefaultSubobject<UUmbraAttributeSet>("Attribute Set");
 	InteractionComponent = CreateDefaultSubobject<UInteractionComponent>("Interaction Component");
+	TraversalComponent = CreateDefaultSubobject<UTraversalComponent>("Traversal Component");
 }
 
-FStealthKillMontages AUmbraPlayerCharacter::GetStealthKillMontagesForPosition(const FGameplayTag& Position)
+UStealthKillsData* AUmbraPlayerCharacter::GetStealthKillData()
 {
-	return StealthKillData->GetRandomStealthKillMontagesForPosition(Position);
+	return StealthKillData;
 }
 
 void AUmbraPlayerCharacter::BeginPlay()

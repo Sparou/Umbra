@@ -62,7 +62,6 @@ void AUmbraPlayerController::SetupInputComponent()
 	UmbraInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::OnStopCrouch);
 	UmbraInputComponent->BindAction(DropAction, ETriggerEvent::Started, this, &AUmbraPlayerController::OnStartDrop);
 	
-	
 	UmbraInputComponent->BindAbilityActions(InputConfig, this, &AUmbraPlayerController::AbilityInputTagPressed,
 	                                        &AUmbraPlayerController::AbilityInputTagReleased, &AUmbraPlayerController::AbilityInputTagHeld);
 

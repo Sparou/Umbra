@@ -12,7 +12,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Net/UnrealNetwork.h"
 
-DEFINE_LOG_CATEGORY(TraversalComponent)
+DEFINE_LOG_CATEGORY(TraversalComponentLog)
 
 UTraversalComponent::UTraversalComponent()
 {
@@ -144,9 +144,9 @@ void UTraversalComponent::TriggerTraversalAction(bool JumpAction)
 		float GridHeight = TraversalStateValues(TraversalState, 30.f, 0.f, 7.f, 0.f, 0.f);
 		float GridWidth = TraversalStateValues(TraversalState, 4.f, 0.f, 2.f, 0.f, 30.f);
 
-		UE_LOG(TraversalComponent, Log, TEXT("Grid Scan Height: [%f]"), GridScanHeight);
-		UE_LOG(TraversalComponent, Log, TEXT("Grid Scan Width: [%f]"), GridWidth);
-		UE_LOG(TraversalComponent, Log, TEXT("Grid Scan Location: [%s]"), *GridScanLocation.ToString());
+		UE_LOG(TraversalComponentLog, Log, TEXT("Grid Scan Height: [%f]"), GridScanHeight);
+		UE_LOG(TraversalComponentLog, Log, TEXT("Grid Scan Width: [%f]"), GridWidth);
+		UE_LOG(TraversalComponentLog, Log, TEXT("Grid Scan Location: [%s]"), *GridScanLocation.ToString());
 		
 		GridScan(GridWidth, GridHeight, GridScanLocation, ReverseNormal(WallHitResult.ImpactNormal));
 		MeasureWall();
@@ -158,7 +158,7 @@ void UTraversalComponent::PlayTraversalMontage()
 {
 	if (WallTopResult.ImpactPoint == FVector::ZeroVector)
 	{
-		UE_LOG(TraversalComponent, Warning, TEXT("Play Traversal Montage: Wall Top Result is zero!"));
+		UE_LOG(TraversalComponentLog, Warning, TEXT("Play Traversal Montage: Wall Top Result is zero!"));
 		SetTraversalAction(UGT.Traversal_Action_NoAction);
 		return;
 	}
@@ -322,7 +322,7 @@ void UTraversalComponent::SetTraversalAction(const FGameplayTag& NewTraversalAct
 
 	TraversalAction = NewTraversalAction;
 
-	UE_LOG(TraversalComponent, Log, TEXT("New Traversal Action = [%s]"), *TraversalAction.ToString());
+	UE_LOG(TraversalComponentLog, Log, TEXT("New Traversal Action = [%s]"), *TraversalAction.ToString());
 	if (ITraversalInterface *TraversalAnimInstance = Cast<ITraversalInterface>(AnimInstance))
 	{
 		TraversalAnimInstance->SetTraversalAction(NewTraversalAction);
@@ -426,7 +426,7 @@ FHitResult UTraversalComponent::DetectWall() const
 		{
 			if (HitResult.bBlockingHit && !HitResult.bStartPenetrating)
 			{
-				UE_LOG(TraversalComponent, Log, TEXT("Wall Impact Point: [%s]"), *HitResult.ImpactPoint.ToString());
+				UE_LOG(TraversalComponentLog, Log, TEXT("Wall Impact Point: [%s]"), *HitResult.ImpactPoint.ToString());
 				return HitResult;
 			}
 		}
@@ -572,7 +572,7 @@ bool UTraversalComponent::FindWallEdge(int GridWidth, int GridHeight, const FVec
         }
     }
 	
-	UE_LOG(TraversalComponent, Log, TEXT("Wall Edge Location: [%s]"), *WallEdgeResult.ImpactPoint.ToString());
+	UE_LOG(TraversalComponentLog, Log, TEXT("Wall Edge Location: [%s]"), *WallEdgeResult.ImpactPoint.ToString());
     return OutWallEdgeResult.bBlockingHit && !OutWallEdgeResult.bStartPenetrating;
 }
 
@@ -629,7 +629,7 @@ bool UTraversalComponent::FindWallTop(const FHitResult& WallEdgeHit, const FRota
 		{
 			OutWallTopResult = TopHit;
 			bFoundTop = true;
-			UE_LOG(TraversalComponent, Log, TEXT("Wall Top Location: [%s]"), *OutWallTopResult.ImpactPoint.ToString());
+			UE_LOG(TraversalComponentLog, Log, TEXT("Wall Top Location: [%s]"), *OutWallTopResult.ImpactPoint.ToString());
 		}
 		
 		if (i != 0)
@@ -637,12 +637,12 @@ bool UTraversalComponent::FindWallTop(const FHitResult& WallEdgeHit, const FRota
 			if (TopHit.bBlockingHit)
 			{
 				LastTopHit = TopHit;
-				UE_LOG(TraversalComponent, Log, TEXT("Wall Surface Found: [%s]"), *LastTopHit.ImpactPoint.ToString());
+				UE_LOG(TraversalComponentLog, Log, TEXT("Wall Surface Found: [%s]"), *LastTopHit.ImpactPoint.ToString());
 			}
 			else
 			{
 				OutEndOfWallFound = true;
-				UE_LOG(TraversalComponent, Log, TEXT("End Of Wall Found"))
+				UE_LOG(TraversalComponentLog, Log, TEXT("End Of Wall Found"))
 				break;
 			}
 		}
@@ -652,7 +652,7 @@ bool UTraversalComponent::FindWallTop(const FHitResult& WallEdgeHit, const FRota
 	
 	if (!bFoundTop)
 	{
-		UE_LOG(TraversalComponent, Warning, TEXT("Wall Top Not Found!"));
+		UE_LOG(TraversalComponentLog, Warning, TEXT("Wall Top Not Found!"));
 	}
 	
 	return bFoundTop;
@@ -686,13 +686,13 @@ bool UTraversalComponent::FindWallDepth(const FHitResult& LastTopHit, const FRot
 
 	if (!DepthResult.bBlockingHit)
 	{
-		UE_LOG(TraversalComponent, Warning, TEXT("Wall Depth Not Found!"));
+		UE_LOG(TraversalComponentLog, Warning, TEXT("Wall Depth Not Found!"));
 		return false;
 	}
 
 	OutWallDepthResult = DepthResult;
 	
-	UE_LOG(TraversalComponent, Log, TEXT("Wall Depth Location: [%s]"), *OutWallDepthResult.ImpactPoint.ToString());
+	UE_LOG(TraversalComponentLog, Log, TEXT("Wall Depth Location: [%s]"), *OutWallDepthResult.ImpactPoint.ToString());
 	
 	return true;
 }
@@ -730,13 +730,13 @@ bool UTraversalComponent::FindWallVault(const FHitResult& WallDepthHit, const FR
 
 	if (!VaultHit.bBlockingHit)
 	{
-		UE_LOG(TraversalComponent, Warning, TEXT("Wall Vault Not Found!"));
+		UE_LOG(TraversalComponentLog, Warning, TEXT("Wall Vault Not Found!"));
 		return false;
 	}
 
 	OutWallVaultResult = VaultHit;
 	
-	UE_LOG(TraversalComponent, Log, TEXT("Wall Vault Location: [%s]"), *OutWallVaultResult.ImpactPoint.ToString());
+	UE_LOG(TraversalComponentLog, Log, TEXT("Wall Vault Location: [%s]"), *OutWallVaultResult.ImpactPoint.ToString());
 	
 	return true;
 }
@@ -746,7 +746,7 @@ FVector UTraversalComponent::FindWarpLocation(const FVector& Location, const FRo
 {
 	FVector XOffsetVector = VectorDirectionMoveWithRotation(Location, UGT.Traversal_Direction_Forward, XOffset, Rotation);
 	FVector ZOffsetVector = VectorDirectionMove(XOffsetVector, UGT.Traversal_Direction_Up, ZOffset);
-	UE_LOG(TraversalComponent, Log, TEXT("Warp Location: [%s]"), *ZOffsetVector.ToString());
+	UE_LOG(TraversalComponentLog, Log, TEXT("Warp Location: [%s]"), *ZOffsetVector.ToString());
 	return ZOffsetVector;
 }
 
@@ -765,13 +765,13 @@ void UTraversalComponent::MeasureWall()
 	VaultHeight = WallDepthResult.bBlockingHit && WallVaultResult.bBlockingHit ? WallDepthResult.ImpactPoint.Z - WallVaultResult.ImpactPoint.Z : 0.f;
 	
 	
-	UE_LOG(TraversalComponent, Log, TEXT("Wall Height: [%f], Wall Depth: [%f], Vault Height: [%f]"), WallHeight, WallDepth, VaultHeight);
+	UE_LOG(TraversalComponentLog, Log, TEXT("Wall Height: [%f], Wall Depth: [%f], Vault Height: [%f]"), WallHeight, WallDepth, VaultHeight);
 }
 
 void UTraversalComponent::DecideTraversalType(bool JumpAction)
 {
 
-	UE_LOG(TraversalComponent, Warning, TEXT("DecideTraversalType: WallHeight = [%f]"), WallHeight);
+	UE_LOG(TraversalComponentLog, Warning, TEXT("DecideTraversalType: WallHeight = [%f]"), WallHeight);
 	
 	if (!WallTopResult.bBlockingHit)
 	{
@@ -782,7 +782,7 @@ void UTraversalComponent::DecideTraversalType(bool JumpAction)
 
 	if (TraversalState.MatchesTagExact(UGT.Traversal_State_Climb))
 	{
-		UE_LOG(TraversalComponent, Log, TEXT("TraversalType: [Climb or Hope]"));
+		UE_LOG(TraversalComponentLog, Log, TEXT("TraversalType: [Climb or Hope]"));
 		DecideClimbOrHope();
 		return;
 	}
@@ -791,7 +791,7 @@ void UTraversalComponent::DecideTraversalType(bool JumpAction)
 	{
 		if (bInLand)
 		{
-			UE_LOG(TraversalComponent, Warning, TEXT("DecideTraversalType: bInLand = [%d]"), bInLand);
+			UE_LOG(TraversalComponentLog, Warning, TEXT("DecideTraversalType: bInLand = [%d]"), bInLand);
 			if (WallHeight >= MantleMinimumWallHeight && WallHeight <= MantleMaximumWallHeight)
 			{
 				if (WallDepth >= VaultMinimumDepth && WallDepth <= VaultMaximumDepth)
@@ -802,7 +802,7 @@ void UTraversalComponent::DecideTraversalType(bool JumpAction)
 						{
 							if (ValidateVaultSurface())
 							{
-								UE_LOG(TraversalComponent, Log, TEXT("DecideTraversalType: [%s]"), *UGT.Traversal_State_Vault.ToString());
+								UE_LOG(TraversalComponentLog, Log, TEXT("DecideTraversalType: [%s]"), *UGT.Traversal_State_Vault.ToString());
 								SetTraversalAction(UGT.Traversal_Action_Vault);
 							}
 							else
@@ -812,19 +812,19 @@ void UTraversalComponent::DecideTraversalType(bool JumpAction)
 						}
 						else if (ValidateMantleSurface())
 						{
-							UE_LOG(TraversalComponent, Log, TEXT("DecideTraversalType: [%s]"), *UGT.Traversal_State_Mantle.ToString());
+							UE_LOG(TraversalComponentLog, Log, TEXT("DecideTraversalType: [%s]"), *UGT.Traversal_State_Mantle.ToString());
 							SetTraversalAction(UGT.Traversal_Action_Mantle);
 						}
 					}
 					else if (ValidateMantleSurface())
 					{
-						UE_LOG(TraversalComponent, Warning, TEXT("DecideTraversalType: [%s]"), *UGT.Traversal_State_Mantle.ToString());
+						UE_LOG(TraversalComponentLog, Warning, TEXT("DecideTraversalType: [%s]"), *UGT.Traversal_State_Mantle.ToString());
 						SetTraversalAction(UGT.Traversal_Action_Mantle);
 					}
 				}
 				else if (ValidateMantleSurface())
 				{
-					UE_LOG(TraversalComponent, Warning, TEXT("DecideTraversalType: [%s]"), *UGT.Traversal_State_Mantle.ToString());
+					UE_LOG(TraversalComponentLog, Warning, TEXT("DecideTraversalType: [%s]"), *UGT.Traversal_State_Mantle.ToString());
 					SetTraversalAction(UGT.Traversal_Action_Mantle);
 				}
 			}
@@ -832,7 +832,7 @@ void UTraversalComponent::DecideTraversalType(bool JumpAction)
 			{
 				if (WallHeight < ClimbMaximumWallHeight && ValidateClimbSurface(WallTopResult.ImpactPoint, WallRotation))
 				{
-					UE_LOG(TraversalComponent, Log, TEXT("DecideTraversalType: [%s]"), *UGT.Traversal_State_Climb.ToString());
+					UE_LOG(TraversalComponentLog, Log, TEXT("DecideTraversalType: [%s]"), *UGT.Traversal_State_Climb.ToString());
 					DecideClimbStyle(WallTopResult.ImpactPoint, WallRotation);
 					NextClimbResult = WallTopResult;
 					
@@ -842,14 +842,14 @@ void UTraversalComponent::DecideTraversalType(bool JumpAction)
 				}
 				else
 				{
-					UE_LOG(TraversalComponent, Log, TEXT("DecideTraversalType: [%s]"), *UGT.Traversal_Action_NoAction.ToString());
+					UE_LOG(TraversalComponentLog, Log, TEXT("DecideTraversalType: [%s]"), *UGT.Traversal_Action_NoAction.ToString());
 					SetTraversalAction(UGT.Traversal_Action_NoAction);
 				}
 			}
 		}
 		else
 		{
-			UE_LOG(TraversalComponent, Log, TEXT("DecideTraversalType: [%s]"), *UGT.Traversal_State_Climb.ToString());
+			UE_LOG(TraversalComponentLog, Log, TEXT("DecideTraversalType: [%s]"), *UGT.Traversal_State_Climb.ToString());
 			DecideClimbStyle(WallTopResult.ImpactPoint, WallRotation);
 			NextClimbResult = WallTopResult;
 			if (ValidateAirHang() && ValidateClimbSurface(WallTopResult.ImpactPoint, WallRotation))
@@ -862,7 +862,7 @@ void UTraversalComponent::DecideTraversalType(bool JumpAction)
 	}
 	else if (ValidateClimbSurface(WallTopResult.ImpactPoint, WallRotation))
 	{
-		UE_LOG(TraversalComponent, Log, TEXT("DecideTraversalType: [%s]"), *UGT.Traversal_State_Climb.ToString());
+		UE_LOG(TraversalComponentLog, Log, TEXT("DecideTraversalType: [%s]"), *UGT.Traversal_State_Climb.ToString());
 		DecideClimbStyle(WallTopResult.ImpactPoint, WallRotation);
 		NextClimbResult = WallTopResult;
 		
@@ -917,7 +917,7 @@ void UTraversalComponent::DecideClimbOrHope()
 	{
 		if (ValidateMantleSurface())
 		{
-			UE_LOG(TraversalComponent, Log, TEXT("Decide Climb or Hope: ClimbUp"));
+			UE_LOG(TraversalComponentLog, Log, TEXT("Decide Climb or Hope: ClimbUp"));
 			if (ClimbStyle.MatchesTagExact(UGT.Traversal_ClimbStyle_BracedClimb))
 			{
 				SetTraversalAction(UGT.Traversal_Action_BracedClimb_ClimbUp);
@@ -930,7 +930,7 @@ void UTraversalComponent::DecideClimbOrHope()
 		}
 		else
 		{
-			UE_LOG(TraversalComponent, Log, TEXT("Decide Climb or Hope: Hope"));
+			UE_LOG(TraversalComponentLog, Log, TEXT("Decide Climb or Hope: Hope"));
 			FindHopLocation();
 			DecideClimbStyle(WallTopResult.ImpactPoint, WallRotation);
 			NextClimbResult = WallTopResult;
@@ -939,7 +939,7 @@ void UTraversalComponent::DecideClimbOrHope()
 		}
 	}
 
-	UE_LOG(TraversalComponent, Log, TEXT("Decide Climb or Hope: Hope"));
+	UE_LOG(TraversalComponentLog, Log, TEXT("Decide Climb or Hope: Hope"));
 	FindHopLocation();
 	DecideClimbStyle(WallTopResult.ImpactPoint, WallRotation);
 	NextClimbResult = WallTopResult;
@@ -1173,8 +1173,8 @@ void UTraversalComponent::ClimbMovement()
 
 	if (GetOwnerRole() < ROLE_Authority)
 	{
-		UE_LOG(TraversalComponent, Warning, TEXT("ClimbMovement: [Not Authority]"));
-		UE_LOG(TraversalComponent, Log, TEXT("X = [%f], Y = [%f], Z = [%f]"), HorizontalLocation.X, HorizontalLocation.Y, NewLocationZ);
+		UE_LOG(TraversalComponentLog, Warning, TEXT("ClimbMovement: [Not Authority]"));
+		UE_LOG(TraversalComponentLog, Log, TEXT("X = [%f], Y = [%f], Z = [%f]"), HorizontalLocation.X, HorizontalLocation.Y, NewLocationZ);
 	}
 	
 	SetNewClimbPosition(HorizontalLocation.X, HorizontalLocation.Y, NewLocationZ, WallRotation);
@@ -1308,7 +1308,7 @@ bool UTraversalComponent::ValidateAirHang() const
 	float HeightDifference = CharacterHeadZ - ClimbLocationZ;
 	float Distance = FVector::Distance(NextClimbResult.ImpactPoint, SkeletalMesh->GetBoneLocation("Head"));
 	
-	UE_LOG(TraversalComponent, Log, TEXT("ValidateAirHang: Distance = [%f]"), Distance);
+	UE_LOG(TraversalComponentLog, Log, TEXT("ValidateAirHang: Distance = [%f]"), Distance);
 	
 	if (HeightDifference < AirHangMaxHeightDifference || Distance > AirHangMinDistance)
 	{
@@ -1437,10 +1437,10 @@ void UTraversalComponent::NextClimbHandIK(const bool bLeftHand)
 		ClimbWallHitResult.ImpactPoint.Y,
 		VectorDirectionMove(ClimbTopHitResult.ImpactPoint, UGT.Traversal_Direction_Down, HandIKLocationVerticalOffset).Z);
 
-	UE_LOG(TraversalComponent, Log, TEXT("Owner Role = [%d]"), GetOwnerRole());
-	UE_LOG(TraversalComponent, Log, TEXT("Next Climb Ik: Hand = [%d]"), bLeftHand);
-	UE_LOG(TraversalComponent, Log, TEXT("Next Climb IK: Location = [%s]"), *ClimbHandLocation.ToString());
-	UE_LOG(TraversalComponent, Log, TEXT("Next Climb IK: Rotation = [%s]"), *ClimbHandRotation.ToString());
+	UE_LOG(TraversalComponentLog, Log, TEXT("Owner Role = [%d]"), GetOwnerRole());
+	UE_LOG(TraversalComponentLog, Log, TEXT("Next Climb Ik: Hand = [%d]"), bLeftHand);
+	UE_LOG(TraversalComponentLog, Log, TEXT("Next Climb IK: Location = [%s]"), *ClimbHandLocation.ToString());
+	UE_LOG(TraversalComponentLog, Log, TEXT("Next Climb IK: Rotation = [%s]"), *ClimbHandRotation.ToString());
 	
 	if (bLeftHand)
 	{
@@ -1539,7 +1539,7 @@ void UTraversalComponent::NextClimbFootIK(const bool bLeftFoot)
 		FootIKLocationAdditiveBackwardOffset,
 		ReverseNormal(ClimbWallHitResult.ImpactNormal));
 	
-	UE_LOG(TraversalComponent, Log, TEXT("Next Foot IK: Foot Location = [%s]"), *ClimbWallHitResult.ToString());
+	UE_LOG(TraversalComponentLog, Log, TEXT("Next Foot IK: Foot Location = [%s]"), *ClimbWallHitResult.ToString());
 	
 	if (AnimInstance && AnimInstance->GetClass()->ImplementsInterface(UTraversalInterface::StaticClass()))
 	{
@@ -1972,7 +1972,7 @@ void UTraversalComponent::FindHopLocation()
 		HorizontalHopDistance,
 		OwnerCharacter->GetActorRotation());
 
-	UE_LOG(TraversalComponent, Log, TEXT("Find Hop Location: Grid Scan Location = [%s]"), *ScanLocation.ToString());
+	UE_LOG(TraversalComponentLog, Log, TEXT("Find Hop Location: Grid Scan Location = [%s]"), *ScanLocation.ToString());
 	GridScan(HopGridScanWidth, HopGridScanHeight, ScanLocation, WallRotation);
 }
 

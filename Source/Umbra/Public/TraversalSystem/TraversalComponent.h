@@ -10,7 +10,7 @@
 #include "TraversalComponent.generated.h"
 
 struct FTraversalActionData;
-DECLARE_LOG_CATEGORY_EXTERN(TraversalComponent, Log, All);
+DECLARE_LOG_CATEGORY_EXTERN(TraversalComponentLog, Log, All);
 
 class UCapsuleComponent;
 class UCameraComponent;

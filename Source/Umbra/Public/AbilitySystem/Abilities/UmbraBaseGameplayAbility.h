@@ -6,6 +6,8 @@
 #include "Abilities/GameplayAbility.h"
 #include "UmbraBaseGameplayAbility.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(UmbraAbilitiesLog, Log, All);
+
 /**
  * 
  */
@@ -17,4 +19,5 @@ class UMBRA_API UUmbraBaseGameplayAbility : public UGameplayAbility
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
 	FGameplayTag StartupInputTag;
+	
 };

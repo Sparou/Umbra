@@ -54,8 +54,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TObjectPtr<UMotionWarpingComponent> MotionWarpingComponent;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TObjectPtr<UTraversalComponent> TraversalComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Weapon")
 	TObjectPtr<UStaticMeshComponent> WeaponMeshComponent;
