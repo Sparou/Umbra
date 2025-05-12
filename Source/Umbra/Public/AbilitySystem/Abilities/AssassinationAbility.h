@@ -4,10 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/UmbraBaseGameplayAbility.h"
-#include "Character/Data/StealthKillsData.h"
+#include "Character/Data/AssassinationsData.h"
 #include "AssassinationAbility.generated.h"
 
-struct FStealthKillMontages;
 class AUmbraPlayerCharacter;
 /**
  * 
@@ -18,7 +17,6 @@ class UMBRA_API UAssassinationAbility : public UUmbraBaseGameplayAbility
 	GENERATED_BODY()
 
 public:
-
 	UPROPERTY(EditDefaultsOnly)
 	float HeightDifferenceThreshold;
 
@@ -30,23 +28,27 @@ protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 private:
-	
-	AUmbraPlayerCharacter* Initiator;
-	AActor* Target;
-	FStealthKillMontages AssassinationMontages;
+	AUmbraPlayerCharacter* SourceCharacter;
+	AActor* TargetCharacter;
+	FAssassinationData AssassinationData;
 
 	UPROPERTY(ReplicatedUsing = OnRep_RandomSeed)
 	int32 RandomSeed = -1;
-
 	UFUNCTION()
 	void OnRep_RandomSeed();
 	
 	void StartAssassination();
 	void SendEventToTarget();
+	
 	UFUNCTION()
 	void OnInitiatorMontageCompleted();
 	UFUNCTION()
 	void OnInitiatorMontageBlendOut();
 
+	bool InitializeSourceCharacter();
+	bool InitializeTargetCharacter();
+	bool InitializeAssassinationData();
+	bool ValidateActivationDistance();
+	
 	void EnableMovement();
 };

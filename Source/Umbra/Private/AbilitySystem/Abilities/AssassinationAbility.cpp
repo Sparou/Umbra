@@ -16,42 +16,13 @@
 DEFINE_LOG_CATEGORY(UmbraAbilitiesLog)
 
 void UAssassinationAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
-                                            const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+                                            const FGameplayAbilityActorInfo* ActorInfo,
+                                            const FGameplayAbilityActivationInfo ActivationInfo,
                                             const FGameplayEventData* TriggerEventData)
 {
-	Initiator = Cast<AUmbraPlayerCharacter>(GetAvatarActorFromActorInfo());
-	
-	if (!Initiator)
-	{
-		UE_LOG(UmbraAbilitiesLog, Warning, TEXT("[Assasination Ability]: Invalid Initiator!"))
-		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
-		return;
-	}
-
-	UInteractionComponent* InteractionComponent = Initiator->GetComponentByClass<UInteractionComponent>();
-
-	if (!InteractionComponent)
-	{
-		UE_LOG(UmbraAbilitiesLog, Warning, TEXT("[Assasination Ability]: Invalid Interaction Component!"))
-		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
-		return;
-	}
-	
-	Target = InteractionComponent->GetInteractionActor();
-
-	if (!Target)
-	{
-		UE_LOG(UmbraAbilitiesLog, Warning, TEXT("[Assasination Ability]: Invalid Target!"))
-		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
-		return;
-	}
-
-	if (FVector::DistSquared(Initiator->GetActorLocation(), Target->GetActorLocation()) > ActivationDistance * ActivationDistance)
-	{
-		UE_LOG(UmbraAbilitiesLog, Warning, TEXT("[Assasination Ability]: Target is too far!"))
-		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
-		return;
-	}
+	if (!InitializeSourceCharacter()) return;
+	if (!InitializeTargetCharacter()) return;
+	if (!ValidateActivationDistance()) return;
 	
 	if (HasAuthority(&ActivationInfo))
 	{
@@ -61,19 +32,10 @@ void UAssassinationAbility::ActivateAbility(const FGameplayAbilitySpecHandle Han
 	{
 		return;
 	}
-	
-	AssassinationMontages = Initiator->GetStealthKillData()->GetRandomStealthKillMontagesForPositionWithSeed(
-		UGameplayAbilitiesFunctionLibrary::GetActorPositionRelativeToTarget(Initiator, Target, HeightDifferenceThreshold),
-		RandomSeed);
 
-	if (!AssassinationMontages.KillerMontage || !AssassinationMontages.VictimMontage)
-	{
-		UE_LOG(UmbraAbilitiesLog, Warning, TEXT("[Assasination Ability]: Animations not found!"))
-		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
-		return;
-	}
+	if (!InitializeAssassinationData()) return;
 
-	if (AUmbraPlayerController* UmbraPlayerController = Cast<AUmbraPlayerController>(Initiator->GetController()))
+	if (AUmbraPlayerController* UmbraPlayerController = Cast<AUmbraPlayerController>(SourceCharacter->GetController()))
 	{
 		UmbraPlayerController->SwitchToCameraOnlyContext();
 	}
@@ -89,24 +51,15 @@ void UAssassinationAbility::OnRep_RandomSeed()
 	 * Если сервер запустить способность быстрее (как происхоидт в случае с Simulated Proxy)
 	 * то возможно ситуация, когда инициатор и цель способности не будут инициализированы.
 	 */
-	if (!Initiator || !Target)
+	if (!SourceCharacter || !TargetCharacter)
 	{
 		GetWorld()->GetTimerManager().SetTimerForNextTick(this, &UAssassinationAbility::OnRep_RandomSeed);
 		return;
 	}
 	
-	AssassinationMontages = Initiator->GetStealthKillData()->GetRandomStealthKillMontagesForPositionWithSeed(
-		UGameplayAbilitiesFunctionLibrary::GetActorPositionRelativeToTarget(Initiator, Target, HeightDifferenceThreshold),
-		RandomSeed);
-	
-	if (!AssassinationMontages.KillerMontage || !AssassinationMontages.VictimMontage)
-	{
-		UE_LOG(UmbraAbilitiesLog, Warning, TEXT("[Assasination Ability]: Animations not found!"))
-		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
-		return;
-	}
+	if (!InitializeAssassinationData()) return;
 
-	if (AUmbraPlayerController* UmbraPlayerController = Cast<AUmbraPlayerController>(Initiator->GetController()))
+	if (AUmbraPlayerController* UmbraPlayerController = Cast<AUmbraPlayerController>(SourceCharacter->GetController()))
 	{
 		UmbraPlayerController->SwitchToCameraOnlyContext();
 	}
@@ -117,13 +70,13 @@ void UAssassinationAbility::OnRep_RandomSeed()
 
 void UAssassinationAbility::StartAssassination()
 {
-	Initiator->GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	SourceCharacter->GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 
-	if (UMotionWarpingComponent* MotionWarping = Initiator->FindComponentByClass<UMotionWarpingComponent>())
+	if (UMotionWarpingComponent* MotionWarping = SourceCharacter->FindComponentByClass<UMotionWarpingComponent>())
 	{
-		FVector WarpLocation = Target->GetActorLocation() + AssassinationMontages.KillerStarterLocation;
+		FVector WarpLocation = TargetCharacter->GetActorLocation() + AssassinationData.KillerStarterLocation;
 		
-		FVector Direction = Target->GetActorLocation() - WarpLocation;
+		FVector Direction = TargetCharacter->GetActorLocation() - WarpLocation;
 		Direction.Z = 0;
 		Direction.Normalize();
 		
@@ -134,7 +87,7 @@ void UAssassinationAbility::StartAssassination()
 	UAbilityTask_PlayMontageAndWait* InitiatorTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 		this,
 		NAME_None,
-		AssassinationMontages.KillerMontage,
+		AssassinationData.KillerMontage,
 		1.f,
 		NAME_None,
 		false,
@@ -148,17 +101,17 @@ void UAssassinationAbility::StartAssassination()
 
 void UAssassinationAbility::SendEventToTarget()
 {
-	if (UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Target))
+	if (UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetCharacter))
 	{
 		FGameplayTag AbilityTag = FUmbraGameplayTags::Get().Ability_Stealth_Victim;
 
 		FGameplayEventData EventData;
 		EventData.EventTag = AbilityTag;
 		EventData.Instigator = GetAvatarActorFromActorInfo();
-		EventData.Target = Target;
-		EventData.OptionalObject = AssassinationMontages.VictimMontage;
+		EventData.Target = TargetCharacter;
+		EventData.OptionalObject = AssassinationData.VictimMontage;
 		
-		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Target, AbilityTag, EventData);
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(TargetCharacter, AbilityTag, EventData);
 		UE_LOG(LogTemp, Log, TEXT("Event was sent!"));
 	}
 	else
@@ -169,8 +122,6 @@ void UAssassinationAbility::SendEventToTarget()
 	}
 }
 
-
-
 void UAssassinationAbility::OnInitiatorMontageCompleted()
 {
 	EnableMovement();
@@ -179,12 +130,73 @@ void UAssassinationAbility::OnInitiatorMontageCompleted()
 
 void UAssassinationAbility::OnInitiatorMontageBlendOut()
 {
-	Initiator->GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+	SourceCharacter->GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+}
+
+bool UAssassinationAbility::InitializeSourceCharacter()
+{
+	SourceCharacter = Cast<AUmbraPlayerCharacter>(GetAvatarActorFromActorInfo());
+	
+	if (!SourceCharacter)
+	{
+		UE_LOG(UmbraAbilitiesLog, Warning, TEXT("[Assasination Ability]: Invalid Initiator!"))
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+		return false;
+	}
+	return true;
+}
+
+bool UAssassinationAbility::InitializeTargetCharacter()
+{
+	UInteractionComponent* InteractionComponent = SourceCharacter->GetComponentByClass<UInteractionComponent>();
+
+	if (!InteractionComponent)
+	{
+		UE_LOG(UmbraAbilitiesLog, Warning, TEXT("[Assasination Ability]: Invalid Interaction Component!"))
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+		return false;
+	}
+	
+	TargetCharacter = InteractionComponent->GetInteractionActor();
+
+	if (!TargetCharacter)
+	{
+		UE_LOG(UmbraAbilitiesLog, Warning, TEXT("[Assasination Ability]: Invalid Target!"))
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+		return false;
+	}
+	return true;
+}
+
+bool UAssassinationAbility::InitializeAssassinationData()
+{
+	AssassinationData = SourceCharacter->GetAssassinationsData()->GetRandomAssassinationDataForPositionWithSeed(
+		UGameplayAbilitiesFunctionLibrary::GetActorPositionRelativeToTarget(SourceCharacter, TargetCharacter, HeightDifferenceThreshold),
+		RandomSeed);
+	
+	if (!AssassinationData.KillerMontage || !AssassinationData.VictimMontage)
+	{
+		UE_LOG(UmbraAbilitiesLog, Warning, TEXT("[Assasination Ability]: Animations not found!"))
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+		return false;
+	}
+	return true;
+}
+
+bool UAssassinationAbility::ValidateActivationDistance()
+{
+	if (FVector::DistSquared(SourceCharacter->GetActorLocation(), TargetCharacter->GetActorLocation()) > ActivationDistance * ActivationDistance)
+	{
+		UE_LOG(UmbraAbilitiesLog, Warning, TEXT("[Assasination Ability]: Target is too far!"))
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+		return false;
+	}
+	return true;
 }
 
 void UAssassinationAbility::EnableMovement()
 {
-	if (AUmbraPlayerController* UmbraPlayerController = Cast<AUmbraPlayerController>(Initiator->GetController()))
+	if (AUmbraPlayerController* UmbraPlayerController = Cast<AUmbraPlayerController>(SourceCharacter->GetController()))
 	{
 		UmbraPlayerController->SwitchToDefaultContext();
 	}

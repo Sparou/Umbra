@@ -14,9 +14,9 @@ AUmbraPlayerCharacter::AUmbraPlayerCharacter(const FObjectInitializer& ObjInit)
 	TraversalComponent = CreateDefaultSubobject<UTraversalComponent>("Traversal Component");
 }
 
-UStealthKillsData* AUmbraPlayerCharacter::GetStealthKillData()
+UAssassinationsData* AUmbraPlayerCharacter::GetAssassinationsData()
 {
-	return StealthKillData;
+	return AssassinationsData;
 }
 
 void AUmbraPlayerCharacter::BeginPlay()

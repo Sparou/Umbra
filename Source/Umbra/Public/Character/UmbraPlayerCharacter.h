@@ -4,9 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Character/UmbraBaseCharacter.h"
-#include "Data/StealthKillsData.h"
 #include "UmbraPlayerCharacter.generated.h"
 
+class UAssassinationsData;
 class UInteractionComponent;
 class UTraversalComponent;
 
@@ -21,7 +21,7 @@ public:
 	AUmbraPlayerCharacter(const FObjectInitializer& ObjInit);
 	
 	UFUNCTION(BlueprintCallable)
-	UStealthKillsData* GetStealthKillData();
+	UAssassinationsData* GetAssassinationsData();
 
 protected:
 
@@ -34,7 +34,7 @@ protected:
 	TObjectPtr<UTraversalComponent> TraversalComponent;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Data")
-	TObjectPtr<UStealthKillsData> StealthKillData;
+	TObjectPtr<UAssassinationsData> AssassinationsData;
 
 	virtual void InitAbilityActorInfo() override;
 };
