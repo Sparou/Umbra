@@ -1,6 +1,8 @@
 // Copyrighted by Vorona Games
 
 #include "Character/Component/InteractionComponent.h"
+
+#include "UmbraCollisionChannels.h"
 #include "Interaction/InteractionInterface.h"
 #include "Interface/OutlineInterface.h"
 #include "Kismet/GameplayStatics.h"
@@ -64,7 +66,7 @@ void UInteractionComponent::InteractionTrace()
 			InteractionTraceStart,
 			InteractionTraceEnd,
 			FQuat::Identity,
-			ECC_Visibility,
+			ECC_Interaction,
 			Sphere,
 			Params);
 	

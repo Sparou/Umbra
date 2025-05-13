@@ -2,6 +2,8 @@
 
 
 #include "Character/UmbraEnemyCharacter.h"
+
+#include "UmbraCollisionChannels.h"
 #include "AbilitySystem/UmbraEnemyAttributeSet.h"
 #include "AI/UmbraAIController.h"
 #include "BehaviorTree/BehaviorTree.h"
@@ -10,6 +12,7 @@
 AUmbraEnemyCharacter::AUmbraEnemyCharacter()
 {
 	AttributeSet = CreateDefaultSubobject<UUmbraEnemyAttributeSet>("Attribute Set");
+	GetMesh()->SetCollisionResponseToChannel(ECC_Interaction, ECR_Block);
 }
 
 void AUmbraEnemyCharacter::PossessedBy(AController* NewController)

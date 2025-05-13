@@ -151,7 +151,7 @@ void AUmbraBaseCharacter::MulticastHandleDeath_Implementation()
 	//UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation(), GetActorRotation());
 
 	GetCharacterMovement()->DisableMovement();
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::Type::QueryOnly);
 	
 	WeaponMeshComponent->SetSimulatePhysics(true);
 	WeaponMeshComponent->SetEnableGravity(true);
