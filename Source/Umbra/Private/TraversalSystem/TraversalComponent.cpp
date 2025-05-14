@@ -2146,39 +2146,38 @@ FRotator UTraversalComponent::ReverseNormal(const FVector& Normal)
 
 FGameplayTag UTraversalComponent::GetControllerDirection() const
 {
-	if (ForwardValue > 0 && RightValue == 0)
+	UE_LOG(LogTemp, Log, TEXT("FD = [%f] | RD = [%f]"), ForwardValue, RightValue)
+
+	FVector2D InputVector(RightValue, ForwardValue);
+
+	if (InputVector.SizeSquared() < 0.1f * 0.1f)
 	{
+		return UGT.Traversal_Direction_NoDirection;
+	}
+	
+	InputVector.Normalize();
+
+	float Angle = FMath::RadiansToDegrees(FMath::Atan2(InputVector.X, InputVector.Y));
+
+	// Разбиение по 8 направлениям, по 45 градусов
+	if (Angle >= -22.5f && Angle <= 22.5f)
 		return UGT.Traversal_Direction_Forward;
-	}
-	if (ForwardValue > 0 && RightValue > 0)
-	{
+	if (Angle > 22.5f && Angle <= 67.5f)
 		return UGT.Traversal_Direction_ForwardRight;
-	}
-	if (ForwardValue == 0 && RightValue > 0)
-	{
+	if (Angle > 67.5f && Angle <= 112.5f)
 		return UGT.Traversal_Direction_Right;
-	}
-	if (ForwardValue < 0 && RightValue > 0)
-	{
+	if (Angle > 112.5f && Angle <= 157.5f)
 		return UGT.Traversal_Direction_BackwardRight;
-	}
-	if (ForwardValue < 0 && RightValue == 0)
-	{
+	if (Angle > 157.5f || Angle < -157.5f)
 		return UGT.Traversal_Direction_Backward;
-	}
-	if (ForwardValue < 0 && RightValue < 0)
-	{
+	if (Angle > -157.5f && Angle <= -112.5f)
 		return UGT.Traversal_Direction_BackwardLeft;
-	}
-	if (ForwardValue == 0 && RightValue < 0)
-	{
+	if (Angle > -112.5f && Angle <= -67.5f)
 		return UGT.Traversal_Direction_Left;
-	}
-	if (ForwardValue > 0 && RightValue < 0)
-	{
+	if (Angle > -67.5f && Angle <= -22.5f)
 		return UGT.Traversal_Direction_ForwardLeft;
-	}
-	return UGT.Traversal_Direction_Forward;
+
+	return UGT.Traversal_Direction_NoDirection;
 }
 
 float UTraversalComponent::GetCharacterHandHeight() const

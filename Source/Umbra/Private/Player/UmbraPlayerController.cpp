@@ -210,7 +210,7 @@ void AUmbraPlayerController::Look(const FInputActionValue& InputActionValue)
 	const FVector2D LookAxisVector = InputActionValue.Get<FVector2D>();
 	APawn* CurrentPawn = GetPawn();
 	CurrentPawn->AddControllerYawInput(LookAxisVector.X);
-	CurrentPawn->AddControllerPitchInput(-LookAxisVector.Y);
+	CurrentPawn->AddControllerPitchInput(LookAxisVector.Y);
 }
 
 void AUmbraPlayerController::OnStartMoving()
