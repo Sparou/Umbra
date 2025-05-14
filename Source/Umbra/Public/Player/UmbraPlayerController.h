@@ -41,8 +41,10 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	bool bWantsToCrouch;
-	
+
+	UFUNCTION(BlueprintCallable)
 	void SwitchToDefaultContext();
+	UFUNCTION(BlueprintCallable)
 	void SwitchToCameraOnlyContext();
 	
 protected:

@@ -41,9 +41,12 @@ public:
 	/** IOutline Interface **/
 	virtual void EnableOutline_Implementation(int32 StencilValue) override;
 	virtual void DisableOutline_Implementation() override;
-
+	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	UTagManager* GetTagManager();
+
+	UFUNCTION(BlueprintCallable)
+	void StartDissolve();
 	
 protected:
   
@@ -54,7 +57,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TObjectPtr<UMotionWarpingComponent> MotionWarpingComponent;
 	
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Weapon")
 	TObjectPtr<UStaticMeshComponent> WeaponMeshComponent;
 
@@ -102,6 +104,20 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
 	float CrouchRunSpeed = 300.f;
 
+	/* Dissolve Effects */
+
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UMaterialInstance> DissolveMaterial;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void StartDissolveTimeline(UMaterialInstanceDynamic* DynamicMaterial);
+
+	UFUNCTION()
+	void Dissolve();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastDissolve();
+	
 private:
 
 	bool bIsDead = false;

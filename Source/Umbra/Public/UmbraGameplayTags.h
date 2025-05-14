@@ -53,6 +53,7 @@ public:
 
 	FGameplayTag State_Locomotion_Walking;
 	FGameplayTag State_Locomotion_Running;
+	FGameplayTag State_Locomotion_Carrying; 
 	FGameplayTag State_Movement_Moving;
 	FGameplayTag State_Movement_Falling;
 	FGameplayTag State_Stance_Crouching;

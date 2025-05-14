@@ -120,6 +120,14 @@ UTagManager* AUmbraBaseCharacter::GetTagManager()
 	return TagManager;
 }
 
+void AUmbraBaseCharacter::StartDissolve()
+{
+	if (HasAuthority())
+	{
+		MulticastDissolve();
+	}
+}
+
 void AUmbraBaseCharacter::ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, const float Level) const
 {
 	check(IsValid(AbilitySystemComponent));
@@ -146,12 +154,29 @@ void AUmbraBaseCharacter::InitAbilityActorInfo()
 	}
 }
 
+void AUmbraBaseCharacter::Dissolve()
+{
+	if (IsValid(DissolveMaterial))
+	{
+		UMaterialInstanceDynamic* DM = UMaterialInstanceDynamic::Create(DissolveMaterial, this);
+		GetMesh()->SetMaterial(0, DM);
+		GetMesh()->SetMaterial(1, DM);
+		StartDissolveTimeline(DM);
+	}
+}
+
+void AUmbraBaseCharacter::MulticastDissolve_Implementation()
+{
+	Dissolve();
+}
+
 void AUmbraBaseCharacter::MulticastHandleDeath_Implementation()
 {
 	//UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation(), GetActorRotation());
 
 	GetCharacterMovement()->DisableMovement();
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::Type::QueryOnly);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
 	
 	WeaponMeshComponent->SetSimulatePhysics(true);
 	WeaponMeshComponent->SetEnableGravity(true);

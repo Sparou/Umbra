@@ -35,6 +35,7 @@ void FUmbraGameplayTags::InitializeNativeGameplayTags()
 
 	GameplayTags.State_Locomotion_Walking = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.Locomotion.Walking"));
 	GameplayTags.State_Locomotion_Running = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.Locomotion.Running"));
+	GameplayTags.State_Locomotion_Carrying = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.Locomotion.Carrying"));
 	GameplayTags.State_Movement_Moving = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.Movement.Moving"));
 	GameplayTags.State_Movement_Falling = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.Movement.Falling"));
 	GameplayTags.State_Stance_Standing = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.Stance.Standing"));
