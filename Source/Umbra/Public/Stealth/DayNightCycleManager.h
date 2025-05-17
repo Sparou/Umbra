@@ -2,12 +2,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Components/LightComponent.h" 
+#include "Components/LightComponent.h"
 #include "DayNightCycleManager.generated.h"
 
 class ADirectionalLight;
 class ASkyLight;
 class UCandleFlickerComponent;
+class UMaterialSwitcherComponent;
 
 USTRUCT()
 struct FManagedLight
@@ -48,15 +49,23 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight")
 	AActor* SkySphereActor;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight")
+	ADirectionalLight* MoonLight;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight|Lights")
-	float NightThreshold = 0.1f;
+	float NightThreshold = 0.15f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight|Lights")
 	float FadeSpeed = 1.5f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight|Lights")
+	TArray<AActor*> NightActiveActors;
+	
+
 private:
 	float CurrentTime = 0.f;
+	bool bIsNight = false;
 
 	UPROPERTY()
 	TArray<FManagedLight> ToggleableLights;
@@ -64,7 +73,12 @@ private:
 	UPROPERTY()
 	TArray<UCandleFlickerComponent*> CandleFlickers;
 
+	UPROPERTY()
+	TArray<UMaterialSwitcherComponent*> MaterialSwitchers;
+
 	void UpdateLighting(float NormalizedTime);
 	void CollectAllNightLights();
-	void UpdateNightLights(float SunIntensity, float DeltaTime);
+	void UpdateNightLights(float SunFactor, float DeltaTime);
+	void UpdateNightActors(bool bEnable);
+	void UpdateMaterialSwitchers(bool bNight);
 };

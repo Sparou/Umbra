@@ -1,27 +1,18 @@
-// -------------------- Includes --------------------
 #include "Stealth/LightingDetection.h"
-#include "Engine/World.h"
 #include "EngineUtils.h"
-#include "Engine/PointLight.h"
-#include "Engine/SpotLight.h"
-#include "Engine/SkyLight.h"
-#include "Engine/DirectionalLight.h"
+#include "Engine/Light.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Components/PointLightComponent.h"
 #include "Components/SpotLightComponent.h"
+#include "Components/LightComponent.h"
 #include "Components/SkyLightComponent.h"
 #include "Components/DirectionalLightComponent.h"
-#include "Components/SkeletalMeshComponent.h"
-#include "DrawDebugHelpers.h"
 #include "Stealth/CandleFlickerComponent.h"
+#include "DrawDebugHelpers.h"
 
-// -------------------- Constructor --------------------
 ULightingDetection::ULightingDetection()
 {
     PrimaryComponentTick.bCanEverTick = true;
-    LightPercentage = 0.f;
-    DetectionRadius = 800.f;
-    MaxLightValue = 1.f;
-    TraceSampleCount = 25;
 
     LightTypeWeights.Add(ELightType::Point, 1.f);
     LightTypeWeights.Add(ELightType::Spot, 1.f);
@@ -29,11 +20,13 @@ ULightingDetection::ULightingDetection()
     LightTypeWeights.Add(ELightType::Directional, 1.f);
 }
 
-// -------------------- Lifecycle --------------------
 void ULightingDetection::OnRegister()
 {
     Super::OnRegister();
-    GatherLightSources();
+    if (bAutoGatherLights)
+    {
+        GatherLightSources();
+    }
 }
 
 void ULightingDetection::BeginPlay()
@@ -46,106 +39,119 @@ void ULightingDetection::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-    AActor* Owner = GetOwner();
-    if (!Owner) return;
-    FVector OwnerLoc = Owner->GetActorLocation();
+    if (!OwnerMesh) return;
 
+    const FVector OwnerLoc = OwnerMesh->GetComponentLocation();
     float TotalLight = 0.f;
+
     for (ULightComponent* Comp : LightSources)
     {
-        if (!Comp) continue;
-        if (auto P = Cast<UPointLightComponent>(Comp))
-            ProcessLocalLight(P, OwnerLoc, TotalLight);
-        else if (auto S = Cast<USpotLightComponent>(Comp))
-            ProcessLocalLight(S, OwnerLoc, TotalLight);
-        else if (auto Sky = Cast<USkyLightComponent>(Comp))
+        if (!Comp || !Comp->IsVisible()) continue;
+
+        if (auto* Sky = Cast<USkyLightComponent>(Comp))
             ProcessSkyLight(Sky, TotalLight);
-        else if (auto Dir = Cast<UDirectionalLightComponent>(Comp))
+        else if (auto* Dir = Cast<UDirectionalLightComponent>(Comp))
             ProcessDirectionalLight(Dir, TotalLight);
+        else
+            ProcessLocalLight(Comp, OwnerLoc, TotalLight);
     }
 
     LightPercentage = FMath::Clamp(TotalLight / MaxLightValue, 0.f, 1.f) * 100.f;
-    if (GEngine)
-    {
-        GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Yellow,
-            FString::Printf(TEXT("Light Level: %.1f%%"), LightPercentage));
-    }
 }
 
-// -------------------- Light Gathering --------------------
 void ULightingDetection::GatherLightSources()
 {
     LightSources.Empty();
     UWorld* World = GetWorld();
+    if (!World) return;
 
-    for (TActorIterator<APointLight> It(World); It; ++It)
+    for (TActorIterator<ALight> It(World); It; ++It)
     {
-        if (auto Comp = It->FindComponentByClass<UPointLightComponent>())
-            LightSources.Add(Cast<ULightComponent>(Comp));
-    }
-    for (TActorIterator<ASpotLight> It(World); It; ++It)
-    {
-        if (auto Comp = It->FindComponentByClass<USpotLightComponent>())
-            LightSources.Add(Cast<ULightComponent>(Comp));
-    }
-    for (TActorIterator<ASkyLight> It(World); It; ++It)
-    {
-        if (auto Comp = It->FindComponentByClass<USkyLightComponent>())
-            LightSources.Add(Cast<ULightComponent>(Comp));
-    }
-    for (TActorIterator<ADirectionalLight> It(World); It; ++It)
-    {
-        if (auto Comp = It->FindComponentByClass<UDirectionalLightComponent>())
-            LightSources.Add(Cast<ULightComponent>(Comp));
+        if (ULightComponent* Comp = It->FindComponentByClass<ULightComponent>())
+        {
+            LightSources.Add(Comp);
+        }
     }
 
-    // === Добавим свет от актёров с компонентом CandleFlickerComponent ===
     for (TActorIterator<AActor> It(World); It; ++It)
     {
         AActor* Actor = *It;
         if (Actor->FindComponentByClass<UCandleFlickerComponent>())
         {
-            if (auto Point = Actor->FindComponentByClass<UPointLightComponent>())
+            if (ULightComponent* Light = Actor->FindComponentByClass<ULightComponent>())
             {
-                LightSources.Add(Cast<ULightComponent>(Point));
-            }
-            else if (auto Spot = Actor->FindComponentByClass<USpotLightComponent>())
-            {
-                LightSources.Add(Cast<ULightComponent>(Spot));
+                LightSources.AddUnique(Light);
             }
         }
     }
 }
 
-// -------------------- Processing Light --------------------
+TArray<FVector> ULightingDetection::GetTracePoints() const
+{
+    TArray<FVector> Points;
+
+    if (!OwnerMesh) return Points;
+
+    if (bTraceOnlyHead && OwnerMesh->DoesSocketExist("head"))
+    {
+        Points.Add(OwnerMesh->GetSocketLocation("head"));
+    }
+    else
+    {
+        TArray<FName> Sockets = OwnerMesh->GetAllSocketNames();
+        int32 Count = FMath::Clamp(TraceSampleCount, 1, Sockets.Num());
+
+        for (int32 i = 0; i < Count; ++i)
+        {
+            Points.Add(OwnerMesh->GetSocketLocation(Sockets[i]));
+        }
+    }
+
+    return Points;
+}
+
 void ULightingDetection::ProcessLocalLight(ULightComponent* LightComp, const FVector& OwnerLoc, float& OutTotal)
 {
-    ELightType Type = LightComp->IsA<USpotLightComponent>() ? ELightType::Spot : ELightType::Point;
+    float AttenuationRadius = 0.f;
+    ELightType Type;
+
+    if (auto* Point = Cast<UPointLightComponent>(LightComp))
+    {
+        AttenuationRadius = Point->AttenuationRadius;
+        Type = ELightType::Point;
+    }
+    else if (auto* Spot = Cast<USpotLightComponent>(LightComp))
+    {
+        AttenuationRadius = Spot->AttenuationRadius;
+        Type = ELightType::Spot;
+    }
+    else
+    {
+        return;
+    }
+
     float Weight = LightTypeWeights.Contains(Type) ? LightTypeWeights[Type] : 1.f;
     if (Weight <= 0.f) return;
 
-    FVector LightPos = LightComp->GetComponentLocation();
-    float Dist = FVector::Dist(OwnerLoc, LightPos);
+    const FVector LightPos = LightComp->GetComponentLocation();
+    float Distance = FVector::Dist(OwnerLoc, LightPos);
 
-    float Radius = DetectionRadius;
-    if (auto P = Cast<UPointLightComponent>(LightComp)) Radius = P->AttenuationRadius;
-    else if (auto S = Cast<USpotLightComponent>(LightComp)) Radius = S->AttenuationRadius;
-    if (Dist > Radius || !OwnerMesh) return;
+    if (Distance > AttenuationRadius) return;
 
-    auto Bones = OwnerMesh->GetAllSocketNames();
-    int32 Samples = FMath::Clamp(TraceSampleCount, 1, Bones.Num());
+    const auto TracePoints = GetTracePoints();
     float Sum = 0.f;
-    for (int32 i = 0; i < Samples; ++i)
+
+    for (const FVector& Target : TracePoints)
     {
-        FVector Target = OwnerMesh->GetSocketLocation(Bones[i]);
         if (!IsOccluded(LightPos, Target))
         {
             float Norm = FMath::Clamp(LightComp->Intensity / MaxLightValue, 0.f, 1.f);
-            float Att = 1.f - (Dist / Radius);
+            float Att = 1.f - (Distance / AttenuationRadius);
             Sum += Norm * Att * Weight;
         }
     }
-    OutTotal += Sum / Samples;
+
+    OutTotal += Sum / TracePoints.Num();
 }
 
 void ULightingDetection::ProcessSkyLight(USkyLightComponent* SkyComp, float& OutTotal)
@@ -160,41 +166,35 @@ void ULightingDetection::ProcessSkyLight(USkyLightComponent* SkyComp, float& Out
 void ULightingDetection::ProcessDirectionalLight(UDirectionalLightComponent* DirComp, float& OutTotal)
 {
     float Weight = LightTypeWeights.Contains(ELightType::Directional) ? LightTypeWeights[ELightType::Directional] : 1.f;
-    if (Weight <= 0.f || !OwnerMesh) return;
+    if (Weight <= 0.f) return;
 
-    auto Bones = OwnerMesh->GetAllSocketNames();
-    int32 Samples = FMath::Clamp(TraceSampleCount, 1, Bones.Num());
+    const FVector Direction = -DirComp->GetComponentRotation().Vector();
+    const auto TracePoints = GetTracePoints();
     float Sum = 0.f;
 
-    FVector Direction = -DirComp->GetComponentRotation().Vector();
-    for (int32 i = 0; i < Samples; ++i)
+    for (const FVector& Target : TracePoints)
     {
-        FVector Target = OwnerMesh->GetSocketLocation(Bones[i]);
         if (!IsDirectionalLightOccluded(Direction, Target))
         {
             float Norm = FMath::Clamp(DirComp->Intensity / MaxLightValue, 0.f, 1.f);
             Sum += Norm * Weight;
         }
     }
-    OutTotal += Sum / Samples;
+
+    OutTotal += Sum / TracePoints.Num();
 }
 
-// -------------------- Occlusion Checks --------------------
-bool ULightingDetection::IsOccluded(const FVector& LightPos, const FVector& TargetPos) const
+bool ULightingDetection::IsOccluded(const FVector& From, const FVector& To) const
 {
     FHitResult Hit;
     FCollisionQueryParams Params(SCENE_QUERY_STAT(LightTrace), true, GetOwner());
-    if (GetWorld()->LineTraceSingleByChannel(Hit, LightPos, TargetPos, ECC_Visibility, Params))
-        return Hit.GetActor() != GetOwner();
-    return false;
+    return GetWorld()->LineTraceSingleByChannel(Hit, From, To, ECC_Visibility, Params) && Hit.GetActor() != GetOwner();
 }
 
 bool ULightingDetection::IsDirectionalLightOccluded(const FVector& Direction, const FVector& TargetPos) const
 {
-    FVector TraceStart = TargetPos + Direction * 10000.f;
+    FVector Start = TargetPos + Direction * 10000.f;
     FHitResult Hit;
-    FCollisionQueryParams Params(SCENE_QUERY_STAT(DirectionalLightTrace), true, GetOwner());
-    if (GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TargetPos, ECC_Visibility, Params))
-        return Hit.GetActor() != GetOwner();
-    return false;
+    FCollisionQueryParams Params(SCENE_QUERY_STAT(DirectionalTrace), true, GetOwner());
+    return GetWorld()->LineTraceSingleByChannel(Hit, Start, TargetPos, ECC_Visibility, Params) && Hit.GetActor() != GetOwner();
 }

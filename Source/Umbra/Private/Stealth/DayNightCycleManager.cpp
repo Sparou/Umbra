@@ -7,6 +7,7 @@
 #include "Components/SkyLightComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Stealth/CandleFlickerComponent.h"
+#include "Stealth/UMaterialSwitcherComponent.h"
 
 ADayNightCycleManager::ADayNightCycleManager()
 {
@@ -28,8 +29,17 @@ void ADayNightCycleManager::Tick(float DeltaTime)
 	UpdateLighting(NormalizedTime);
 
 	float SunAngle = NormalizedTime * 360.f - 90.f;
-	float SunIntensity = FMath::Clamp(FMath::Sin(FMath::DegreesToRadians(SunAngle)), 0.f, 1.f);
-	UpdateNightLights(SunIntensity, DeltaTime);
+	float SunFactor = FMath::Clamp(FMath::Sin(FMath::DegreesToRadians(SunAngle)), 0.f, 1.f);
+
+	UpdateNightLights(SunFactor, DeltaTime);
+
+	bool bNowNight = SunFactor < NightThreshold;
+	if (bNowNight != bIsNight)
+	{
+		bIsNight = bNowNight;
+		UpdateNightActors(bIsNight);
+		UpdateMaterialSwitchers(bIsNight);
+	}
 }
 
 void ADayNightCycleManager::UpdateLighting(float NormalizedTime)
@@ -37,24 +47,64 @@ void ADayNightCycleManager::UpdateLighting(float NormalizedTime)
 	if (!SunLight || !SkyLight || !SkySphereActor) return;
 
 	float PitchAngle = NormalizedTime * 360.f - 90.f;
-	FRotator NewRotation = FRotator(-PitchAngle, 0.f, 0.f);
-	SunLight->GetLightComponent()->SetWorldRotation(NewRotation);
+	FRotator NewSunRotation = FRotator(-PitchAngle, 0.f, 0.f);
+	SunLight->GetLightComponent()->SetWorldRotation(NewSunRotation);
 
-	float SunIntensity = FMath::Clamp(FMath::Sin(FMath::DegreesToRadians(PitchAngle)), 0.f, 1.f);
-	SunLight->GetLightComponent()->SetIntensity(SunIntensity * 10.0f);
+	float SunFactor = FMath::Clamp(FMath::Sin(FMath::DegreesToRadians(PitchAngle)), 0.f, 1.f);
 
+	// Солнце
+	float MinSunIntensity = 0.0f;
+	float MaxSunIntensity = 10.0f;
+	float FinalSunIntensity = FMath::Lerp(MinSunIntensity, MaxSunIntensity, SunFactor);
+	SunLight->GetLightComponent()->SetIntensity(FinalSunIntensity);
+
+	// Цвета солнца
+	FLinearColor NightColor(0.1f, 0.15f, 0.3f);
+	FLinearColor DawnColor(1.0f, 0.4f, 0.2f);
+	FLinearColor DayColor(1.0f, 1.0f, 0.9f);
+
+	FLinearColor FinalColor;
+	if (SunFactor < 0.3f)
+	{
+		FinalColor = FLinearColor::LerpUsingHSV(NightColor, DawnColor, SunFactor / 0.3f);
+	}
+	else
+	{
+		FinalColor = FLinearColor::LerpUsingHSV(DawnColor, DayColor, (SunFactor - 0.3f) / 0.7f);
+	}
+
+	SunLight->GetLightComponent()->SetLightColor(FinalColor);
+
+	// Луна (если задана)
+	if (MoonLight)
+	{
+		// Противоположный угол
+		FRotator MoonRotation = FRotator(-(PitchAngle + 180.f), 0.f, 0.f);
+		MoonLight->GetLightComponent()->SetWorldRotation(MoonRotation);
+
+		float MoonIntensity = FMath::Lerp(0.25f, 0.0f, SunFactor); // Яркая при ночи, исчезает при дне
+		MoonLight->GetLightComponent()->SetIntensity(MoonIntensity);
+
+		FLinearColor MoonColor = FLinearColor(0.4f, 0.5f, 1.0f); // Холодный голубой цвет луны
+		MoonLight->GetLightComponent()->SetLightColor(MoonColor);
+	}
+
+	// SkyLight
 	if (USkyLightComponent* SkyComp = SkyLight->GetLightComponent())
 	{
-		SkyComp->SetIntensity(SunIntensity * 3.0f);
+		SkyComp->SetIntensity(FMath::Lerp(0.5f, 3.0f, SunFactor));
+		SkyComp->SetLightColor(FinalColor);
 		SkyComp->MarkRenderStateDirty();
 	}
 
+	// SkySphere
 	UFunction* UpdateFunc = SkySphereActor->FindFunction(FName("UpdateSunDirection"));
 	if (UpdateFunc)
 	{
 		SkySphereActor->ProcessEvent(UpdateFunc, nullptr);
 	}
 }
+
 
 void ADayNightCycleManager::CollectAllNightLights()
 {
@@ -77,12 +127,16 @@ void ADayNightCycleManager::CollectAllNightLights()
 		TArray<UCandleFlickerComponent*> FlickerComponents;
 		Actor->GetComponents(FlickerComponents);
 		CandleFlickers.Append(FlickerComponents);
+
+		TArray<UMaterialSwitcherComponent*> MaterialComps;
+		Actor->GetComponents(MaterialComps);
+		MaterialSwitchers.Append(MaterialComps);
 	}
 }
 
-void ADayNightCycleManager::UpdateNightLights(float SunIntensity, float DeltaTime)
+void ADayNightCycleManager::UpdateNightLights(float SunFactor, float DeltaTime)
 {
-	const float TargetFactor = (SunIntensity < NightThreshold) ? 1.f : 0.f;
+	const float TargetFactor = (SunFactor < NightThreshold) ? 3.f : 0.f;
 
 	for (FManagedLight& Managed : ToggleableLights)
 	{
@@ -97,8 +151,26 @@ void ADayNightCycleManager::UpdateNightLights(float SunIntensity, float DeltaTim
 	for (UCandleFlickerComponent* Flicker : CandleFlickers)
 	{
 		if (!Flicker) continue;
+		Flicker->SetComponentTickEnabled(TargetFactor >= 0.5f);
+	}
+}
 
-		bool bShouldTick = (TargetFactor >= 0.5f);
-		Flicker->SetComponentTickEnabled(bShouldTick);
+void ADayNightCycleManager::UpdateNightActors(bool bEnable)
+{
+	for (AActor* Actor : NightActiveActors)
+	{
+		if (!Actor) continue;
+		Actor->SetActorHiddenInGame(!bEnable);
+		Actor->SetActorEnableCollision(bEnable);
+		Actor->SetActorTickEnabled(bEnable);
+	}
+}
+
+void ADayNightCycleManager::UpdateMaterialSwitchers(bool bNight)
+{
+	for (UMaterialSwitcherComponent* Switcher : MaterialSwitchers)
+	{
+		if (!Switcher) continue;
+		Switcher->SetIsNight(bNight);
 	}
 }

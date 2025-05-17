@@ -4,9 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Components/DirectionalLightComponent.h"
-#include "Components/SkeletalMeshComponent.h"
 #include "LightingDetection.generated.h"
+
+class USkyLightComponent;
+class UDirectionalLightComponent;
+class USkeletalMeshComponent;
+class ULightComponent;
 
 UENUM(BlueprintType)
 enum class ELightType : uint8
@@ -25,29 +28,34 @@ class UMBRA_API ULightingDetection : public UActorComponent
 public:
     ULightingDetection();
 
-    /** Текущий уровень освещённости в процентах (0–100%) */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Lighting")
     float LightPercentage;
 
-    /** Радиус, в пределах которого ищем локальные источники света */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lighting")
-    float DetectionRadius;
+    float DetectionRadius = 800.f;
 
-    /** Максимальное значение света для нормализации */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lighting")
-    float MaxLightValue;
+    float MaxLightValue = 1.f;
 
-    /** Количество костей/точек, по которым трассируется свет */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lighting")
-    int32 TraceSampleCount;
+    int32 TraceSampleCount = 10;
 
-    /** Веса влияния каждого типа источника света */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lighting")
     TMap<ELightType, float> LightTypeWeights;
 
-    /** Возвращает текущий уровень освещённости в процентах (0–100) */
+    /** Использовать только Socket 'head' вместо всех костей */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lighting")
+    bool bTraceOnlyHead = true;
+
+    /** Автоматически собирать источники при старте */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lighting")
+    bool bAutoGatherLights = true;
+
     UFUNCTION(BlueprintCallable, Category = "Lighting")
     float GetLightPercentage() const { return LightPercentage; }
+
+    UFUNCTION(BlueprintCallable, Category = "Lighting")
+    void GatherLightSources();
 
 protected:
     virtual void OnRegister() override;
@@ -55,27 +63,14 @@ protected:
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
-    /** Список активных световых компонентов на сцене */
     TArray<ULightComponent*> LightSources;
+    USkeletalMeshComponent* OwnerMesh = nullptr;
 
-    /** Скелетный меш владельца (для трассировки по костям) */
-    USkeletalMeshComponent* OwnerMesh;
-
-    /** Сканирование сцены на предмет источников света */
-    void GatherLightSources();
-
-    /** Обработка PointLight и SpotLight */
-    void ProcessLocalLight(ULightComponent* LightComp, const FVector& OwnerLocation, float& OutTotal);
-
-    /** Обработка SkyLight */
+    void ProcessLocalLight(ULightComponent* LightComp, const FVector& OwnerLoc, float& OutTotal);
     void ProcessSkyLight(USkyLightComponent* SkyComp, float& OutTotal);
-
-    /** Обработка DirectionalLight с учётом теней */
     void ProcessDirectionalLight(UDirectionalLightComponent* DirComp, float& OutTotal);
 
-    /** Проверка: перекрыт ли луч от источника до цели */
-    bool IsOccluded(const FVector& LightPos, const FVector& TargetPos) const;
-
-    /** Проверка: перекрыт ли луч от неба до объекта при DirectionalLight */
+    bool IsOccluded(const FVector& From, const FVector& To) const;
     bool IsDirectionalLightOccluded(const FVector& Direction, const FVector& TargetPos) const;
+    TArray<FVector> GetTracePoints() const;
 };
