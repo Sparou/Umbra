@@ -17,7 +17,7 @@ ULightingDetection::ULightingDetection()
     LightTypeWeights.Add(ELightType::Point, 1.f);
     LightTypeWeights.Add(ELightType::Spot, 1.f);
     LightTypeWeights.Add(ELightType::Sky, 1.f);
-    LightTypeWeights.Add(ELightType::Directional, 1.f);
+    LightTypeWeights.Add(ELightType::Directional, 0.3f);
 }
 
 void ULightingDetection::OnRegister()
