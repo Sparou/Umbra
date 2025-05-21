@@ -9,7 +9,6 @@
 void UBTService_UpdateCurrentEnemyData::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory,
                                                  float DeltaSeconds)
 {
-	//TODO: After losing player distanceToTarget should be changed on neutral value
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 
 	UBlackboardComponent* BlackboardComponent = OwnerComp.GetBlackboardComponent();

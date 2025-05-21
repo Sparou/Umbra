@@ -4,6 +4,7 @@
 #include "AI/UmbraAIController.h"
 #include "AbilitySystem/UmbraEnemyAttributeSet.h"
 #include "AI/UmbraAIPerceptionComponent.h"
+#include "AI/Data/DA_EnemyChoicePriority.h"
 #include "AI/Data/FEmotionReactionRow.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
@@ -77,11 +78,79 @@ bool AUmbraAIController::ReactToEvent(const FName EventName)
 	return true;
 }
 
+bool AUmbraAIController::ChooseEnemy()
+{
+	UBlackboardComponent* BlackboardComponent = GetBlackboardComponent();
+	if(!BlackboardComponent) return false;
+
+	float BestPriority = 0;
+	const TTuple<AActor*, FEnemyData>* BestEnemy = nullptr;
+	const AActor* CurEnemy = Cast<AActor>(BlackboardComponent->GetValueAsObject(CurrentEnemy));
+
+	const auto& [ThreatWeight,
+				DistanceWeight,
+				TimeSinceSeenWeight,
+				IsCurrentTargetBonus] = PriorityWeightsData->PriorityWeights;
+	const auto& [MaxThreatLevel,
+				MaxDistance,
+				MaxTimeNotSeen] = PriorityWeightsData->PriorityMaxValues;
+	
+	//Calculating Priority function
+	for(const TTuple<AActor*, FEnemyData>& EnemyData : KnownEnemies)
+	{
+		const float Distance = GetPawn()->GetDistanceTo(EnemyData.Key);
+		const float LastSeenTimeInterval = GetWorld()->GetTimeSeconds() - EnemyData.Value.LastSeenTime;
+		const bool IsCurrentEnemy = CurEnemy == EnemyData.Key;
+
+		const float NormalizedThreat = FMath::Clamp(EnemyData.Value.ThreatLevel / MaxThreatLevel, 0.f, 1.f);
+		const float NormalizedDistance = 1.f - FMath::Clamp(Distance / MaxDistance, 0.f, 1.f);
+		const float NormalizedLastSeenTimeInterval = 1.f - FMath::Clamp(LastSeenTimeInterval / MaxTimeNotSeen, 0.f, 1.f);
+		const float CurrentEnemyBonus = IsCurrentEnemy ? 1.f : 0.f;
+
+		//TODO: test weights
+		const float Priority = ThreatWeight * NormalizedThreat +
+								DistanceWeight * NormalizedDistance +
+								TimeSinceSeenWeight * NormalizedLastSeenTimeInterval +
+								IsCurrentTargetBonus * CurrentEnemyBonus;
+
+		if(Priority > BestPriority)
+		{
+			BestPriority = Priority;
+			BestEnemy = &EnemyData;
+		}
+	}
+
+	if(BestEnemy == nullptr)
+	{
+		return false;
+	}
+	
+	//if see enemy
+	if(BestEnemy->Value.IsVisible || BestEnemy->Value.LastSeenTime < ForgettingTime)
+	{
+		if(Cast<AActor>(BlackboardComponent->GetValueAsObject(CurrentEnemy)) != BestEnemy->Key)
+		{
+			BlackboardComponent->SetValueAsObject(CurrentEnemy, BestEnemy->Key);
+			this->SetFocus(Cast<AActor>(BestEnemy->Key));
+		}
+	}
+	else
+	{
+		BlackboardComponent->ClearValue(CurrentEnemy);
+		this->ClearFocus(EAIFocusPriority::Gameplay);
+		BlackboardComponent->SetValueAsObject(LostEnemy, BestEnemy->Key);
+		BlackboardComponent->SetValueAsVector(EnemyLocation, BestEnemy->Value.LastKnownLocation);
+	}
+
+	return true;
+}
+
 void AUmbraAIController::OnPercepted(AActor* SourceActor, const FAIStimulus Stimulus)
 {
-	FString Message = "Stimuled by" + Stimulus.Type.Name.ToString() + "strength = " + FString::SanitizeFloat(Stimulus.Strength);
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, Message);
-
+	//FString Message = "Stimuled by" + Stimulus.Type.Name.ToString() + "strength = " + FString::SanitizeFloat(Stimulus.Strength);
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, Message);
+	if(!SourceActor) return;
+	
 	if(Stimulus.Type == UAISense::GetSenseID(UAISense_Sight::StaticClass()))
 	{
 		if(Stimulus.WasSuccessfullySensed())
@@ -89,41 +158,55 @@ void AUmbraAIController::OnPercepted(AActor* SourceActor, const FAIStimulus Stim
 			if(AUmbraPlayerCharacter* PlayerActor = Cast<AUmbraPlayerCharacter>(SourceActor))
 			{
 				//TODO: check if bot sees player after ending invisibility when stimulus was already received 
-				//if(!PlayerActor->GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(InvisibleTag)))
-				//{
+				if(true/*!PlayerActor->GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(InvisibleTag))*/)
+				{
 					if(!Blackboard->GetValueAsBool(EverSeenEnemy))
 					{
 						Blackboard->SetValueAsBool(EverSeenEnemy, true);
 					}
-					const FEnemyData EnemyData(SourceActor, Stimulus.StimulusLocation);
-					if(!KnownEnemies.Contains(EnemyData))
-					{
-						KnownEnemies.Add(EnemyData);
-						ReactToEvent(SeeEnemy);
-						
-					}
 
+					const bool IsNewEnemy = !KnownEnemies.Contains(SourceActor);
+					const FEnemyData EnemyData(Stimulus.StimulusLocation,
+						GetWorld()->GetTimeSeconds(),
+						true,
+						IsNewEnemy ? 0 : KnownEnemies[SourceActor].ThreatLevel);
+					if(IsNewEnemy)
+					{
+						KnownEnemies.Add(SourceActor, EnemyData);
+						ReactToEvent(SeeEnemy);
+					}
+					else
+					{
+						KnownEnemies[SourceActor] = EnemyData;
+					}
 					
-				
-					// if(SourceActor != Cast<AUmbraPlayerCharacter>(Blackboard->GetValueAsObject(CurrentEnemy)))
-					// {
-					// 	Blackboard->SetValueAsObject(CurrentEnemy, SourceActor);
-					// 	ReactToEvent(SeeEnemy);
-					// }
-					// Blackboard->SetValueAsVector(EnemyLocation, Stimulus.StimulusLocation);
-				//}
+					/* assignment in case ChooseEnemy service haven't yet worked out */
+					if(!Blackboard->GetValueAsObject(CurrentEnemy))
+					{
+						ChooseEnemy();
+					}
+				}
 			}
 			if(AUmbraEnemyCharacter* EnemyActor = Cast<AUmbraEnemyCharacter>(SourceActor))
 			{
-				ReactToEvent(SeeAlly);
+				if(EnemyActor->IsDead())
+				{
+					//TODO:
+					//ReactToEvent(SeeCorpse);
+					//Blackboard->SetValueAsBool(bSeeCorpse)
+					//Blackboard->SetValueAsVector(CorpseLocation)
+				}
+				else
+				{
+					ReactToEvent(SeeAlly);
+				}
 			}
-			//TODO: add reaction on a corpse 
 		}
 		else
 		{
-			Blackboard->SetValueAsObject(LostEnemy, Blackboard->GetValueAsObject(CurrentEnemy));
-			Blackboard->SetValueAsObject(CurrentEnemy, nullptr);
-			Blackboard->SetValueAsVector(EnemyLocation, Stimulus.StimulusLocation);
+			KnownEnemies[SourceActor].IsVisible = false;
+			KnownEnemies[SourceActor].LastKnownLocation = Stimulus.StimulusLocation;
+			KnownEnemies[SourceActor].LastSeenTime = GetWorld()->GetTimeSeconds();
 		}
 	}
 
@@ -132,8 +215,10 @@ void AUmbraAIController::OnPercepted(AActor* SourceActor, const FAIStimulus Stim
 		if(Stimulus.WasSuccessfullySensed())
 		{
 			Blackboard->SetValueAsVector(SoundLocation, Stimulus.StimulusLocation);
+			DrawDebugSphere(GetWorld(), Stimulus.StimulusLocation, 5.f, 6, FColor::Red, false, 1.f, 0, 1.f);
+
 			//TODO: call event only if it's emitting not by known enemy
-			if(!Blackboard->GetValueAsObject(CurrentEnemy))
+			if(!KnownEnemies.Contains(SourceActor))
 			{
 				ReactToEvent(HearNoise);
 			}

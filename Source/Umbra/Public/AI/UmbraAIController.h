@@ -6,6 +6,7 @@
 #include "AIController.h"
 #include "UmbraAIController.generated.h"
 
+class UDA_EnemyChoicePriority;
 class UUmbraEnemyAttributeSet;
 struct FAIStimulus;
 class UUmbraAIPerceptionComponent;
@@ -19,9 +20,6 @@ struct UMBRA_API FEnemyData
 	GENERATED_BODY()
 
 	UPROPERTY()
-	TObjectPtr<AActor> TargetActor = nullptr;
-
-	UPROPERTY()
 	bool IsVisible;
 
 	UPROPERTY()
@@ -30,25 +28,26 @@ struct UMBRA_API FEnemyData
 	UPROPERTY()
 	FVector LastKnownLocation;
 
-	FEnemyData() : IsVisible(true), LastSeenTime(0.f) {}
+	//TODO: increment threatLevel in Damage handler
+	/// <summary>
+	///	Threat level is calculated as the number of successful punches from the enemy
+	/// </summary>
+	UPROPERTY()
+	float ThreatLevel;
 
-	FEnemyData(AActor* Actor, const FVector& ActorLocation, const bool Visible = true, const float LastSeen = 0.f)
-		: TargetActor(Actor),
-		  IsVisible(Visible),
+	FEnemyData() : IsVisible(true), LastSeenTime(0.f), ThreatLevel(0)
+	{
+	}
+
+	FEnemyData(const FVector& ActorLocation, const float LastSeen, const bool Visible = true, const float ThreatLevel = 0)
+		: IsVisible(Visible),
 		  LastSeenTime(LastSeen),
-		  LastKnownLocation(ActorLocation)
-	{}
+		  LastKnownLocation(ActorLocation),
+		  ThreatLevel(ThreatLevel)
+	{
+	}
 };
 
-FORCEINLINE bool operator==(const FEnemyData& FirstEnemyData, const FEnemyData& SecondEnemyData)
-{
-	return FirstEnemyData.TargetActor == SecondEnemyData.TargetActor;
-}
-
-FORCEINLINE uint32 GetTypeHash(const FEnemyData& EnemyData)
-{
-	return GetTypeHash(EnemyData.TargetActor);
-}
 
 UCLASS()
 class UMBRA_API AUmbraAIController : public AAIController
@@ -57,9 +56,14 @@ class UMBRA_API AUmbraAIController : public AAIController
 
 public:
 	AUmbraAIController();
+
+	UPROPERTY()
+	TMap<AActor*, FEnemyData> KnownEnemies;
+	
 	bool InitializeBlackboardDefaultValues(const UUmbraEnemyAttributeSet* AttributeSet) const;
 
 	bool ReactToEvent(const FName EventName);
+	bool ChooseEnemy();
 
 protected:
 	UPROPERTY()
@@ -73,6 +77,12 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Emotion")
 	TObjectPtr<UCurveTable> EmotionModifierTable;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI target selection")
+	UDA_EnemyChoicePriority* PriorityWeightsData;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AI", meta = (ToolTip = "the time it takes for the AI to forget the enemy's location"))
+	float ForgettingTime = 5.f; 
 
 #pragma region Blackboard value names
 	UPROPERTY(EditDefaultsOnly, Category = "Blackboard|Patrolling")
@@ -120,12 +130,12 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Event")
 	FName HearNoise = "HearNoise";
+
+	UPROPERTY(EditDefaultsOnly, Category = "Event")
+	FName SeeCorpse = "SeeCorpse";
 #pragma endregion
 	
 private:
-	UPROPERTY()
-	TSet<FEnemyData> KnownEnemies;
-	
 	UFUNCTION()
 	void OnPercepted(AActor* SourceActor, const FAIStimulus Stimulus);
 };
