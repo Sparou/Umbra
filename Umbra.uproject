@@ -9,19 +9,15 @@
 			"Type": "Runtime",
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
-				"Engine",
 				"AIModule",
-				"GameplayAbilities"
+				"Engine"
 			]
 		}
 	],
 	"Plugins": [
 		{
 			"Name": "ModelingToolsEditorMode",
-			"Enabled": true,
-			"TargetAllowList": [
-				"Editor"
-			]
+			"Enabled": true
 		},
 		{
 			"Name": "GameplayAbilities",
@@ -50,6 +46,10 @@
 		{
 			"Name": "PoseSearch",
 			"Enabled": true
+		},
+		{
+			"Name": "VisualStudioCodeSourceCodeAccess",
+			"Enabled": false
 		}
 	]
 }

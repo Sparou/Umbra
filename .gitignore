@@ -72,3 +72,44 @@ Plugins/*/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
+
+# VS plugins files
+Plugins/VisualStudioTools
+Plugins/VisualStudioTools/azure-pipelines/compliance.yml
+Plugins/VisualStudioTools/azure-pipelines/release.yml
+Plugins/VisualStudioTools/azure-pipelines/Support-extra-UBT-args-in-UAT.BuildPlugin.patch
+Plugins/VisualStudioTools/azure-pipelines/TSAOptions.json
+Plugins/VisualStudioTools/build.proj
+Plugins/VisualStudioTools/CODE_OF_CONDUCT.md
+Plugins/VisualStudioTools/Config/FilterPlugin.ini
+Plugins/VisualStudioTools/CONTRIBUTING.md
+Plugins/VisualStudioTools/Docs/images/bp_rescan.png
+Plugins/VisualStudioTools/Docs/images/codelens.png
+Plugins/VisualStudioTools/Docs/images/ide_support_ue.png
+Plugins/VisualStudioTools/Docs/Marketplace_Readme.md
+Plugins/VisualStudioTools/Docs/Troubleshooting.md
+Plugins/VisualStudioTools/Docs/Visual Studio Integration Tool Documentation.pdf
+Plugins/VisualStudioTools/LICENSE
+Plugins/VisualStudioTools/README.md
+Plugins/VisualStudioTools/Scripts/Package-Plugin.ps1
+Plugins/VisualStudioTools/Scripts/packages.config
+Plugins/VisualStudioTools/Scripts/SignDetached.proj
+Plugins/VisualStudioTools/SECURITY.md
+Plugins/VisualStudioTools/Source/.editorconfig
+Plugins/VisualStudioTools/Source/VisualStudioTools/Private/BlueprintAssetHelper.cpp
+Plugins/VisualStudioTools/Source/VisualStudioTools/Private/BlueprintAssetHelpers.h
+Plugins/VisualStudioTools/Source/VisualStudioTools/Private/BlueprintReferencesCommandlet.cpp
+Plugins/VisualStudioTools/Source/VisualStudioTools/Private/BlueprintReferencesCommandlet.h
+Plugins/VisualStudioTools/Source/VisualStudioTools/Private/VisualStudioTools.cpp
+Plugins/VisualStudioTools/Source/VisualStudioTools/Private/VisualStudioToolsCommandlet.cpp
+Plugins/VisualStudioTools/Source/VisualStudioTools/Private/VisualStudioToolsCommandlet.h
+Plugins/VisualStudioTools/Source/VisualStudioTools/Private/VisualStudioToolsCommandletBase.cpp
+Plugins/VisualStudioTools/Source/VisualStudioTools/Private/VisualStudioToolsCommandletBase.h
+Plugins/VisualStudioTools/Source/VisualStudioTools/Private/VSServerCommandlet.cpp
+Plugins/VisualStudioTools/Source/VisualStudioTools/Private/VSServerCommandlet.h
+Plugins/VisualStudioTools/Source/VisualStudioTools/Private/VSTestAdapterCommandlet.cpp
+Plugins/VisualStudioTools/Source/VisualStudioTools/Private/VSTestAdapterCommandlet.h
+Plugins/VisualStudioTools/Source/VisualStudioTools/Public/VisualStudioTools.h
+Plugins/VisualStudioTools/Source/VisualStudioTools/VisualStudioTools.Build.cs
+Plugins/VisualStudioTools/SUPPORT.md
+Plugins/VisualStudioTools/VisualStudioTools.uplugin

@@ -58,6 +58,12 @@ public:
 	FGameplayTag State_Movement_Falling;
 	FGameplayTag State_Stance_Crouching;
 	FGameplayTag State_Stance_Standing;
+
+	/** AI Event Tags */
+	FGameplayTag AI_Event_HearNoise;
+	FGameplayTag AI_Event_SeeAlly;
+	FGameplayTag AI_Event_SeeEnemy;
+	FGameplayTag AI_Event_TakeDamage;
 	
 	/** Traversal Tags */
 	FGameplayTag Traversal_State_FreeRoam;
