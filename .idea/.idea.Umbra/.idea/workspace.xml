@@ -14,11 +14,11 @@
   <component name="ChangeListManager">
     <list default="true" id="b4809d47-763b-40b0-974e-4d753917bbb1" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Umbra/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Umbra/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Config/DefaultEngine.ini" beforeDir="false" afterPath="$PROJECT_DIR$/Config/DefaultEngine.ini" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/Wall1_SM_Bld_Base_Large_DoorWay_01_1_005.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/Wall1_SM_Bld_Base_Large_DoorWay_01_1_005.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/Wall4_SM_Bld_Base_Large_DoorWay_01_1_002.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/Wall4_SM_Bld_Base_Large_DoorWay_01_1_002.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/Castle1_SM_Bld_Platform_Stairs_01_5.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/Castle1_SM_Bld_Platform_Stairs_01_5.uasset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Content/GameDesign/MainLocation.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/MainLocation.umap" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/PolygonFantasyKingdom/Maps/Demonstration.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/PolygonFantasyKingdom/Maps/Demonstration.umap" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_Cloud_01.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_Cloud_01.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_Cloud_02.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_Cloud_02.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_Cloud_03.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/PolygonSamurai/Meshes/Environment/SM_Env_Cloud_03.uasset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/Umbra/Private/Stealth/DayNightCycleManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Umbra/Private/Stealth/DayNightCycleManager.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/Umbra/Private/Stealth/LightingDetection.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Umbra/Private/Stealth/LightingDetection.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/Umbra/Public/Stealth/DayNightCycleManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Umbra/Public/Stealth/DayNightCycleManager.h" afterDir="false" />
@@ -65,20 +65,20 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;C/C++ Project.Umbra.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;Lighting-System-and-Assets&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "C/C++ Project.Umbra.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "Lighting-System-and-Assets",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected="C/C++ Project.Umbra">
     <configuration name="UE5" type="CppProject" factoryName="C++ Project">
       <option name="DEFAULT_PROJECT_PATH" value="$PROJECT_DIR$/Intermediate/ProjectFiles/UE5.vcxproj" />
@@ -217,6 +217,7 @@
       <workItem from="1747652224047" duration="957000" />
       <workItem from="1747670867516" duration="5703000" />
       <workItem from="1747725492214" duration="8189000" />
+      <workItem from="1748024082752" duration="8928000" />
     </task>
     <servers />
   </component>

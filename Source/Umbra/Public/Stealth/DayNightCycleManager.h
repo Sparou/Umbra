@@ -2,11 +2,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Components/LightComponent.h"      
 #include "DayNightCycleManager.generated.h"
 
 class ADirectionalLight;
 class ASkyLight;
-class ULightComponent;
 class UCandleFlickerComponent;
 class UMaterialSwitcherComponent;
 
@@ -16,93 +16,100 @@ struct FManagedLight
 	GENERATED_BODY()
 
 	UPROPERTY()
-	ULightComponent* Light;
+	ULightComponent* Light = nullptr;
 
-	UPROPERTY()
-	float BaseIntensity;
+	float BaseIntensity = 0.f;
 
-	FManagedLight() : Light(nullptr), BaseIntensity(1.f) {}
+	FManagedLight() {}
 	FManagedLight(ULightComponent* InLight)
-		: Light(InLight), BaseIntensity(InLight ? InLight->Intensity : 1.f) {}
+		: Light(InLight), BaseIntensity(InLight->Intensity) {}
 };
 
 UCLASS()
-class STEALTH_API ADayNightCycleManager : public AActor
+class UMBRA_API ADayNightCycleManager : public AActor
 {
 	GENERATED_BODY()
-	
+
 public:
 	ADayNightCycleManager();
 
 protected:
 	virtual void BeginPlay() override;
-
-public:
 	virtual void Tick(float DeltaTime) override;
 
-	// Длительность суток в секундах (например, 120 = 2 минуты)
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight")
-	float DayLengthInSeconds = 240.f;
+	// Core update methods
+	void UpdateLighting(float NormalizedTime);
+	void UpdateNightLights(float SunFactor, float DeltaTime);
+	void UpdateNightActors(bool bEnable);
+	void UpdateMaterialSwitchers(bool bNight);
+	void CollectAllNightLights();
 
-	// Время начала суток при старте игры (в секундах)
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight")
+public:
+	// Day length in seconds
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight|Time", meta = (ClampMin = "1.0"))
+	float DayLengthInSeconds = 600.f;
+
+	// Start time offset in seconds
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight|Time", meta = (ClampMin = "0.0"))
 	float StartTimeOfDay = 0.f;
 
-	// Порог для активации ночного режима (0..1)
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight")
-	float NightThreshold = 0.2f;
+	// Sun and Moon directional lights
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight|Lights")
+	ADirectionalLight* SunLight = nullptr;
 
-	// Максимальная интенсивность света солнца
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight|Sun")
-	float SunMaxIntensity = 10.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight|Lights")
+	ADirectionalLight* MoonLight = nullptr;
 
-	// Максимальная интенсивность света луны
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight|Moon")
-	float MoonMaxIntensity = 1.f;
+	// Global skylight
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight|Lights")
+	ASkyLight* SkyLight = nullptr;
 
-	// Интенсивность SkyLight ночью
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight|Ambient")
-	float IndoorAmbientIntensity = 0.2f;
+	// Optional BP_Sky_Sphere actor
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight|Sky")
+	AActor* SkySphereActor = nullptr;
 
-	// Цвет SkyLight ночью
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight|Ambient")
-	FLinearColor IndoorAmbientColor = FLinearColor(0.015f, 0.02f, 0.04f);
+	// Threshold to consider "night"
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight|Lights")
+	float NightThreshold = 0.15f;
 
-	// Цвет неба днём
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight|Colors")
-	FLinearColor DayColor = FLinearColor(1.f, 0.95f, 0.85f);
+	// Speed for fading local lights
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight|Lights")
+	float FadeSpeed = 1.5f;
 
-	// Цвет неба ночью
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight|Colors")
-	FLinearColor NightColor = FLinearColor(0.015f, 0.02f, 0.04f);
-
-	// Скорость перехода интенсивности света (для ламп и свечей)
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight|Fade")
-	float FadeSpeed = 2.f;
-
-	// Ссылка на Directional Light, используемый как солнце
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "References")
-	ADirectionalLight* SunLight;
-
-	// Ссылка на Directional Light, используемый как луна
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "References")
-	ADirectionalLight* MoonLight;
-
-	// Ссылка на SkyLight
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "References")
-	ASkyLight* SkyLight;
-
-	// Актор SkySphere (если используется)
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "References")
-	AActor* SkySphereActor;
-
-	// Акторы, активирующиеся только ночью
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Night")
+	// Actors to enable at night (e.g. lamps)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight|Lights")
 	TArray<AActor*> NightActiveActors;
+
+	// Sky colors
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight|Colors")
+	FLinearColor NightColor = FLinearColor(0.02f, 0.05f, 0.2f);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight|Colors")
+	FLinearColor DawnColor = FLinearColor(1.0f, 0.55f, 0.25f);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight|Colors")
+	FLinearColor DayColor = FLinearColor(1.0f, 1.0f, 0.9f);
+
+	// Intensities
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight|Intensity")
+	float SunMaxIntensity = 10.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight|Intensity")
+	float MoonMaxIntensity = 0.2f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight|Intensity")
+	float SkyLightMaxIntensity = 3.0f;
+
+	// Indoor ambient when sun below horizon
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight|Intensity")
+	FLinearColor IndoorAmbientColor = FLinearColor(0.1f, 0.1f, 0.15f);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DayNight|Intensity")
+	float IndoorAmbientIntensity = 0.5f;
 
 private:
 	float CurrentTime = 0.f;
-	bool bIsNight = false;
+	bool  bIsNight    = false;
 
 	UPROPERTY()
 	TArray<FManagedLight> ToggleableLights;
@@ -112,10 +119,4 @@ private:
 
 	UPROPERTY()
 	TArray<UMaterialSwitcherComponent*> MaterialSwitchers;
-
-	void CollectAllNightLights();
-	void UpdateLighting(float NormalizedTime);
-	void UpdateNightLights(float SunFactor, float DeltaTime);
-	void UpdateNightActors(bool bEnable);
-	void UpdateMaterialSwitchers(bool bNight);
 };
