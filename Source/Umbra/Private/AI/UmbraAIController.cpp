@@ -204,9 +204,12 @@ void AUmbraAIController::OnPercepted(AActor* SourceActor, const FAIStimulus Stim
 		}
 		else
 		{
-			KnownEnemies[SourceActor].IsVisible = false;
-			KnownEnemies[SourceActor].LastKnownLocation = Stimulus.StimulusLocation;
-			KnownEnemies[SourceActor].LastSeenTime = GetWorld()->GetTimeSeconds();
+			if(AUmbraPlayerCharacter* PlayerActor = Cast<AUmbraPlayerCharacter>(SourceActor))
+			{
+				KnownEnemies[SourceActor].IsVisible = false;
+				KnownEnemies[SourceActor].LastKnownLocation = Stimulus.StimulusLocation;
+				KnownEnemies[SourceActor].LastSeenTime = GetWorld()->GetTimeSeconds();
+			}
 		}
 	}
 
