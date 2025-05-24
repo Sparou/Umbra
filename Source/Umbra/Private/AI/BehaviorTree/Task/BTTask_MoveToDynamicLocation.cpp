@@ -22,7 +22,7 @@ EBTNodeResult::Type UBTTask_MoveToDynamicLocation::ExecuteTask(UBehaviorTreeComp
 	//TODO: May be invalid?
 	PreviousTargetLocation = BlackboardComponent->GetValueAsVector(TargetLocationKey.SelectedKeyName);
 	bIsMoving = true;
-	AIController->MoveToLocation(PreviousTargetLocation, AcceptanceRadius);
+	AIController->MoveToLocation(PreviousTargetLocation, AcceptanceRadius, true, true, true);
 	
 	return EBTNodeResult::InProgress;
 }
@@ -53,7 +53,8 @@ void UBTTask_MoveToDynamicLocation::TickTask(UBehaviorTreeComponent& OwnerComp, 
 	if(ShouldUpdatePath(CurrentTargetLocation) || PreviousDistance <= AcceptanceRadius)
 	{
 		PreviousTargetLocation = CurrentTargetLocation;
-		const EPathFollowingRequestResult::Type Result = AIController->MoveToLocation(CurrentTargetLocation, AcceptanceRadius);
+		const EPathFollowingRequestResult::Type Result = AIController->MoveToLocation(CurrentTargetLocation, AcceptanceRadius, true, true, true);
+
 		//Check if there's no way
 		if(Result == EPathFollowingRequestResult::Failed)
 		{
