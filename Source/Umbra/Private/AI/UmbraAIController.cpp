@@ -189,7 +189,7 @@ void AUmbraAIController::OnPercepted(AActor* SourceActor, const FAIStimulus Stim
 			}
 			if(AUmbraEnemyCharacter* EnemyActor = Cast<AUmbraEnemyCharacter>(SourceActor))
 			{
-				if(EnemyActor->IsDead())
+				if(ICombatInterface::Execute_IsDead(EnemyActor))
 				{
 					//TODO:
 					//ReactToEvent(SeeCorpse);
