@@ -92,4 +92,10 @@ void FUmbraGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Traversal_Direction_BackwardRight = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Direction.BackwardRight"));
 	GameplayTags.Traversal_ClimbStyle_BracedClimb = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.ClimbStyle.BracedClimb"));
 	GameplayTags.Traversal_ClimbStyle_FreeHang = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.ClimbStyle.FreeHang"));
+
+	/** AI Event Tags */
+	GameplayTags.AI_Event_HearNoise = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("AI.Event.HearNoise"));
+	GameplayTags.AI_Event_SeeAlly = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("AI.Event.SeeAlly"));
+	GameplayTags.AI_Event_SeeEnemy = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("AI.Event.SeeEnemy"));
+	GameplayTags.AI_Event_TakeDamage = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("AI.Event.TakeDamage"));
 }

@@ -31,6 +31,8 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Movement")
 	float GetMoveSpeed(const FGameplayTag& Stance, const FGameplayTag& Locomotion);
 
+	TObjectPtr<UAbilitySystemComponent> GetAbilitySystemComponent() { return AbilitySystemComponent; }
+
 	/** ICombatInterface implementation */
 	virtual FWeaponSocketLocations GetWeaponSocketLocations_Implementation() const override;
 	virtual UAnimMontage* GetRandomHitReactMontage_Implementation() override;
