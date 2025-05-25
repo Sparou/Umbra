@@ -28,7 +28,7 @@ void AUmbraBaseCharacter::OnRep_InvisibilityChanged()
 		OriginalWeaponMaterials = GetMesh()->GetMaterial(2);
 	}
 	
-	if (IsLocallyControlled())
+	if (IsLocallyControlled() || IsShadow)
 	{
 		if (bIsInvisible)
 		{

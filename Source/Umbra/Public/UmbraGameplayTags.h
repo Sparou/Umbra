@@ -42,7 +42,10 @@ public:
 	FGameplayTag Ability_Stealth_Victim;
 	FGameplayTag Ability_Through;
 	FGameplayTag Ability_Invisibility;
-	
+	FGameplayTag Ability_DomeSound;
+	FGameplayTag Ability_TrapBlock;
+	FGameplayTag Ability_TrapTeleport;
+	FGameplayTag Ability_TrapKill;
 	
 private:
 	static FUmbraGameplayTags GameplayTags;

@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "UmbraPlayerController.generated.h"
 
+class AUmbraShadowController;
 class UUmbraAbilitySystemComponent;
 class UUmbraInputConfig;
 struct FInputActionValue;
@@ -17,6 +18,7 @@ class AUmbraBaseCharacter;
 class AUmbraPlayerCharacter;
 class UInputMappingContext;
 class UInputAction;
+class AUmbraLineShadowController;
 
 /**
  * 
@@ -44,25 +46,30 @@ public:
 	
 	void SwitchToDefaultContext();
 	void SwitchToCameraOnlyContext();
+	void SwitchToArrowContext();
 	
 protected:
 
-	virtual void BeginPlay() override;
-	virtual void SetupInputComponent() override;
-
-private:
+	void BeginPlay();
+	void SetupInputComponent();
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<UInputMappingContext> InputContext;
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<UInputMappingContext> CameraOnlyInputContext;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<UInputMappingContext> ArrowContext;
 	
 	UPROPERTY(EditAnywhere, Category = "Input|Basic")
 	TObjectPtr<UInputAction> InteractAction;
 
 	UPROPERTY(EditAnywhere, Category = "Input|Basic")
 	TObjectPtr<UInputAction> MoveAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input|Basic")
+	TObjectPtr<UInputAction> ArrowAction;
 
 	UPROPERTY(EditAnywhere, Category = "Input|Basic")
 	TObjectPtr<UInputAction> LookAction;
@@ -98,9 +105,11 @@ private:
 	
 	void SwitchCharacter(FGameplayTag CharacterTag);
 	void Interact();
+
+	void DirectArrow(const FInputActionValue& InputActionValue);
 	
 	void Move(const FInputActionValue& InputActionValue);
-	void Look(const FInputActionValue& InputActionValue);
+	virtual void Look(const FInputActionValue& InputActionValue);
 	
 	void OnStartWalking();
 	void OnStopWalking();

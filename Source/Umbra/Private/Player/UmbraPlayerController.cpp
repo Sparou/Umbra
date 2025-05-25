@@ -7,13 +7,14 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "AbilitySystem/UmbraAbilitySystemComponent.h"
-#include "Character/UmbraEnemyCharacter.h"
 #include "Character/UmbraPlayerCharacter.h"
 #include "Character/Component/InteractionComponent.h"
 #include "Character/Data/PlayerCharacterInfo.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 #include "Input/UmbraInputComponent.h"
 #include "Kismet/GameplayStatics.h"
+
 
 void AUmbraPlayerController::SwitchToDefaultContext()
 {
@@ -35,6 +36,17 @@ void AUmbraPlayerController::SwitchToCameraOnlyContext()
 	}
 }
 
+void AUmbraPlayerController::SwitchToArrowContext()
+{
+	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
+	if (Subsystem)
+	{
+		Subsystem->ClearAllMappings();
+		Subsystem->AddMappingContext(ArrowContext, 0);
+	}
+}
+
+
 void AUmbraPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
@@ -46,7 +58,7 @@ void AUmbraPlayerController::BeginPlay()
 void AUmbraPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
-
+	
 	UUmbraInputComponent* UmbraInputComponent = CastChecked<UUmbraInputComponent>(InputComponent);
 	
 	UmbraInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AUmbraPlayerController::Interact);
@@ -60,6 +72,9 @@ void AUmbraPlayerController::SetupInputComponent()
 	UmbraInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::OnStopCrouch);
 	UmbraInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &AUmbraPlayerController::OnStartThrough);
 	UmbraInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::OnStopThrough);
+
+	// For arrow movement
+	UmbraInputComponent->BindAction(ArrowAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::DirectArrow);
 	
 	UmbraInputComponent->BindAbilityActions(InputConfig, this, &AUmbraPlayerController::AbilityInputTagPressed,
 	                                        &AUmbraPlayerController::AbilityInputTagReleased, &AUmbraPlayerController::AbilityInputTagHeld);
@@ -111,6 +126,55 @@ void AUmbraPlayerController::Interact()
 	UE_LOG(LogTemp, Warning, TEXT("Target: %s"), *Target->GetName());
 }
 
+void AUmbraPlayerController::DirectArrow(const FInputActionValue& InputActionValue)
+{
+	const FVector2D InputAxisVector = InputActionValue.Get<FVector2D>();
+
+	if (APawn* ControlledPawn = GetPawn<APawn>())
+	{
+		if (UProjectileMovementComponent* MoveComp = ControlledPawn->FindComponentByClass<UProjectileMovementComponent>())
+		{
+			const FVector CurrentForward = MoveComp->Velocity.GetSafeNormal();
+			if (CurrentForward.IsZero())
+			{
+				return;
+			}
+
+			const FVector WorldUp = FVector::UpVector;
+			const FVector RightVector = FVector::CrossProduct(WorldUp, CurrentForward).GetSafeNormal();
+			const FVector UpVector = FVector::CrossProduct(CurrentForward, RightVector).GetSafeNormal();
+			
+
+			FVector DesiredDirection = CurrentForward 
+							+ RightVector * InputAxisVector.X 
+							+ InputAxisVector.Y;
+
+
+			DesiredDirection = DesiredDirection.GetSafeNormal();
+
+			const float RotationSpeed = 0.5f;
+        
+			if (!DesiredDirection.IsZero())
+			{
+				FQuat CurrentQuat = ControlledPawn->GetActorQuat();
+
+				// Поворот по локальной оси Y (Pitch)
+				FQuat PitchQuat = FQuat(ControlledPawn->GetActorRightVector(), FMath::DegreesToRadians(InputAxisVector.Y * RotationSpeed));
+
+				// Поворот по локальной оси Z (Yaw)
+				FQuat YawQuat = FQuat(FVector::UpVector, FMath::DegreesToRadians(InputAxisVector.X * RotationSpeed));
+
+				FQuat NewQuat = YawQuat * PitchQuat * CurrentQuat;
+				ControlledPawn->SetActorRotation(NewQuat);
+
+				// Получаем новое направление движения после поворота
+				FVector NewForward = ControlledPawn->GetActorForwardVector();
+				MoveComp->Velocity = NewForward * MoveComp->InitialSpeed; // или другая желаемая скорость
+			}
+		}
+	}
+}
+
 void AUmbraPlayerController::Move(const FInputActionValue& InputActionValue)
 {
 	const FVector2D InputAxisVector = InputActionValue.Get<FVector2D>();
@@ -118,8 +182,9 @@ void AUmbraPlayerController::Move(const FInputActionValue& InputActionValue)
 
 	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-
-	if (APawn* ControlledPawn = GetPawn<APawn>()) {
+	
+	if (APawn* ControlledPawn = GetPawn<APawn>())
+	{
 		ControlledPawn->AddMovementInput(ForwardDirection, InputAxisVector.Y);
 		ControlledPawn->AddMovementInput(RightDirection, InputAxisVector.X);
 	}
@@ -128,9 +193,11 @@ void AUmbraPlayerController::Move(const FInputActionValue& InputActionValue)
 void AUmbraPlayerController::Look(const FInputActionValue& InputActionValue)
 {
 	const FVector2D LookAxisVector = InputActionValue.Get<FVector2D>();
-	APawn* CurrentPawn = GetPawn();
-	CurrentPawn->AddControllerYawInput(LookAxisVector.X);
-	CurrentPawn->AddControllerPitchInput(-LookAxisVector.Y);
+	if (APawn* CurrentPawn = GetPawn())
+	{
+		CurrentPawn->AddControllerYawInput(LookAxisVector.X);
+		CurrentPawn->AddControllerPitchInput(-LookAxisVector.Y);
+	}
 }
 
 void AUmbraPlayerController::OnStartWalking()
@@ -195,17 +262,21 @@ void AUmbraPlayerController::OnStopThrough()
 
 void AUmbraPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 {
-	//GEngine->AddOnScreenDebugMessage(1, 2.f, FColor::Green, InputTag.ToString());
+	GEngine->AddOnScreenDebugMessage(1, 2.f, FColor::Green, InputTag.ToString());
 }
 
 void AUmbraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 {
+	GEngine->AddOnScreenDebugMessage(1, 2.f, FColor::Green, InputTag.ToString());
+	
 	if (GetAbilitySystemComponent() == nullptr) return;
 	GetAbilitySystemComponent()->AbilityInputTagReleased(InputTag);
 }
 
 void AUmbraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 {
+	GEngine->AddOnScreenDebugMessage(1, 2.f, FColor::Green, InputTag.ToString());
+	
 	if (GetAbilitySystemComponent() == nullptr) return;
 	GetAbilitySystemComponent()->AbilityInputTagHeld(InputTag);
 }

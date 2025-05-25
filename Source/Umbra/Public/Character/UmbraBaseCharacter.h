@@ -36,6 +36,9 @@ public:
 
 
 	/* For invisibility */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Invisibility")
+	bool IsShadow = false;
+	
 	UPROPERTY(ReplicatedUsing = OnRep_InvisibilityChanged)
 	bool bIsInvisible;
 

@@ -67,8 +67,6 @@ void UUmbraTelepHitGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHa
 			false
 		);
 	}
-	
-	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 }
 
 void UUmbraTelepHitGameplayAbility::TeleportBackAndEnd(FGameplayAbilitySpecHandle Handle,

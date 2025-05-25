@@ -8,8 +8,11 @@ void UUmbraCooldownGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle 
 											   const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 											   bool bReplicateEndAbility, bool bWasCancelled)
 {
-	// Если уже запущен таймер, не запускаем повторно
-	if (!GetWorld()->GetTimerManager().IsTimerActive(CooldownTimerHandle))
+	if (bWasCancelled)
+	{
+		Super::EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+	}
+	else if (!GetWorld()->GetTimerManager().IsTimerActive(CooldownTimerHandle))
 	{
 		// Запускаем таймер, по окончании которого вызовется FinishAbility
 		GetWorld()->GetTimerManager().SetTimer(
