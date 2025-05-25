@@ -7,7 +7,8 @@
 #include "GameFramework/PlayerController.h"
 #include "UmbraPlayerController.generated.h"
 
-class AUmbraShadowController;
+class UInteractionComponent;
+class UTraversalComponent;
 class UUmbraAbilitySystemComponent;
 class UUmbraInputConfig;
 struct FInputActionValue;
@@ -18,7 +19,7 @@ class AUmbraBaseCharacter;
 class AUmbraPlayerCharacter;
 class UInputMappingContext;
 class UInputAction;
-class AUmbraLineShadowController;
+class UTagManager;
 
 /**
  * 
@@ -44,14 +45,21 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	bool bWantsToThough;
 	
+
+	UFUNCTION(BlueprintCallable)
 	void SwitchToDefaultContext();
+	
+	UFUNCTION(BlueprintCallable)
 	void SwitchToCameraOnlyContext();
+	
 	void SwitchToArrowContext();
 	
 protected:
 
-	void BeginPlay();
-	void SetupInputComponent();
+	virtual void BeginPlay() override;
+	virtual void SetupInputComponent() override;
+
+private:
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<UInputMappingContext> InputContext;
@@ -82,6 +90,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Input|Basic")
 	TObjectPtr<UInputAction> CrouchAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input|Basic")
+	TObjectPtr<UInputAction> DropAction;
 	
 	UPROPERTY(EditAnywhere, Category = "Input|Characters")
 	TObjectPtr<UInputAction> SwitchToAssassinAction;
@@ -99,17 +110,41 @@ protected:
 	TObjectPtr<UPlayerCharacterInfo> PlayerCharactersInfo;
 
 	UPROPERTY()
+	TObjectPtr<AUmbraBaseCharacter> ControlledCharacter;
+	UPROPERTY()
 	TObjectPtr<UUmbraAbilitySystemComponent> AbilitySystemComponent;
+	UPROPERTY()
+	TObjectPtr<UTraversalComponent> TraversalComponent;
+	UPROPERTY()
+	TObjectPtr<UAnimInstance> AnimInstance;
+	UPROPERTY()
+	TObjectPtr<UTagManager> TagManager;
+	UPROPERTY()
+	TObjectPtr<UInteractionComponent> InteractionComponent;
 
 	UUmbraAbilitySystemComponent* GetAbilitySystemComponent();
+	UTraversalComponent* GetTraversalComponent();
+	UAnimInstance* GetAnimInstance();
+	UTagManager* GetTagManager();
+	AUmbraBaseCharacter* GetControlledCharacter();
+	UInteractionComponent* GetInteractionComponent();
 	
 	void SwitchCharacter(FGameplayTag CharacterTag);
 	void Interact();
 
 	void DirectArrow(const FInputActionValue& InputActionValue);
+
+	
+	void OnInteract();
+	void Interact(AActor* InteractionTarget);
+	UFUNCTION(Server, Reliable)
+	void ServerInteract(AActor* InteractionTarget);
 	
 	void Move(const FInputActionValue& InputActionValue);
-	virtual void Look(const FInputActionValue& InputActionValue);
+	void Look(const FInputActionValue& InputActionValue);
+
+	void OnStartMoving();
+	void OnStopMoving();
 	
 	void OnStartWalking();
 	void OnStopWalking();
@@ -120,10 +155,16 @@ protected:
 	void OnStartCrouch();
 	void OnStopCrouch();
 
+	void OnStartDrop();
+
 	void OnStartThrough();
 	void OnStopThrough();
 	
 	void AbilityInputTagPressed(FGameplayTag InputTag);
 	void AbilityInputTagReleased(FGameplayTag InputTag);
 	void AbilityInputTagHeld(FGameplayTag InputTag);
+
+	void SetWalking(bool bWalking);
+	UFUNCTION(Server, Reliable)
+	void ServerSetWalking(bool bWalking);
 };

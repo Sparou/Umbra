@@ -3,12 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UmbraCoreTypes.h"
 #include "Character/UmbraBaseCharacter.h"
+#include "Stealth/LightingDetection.h"
+#include "Blueprint/UserWidget.h"
 #include "UmbraPlayerCharacter.generated.h"
 
-class USpringArmComponent;
+class UAssassinationsData;
 class UInteractionComponent;
+class UTraversalComponent;
+
 /**
  * 
  */
@@ -18,37 +21,30 @@ class UMBRA_API AUmbraPlayerCharacter : public AUmbraBaseCharacter
 	GENERATED_BODY()
 public:
 	AUmbraPlayerCharacter(const FObjectInitializer& ObjInit);
-
+	
 	UFUNCTION(BlueprintCallable)
-	AActor* GetOverlappedActorFromInteractionComponent() const;
-
-	UFUNCTION(BlueprintCallable)
-	FStealthKillMontages GetRandomStealthKillMontages(TArray<FStealthKillMontages> KillMontages) const;
-
-	UFUNCTION(BlueprintCallable)
-	FStealthKillMontages GetStealthKillMontageForPosition(EStealthKillPosition KillPosition);
+	UAssassinationsData* GetAssassinationsData();
 
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components");
+
+	void BeginPlay() override;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UInteractionComponent> InteractionComponent;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stealth|Animations")
-	TArray<FStealthKillMontages> StealthKillMontagesFromBehind;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stealth|Animations")
-	TArray<FStealthKillMontages> StealthKillMontagesFromFront;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stealth|Animations")
-	TArray<FStealthKillMontages> StealthKillMontagesFromTop;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stealth|Animations")
-	TArray<FStealthKillMontages> StealthKillMontagesFromLedge;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stealth|Animations")
-	TArray<FStealthKillMontages> StealthKillMontagesFromLeft;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stealth|Animations")
-	TArray<FStealthKillMontages> StealthKillMontagesFromRight;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TObjectPtr<UTraversalComponent> TraversalComponent;
 	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Data")
+	TObjectPtr<UAssassinationsData> AssassinationsData;
+
 	virtual void InitAbilityActorInfo() override;
+private:
+	/** Компонент определения освещённости */
+	UPROPERTY(VisibleAnywhere, Category = "Lighting")
+	ULightingDetection* LightingDetector;
+
+	/** Наш виджет-класс полоски */
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> LightWidgetClass;	
 };

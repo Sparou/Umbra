@@ -2,55 +2,58 @@
 
 
 #include "Character/UmbraPlayerCharacter.h"
-
 #include "Character/Component/InteractionComponent.h"
+#include "TraversalSystem/TraversalComponent.h"
 #include "AbilitySystem/UmbraAttributeSet.h"
+#include "Stealth/LightingDetection.h"
+#include "Blueprint/UserWidget.h"
+#include "Stealth/LightLevelIndicator.h"
+#include "Umbra/Umbra.h"
+#include "Stealth/LightLevelIndicator.h"
 
 AUmbraPlayerCharacter::AUmbraPlayerCharacter(const FObjectInitializer& ObjInit)
 {
 	AttributeSet = CreateDefaultSubobject<UUmbraAttributeSet>("Attribute Set");
 	InteractionComponent = CreateDefaultSubobject<UInteractionComponent>("Interaction Component");
+	TraversalComponent = CreateDefaultSubobject<UTraversalComponent>("Traversal Component");
+	LightingDetector = CreateDefaultSubobject<ULightingDetection>(TEXT("LightingDetection"));
 }
 
-AActor* AUmbraPlayerCharacter::GetOverlappedActorFromInteractionComponent() const
+UAssassinationsData* AUmbraPlayerCharacter::GetAssassinationsData()
 {
-	return InteractionComponent->GetCurrentTarget();
+	return AssassinationsData;
 }
 
-FStealthKillMontages AUmbraPlayerCharacter::GetRandomStealthKillMontages(TArray<FStealthKillMontages> KillMontages) const
+void AUmbraPlayerCharacter::BeginPlay()
 {
-	return KillMontages.Num() > 0 ? KillMontages[FMath::RandRange(0, KillMontages.Num() - 1)] : FStealthKillMontages();
-}
+	Super::BeginPlay();
 
-FStealthKillMontages AUmbraPlayerCharacter::GetStealthKillMontageForPosition(EStealthKillPosition KillPosition)
-{
-	switch (KillPosition)
+		
+	GetMesh()->SetRenderCustomDepth(true);	
+	if (IsLocallyControlled())
 	{
-	case EStealthKillPosition::Behind:
-		return GetRandomStealthKillMontages(StealthKillMontagesFromBehind);
-	
-	case EStealthKillPosition::Front:
-		return GetRandomStealthKillMontages(StealthKillMontagesFromFront);
-	
-	case EStealthKillPosition::Top:
-		return GetRandomStealthKillMontages(StealthKillMontagesFromTop);
-	
-	case EStealthKillPosition::Ledge:
-		return GetRandomStealthKillMontages(StealthKillMontagesFromLedge);
-	
-	case EStealthKillPosition::Left:
-		return GetRandomStealthKillMontages(StealthKillMontagesFromLeft);
-	
-	case EStealthKillPosition::Right:
-		return GetRandomStealthKillMontages(StealthKillMontagesFromRight);
-	
-	default:
-		UE_LOG(LogTemp, Warning, TEXT("Unknown KillPosition: %d"), static_cast<int32>(KillPosition));
-		return FStealthKillMontages();
+		GetMesh()->SetCustomDepthStencilValue(77);
+	}
+	else
+	{
+		GetMesh()->SetCustomDepthStencilValue(XRAY_STENCIL_VALUE);
+	}
+	if (LightWidgetClass)
+	{
+		// Создаём и показываем наш C++-виджет
+		ULightLevelIndicator* Widget = CreateWidget<ULightLevelIndicator>(GetWorld(), LightWidgetClass);
+		if (Widget)
+		{
+			Widget->AddToViewport();
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("Failed to create LightLevelIndicator widget"));
+		}
 	}
 }
 
-	void AUmbraPlayerCharacter::InitAbilityActorInfo()
+void AUmbraPlayerCharacter::InitAbilityActorInfo()
 {
 	Super::InitAbilityActorInfo();
 }

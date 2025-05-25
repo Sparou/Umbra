@@ -1,56 +1,125 @@
 // Copyrighted by Vorona Games
 
-
 #include "Character/Component/InteractionComponent.h"
 
-#include "Camera/CameraComponent.h"
+#include "UmbraCollisionChannels.h"
+#include "Interaction/InteractionInterface.h"
+#include "Interface/OutlineInterface.h"
+#include "Kismet/GameplayStatics.h"
+#include "Net/UnrealNetwork.h"
+
+DEFINE_LOG_CATEGORY(InteractionComponentLog)
 
 UInteractionComponent::UInteractionComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
+AActor* UInteractionComponent::GetInteractionActor() const
+{
+	return InteractionActor;
+}
+
 void UInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
                                           FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	if (GetNetMode() == NM_DedicatedServer)
+	{
+		return;
+	}
+	if (GetOwnerRole() == ROLE_SimulatedProxy)
+	{
+		return;
+	}
 	
-	FVector TraceStart;
-	FRotator TraceRotation;
-	Owner->GetActorEyesViewPoint(TraceStart, TraceRotation);
-	FVector TraceEnd = TraceStart + (TraceRotation.Vector() * InteractionDistance);
-	CheckForTarget(TraceStart, TraceEnd);
+	InteractionTrace();
 }
 
 void UInteractionComponent::BeginPlay()
 {
-	Owner = GetOwner();
+	Super::BeginPlay();
+	CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
+	checkf(CameraManager, TEXT("Interaction Component: Camera Manager initialization failed!"));
 }
 
-void UInteractionComponent::CheckForTarget(const FVector& TraceStart, const FVector& TraceEnd)
+void UInteractionComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-	FHitResult HitResult;
-	FCollisionQueryParams Params;
-	Params.AddIgnoredActor(Owner);
-
-	bool bHit = GetWorld()->LineTraceSingleByChannel(
-		HitResult,
-		TraceStart,
-		TraceEnd,
-		ECC_WorldDynamic,
-		Params
-	);
-
-#if WITH_EDITOR
-	DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Yellow);
-#endif
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	
-	if (bHit && HitResult.GetActor())
+	//DOREPLIFETIME(UInteractionComponent, InteractionActor);
+}
+
+void UInteractionComponent::InteractionTrace()
+{
+	InteractionTraceStart = CameraManager->GetCameraLocation();
+	InteractionTraceEnd = InteractionTraceStart + CameraManager->GetActorForwardVector() * InteractionDistance;
+
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(GetOwner());
+	Params.bReturnPhysicalMaterial = false;
+
+	FCollisionShape Sphere = FCollisionShape::MakeSphere(InteractionTraceSphereRadius);
+	
+	GetWorld()->SweepSingleByChannel(
+			InteractionResult,
+			InteractionTraceStart,
+			InteractionTraceEnd,
+			FQuat::Identity,
+			ECC_Interaction,
+			Sphere,
+			Params);
+	
+	if (!InteractionResult.bBlockingHit ||
+		!InteractionResult.GetActor()->GetClass()->ImplementsInterface(UInteractionInterface::StaticClass()))
 	{
-		Target = HitResult.GetActor();
+		HandleNoHit();
+		return;
 	}
-	else
+		
+	HandleHit();
+}
+
+void UInteractionComponent::HandleHit()
+{
+	if (InteractionActor != InteractionResult.GetActor())
 	{
-		Target = nullptr;
+		UE_LOG(InteractionComponentLog, Log, TEXT("New Target = [%s]"), *InteractionResult.GetActor()->GetName());
+		if (InteractionResult.GetActor()->GetClass()->ImplementsInterface(UOutlineInterface::StaticClass()))
+		{
+			IOutlineInterface::Execute_EnableOutline(InteractionResult.GetActor(), 1);
+		}
+
+		if (InteractionActor)
+		{
+			IOutlineInterface::Execute_DisableOutline(InteractionActor);
+		}
 	}
+
+	if (GetOwnerRole() != ROLE_Authority)
+	{
+		ServerSetInteractionActor(InteractionResult.GetActor());
+	}
+	
+	InteractionActor = InteractionResult.GetActor();
+}
+
+void UInteractionComponent::HandleNoHit()
+{
+	if (InteractionActor && InteractionActor->GetClass()->ImplementsInterface(UOutlineInterface::StaticClass()))
+	{
+		IOutlineInterface::Execute_DisableOutline(InteractionActor);
+	}
+	
+	if (GetOwnerRole() != ROLE_Authority)
+	{
+		ServerSetInteractionActor(nullptr);
+	}
+	
+	InteractionActor = nullptr;
+}
+
+void UInteractionComponent::ServerSetInteractionActor_Implementation(AActor* NewInteractionActor)
+{
+	InteractionActor = NewInteractionActor;
 }

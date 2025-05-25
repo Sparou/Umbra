@@ -1,4 +1,4 @@
-// Copyrighted by Vorona Games
+ // Copyrighted by Vorona Games
 
 #pragma once
 
