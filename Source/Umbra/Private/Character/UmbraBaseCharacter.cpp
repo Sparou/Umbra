@@ -15,7 +15,7 @@ AUmbraBaseCharacter::AUmbraBaseCharacter()
 	PrimaryActorTick.bCanEverTick = false;
 	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>("Motion Warping");
 	WeaponMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("Weapon Mesh");
-	WeaponMeshComponent->SetupAttachment(GetMesh(), FName("WeaponHandSocket"));
+	WeaponMeshComponent->SetupAttachment(GetMesh(), FName("RWeaponSocket"));
 	AbilitySystemComponent = CreateDefaultSubobject<UUmbraAbilitySystemComponent>("Ability System");
 	TagManager = CreateDefaultSubobject<UTagManager>("Tag Manager");
 
