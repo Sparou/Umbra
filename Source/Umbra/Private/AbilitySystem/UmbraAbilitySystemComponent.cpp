@@ -11,7 +11,7 @@ void UUmbraAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassO
 		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(Ability, 1);
 		if (UUmbraBaseGameplayAbility* UmbraBaseAbility = Cast<UUmbraBaseGameplayAbility>(AbilitySpec.Ability))
 		{
-			AbilitySpec.DynamicAbilityTags.AddTag(UmbraBaseAbility->StartupInputTag);
+			AbilitySpec.GetDynamicSpecSourceTags().AddTag(UmbraBaseAbility->StartupInputTag);
 			GiveAbility(AbilitySpec);
 		}
 	}
