@@ -4,9 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Character/UmbraBaseCharacter.h"
-#include "UmbraPlayerCharacter.generated.h"
 #include "Stealth/LightingDetection.h"
 #include "Blueprint/UserWidget.h"
+#include "UmbraPlayerCharacter.generated.h"
 
 class UAssassinationsData;
 class UInteractionComponent;
