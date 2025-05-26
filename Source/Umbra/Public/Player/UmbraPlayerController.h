@@ -51,7 +51,8 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void SwitchToCameraOnlyContext();
-	
+
+	UFUNCTION(BlueprintCallable)
 	void SwitchToArrowContext();
 	
 protected:

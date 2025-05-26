@@ -6,6 +6,8 @@
 #include "Player/UmbraPlayerController.h"
 #include "UmbraForShadowPlayerController.generated.h"
 
+class AUmbraLineShadowController;
+class AUmbraShadowController;
 /**
  * 
  */

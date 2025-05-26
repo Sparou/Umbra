@@ -28,7 +28,6 @@ void AUmbraArrowProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 	Mesh->OnComponentHit.AddDynamic(this, &AUmbraArrowProjectile::OnHit);
-	UE_LOG(LogTemp, Error, TEXT("AUmbraArrowProjectile::BeginPlay"));
 }
 
 void AUmbraArrowProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,

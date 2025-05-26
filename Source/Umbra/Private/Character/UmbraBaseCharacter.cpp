@@ -15,7 +15,15 @@ AUmbraBaseCharacter::AUmbraBaseCharacter()
 	PrimaryActorTick.bCanEverTick = false;
 	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>("Motion Warping");
 	WeaponMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("Weapon Mesh");
-	WeaponMeshComponent->SetupAttachment(GetMesh(), FName("WeaponHandSocket"));
+	if (GetMesh())
+	{
+		WeaponMeshComponent->SetupAttachment(GetMesh(), FName("WeaponHandSocket"));
+		UE_LOG(LogTemp, Error, TEXT("GetMesh() не вернул nullptr!"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("GetMesh() вернул nullptr!"));
+	}
 	AbilitySystemComponent = CreateDefaultSubobject<UUmbraAbilitySystemComponent>("Ability System");
 	TagManager = CreateDefaultSubobject<UTagManager>("Tag Manager");
 
@@ -161,12 +169,6 @@ void AUmbraBaseCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 }
-
-void AUmbraBaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-}
-
 
 UTagManager* AUmbraBaseCharacter::GetTagManager()
 {

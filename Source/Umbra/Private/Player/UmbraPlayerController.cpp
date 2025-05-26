@@ -38,6 +38,7 @@ void AUmbraPlayerController::SwitchToCameraOnlyContext()
 
 void AUmbraPlayerController::SwitchToArrowContext()
 {
+	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, "SwitchToArrowContext");
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 	if (Subsystem)
 	{
@@ -217,7 +218,6 @@ void AUmbraPlayerController::DirectArrow(const FInputActionValue& InputActionVal
 
 			const FVector WorldUp = FVector::UpVector;
 			const FVector RightVector = FVector::CrossProduct(WorldUp, CurrentForward).GetSafeNormal();
-			const FVector UpVector = FVector::CrossProduct(CurrentForward, RightVector).GetSafeNormal();
 			
 
 			FVector DesiredDirection = CurrentForward 
@@ -227,7 +227,7 @@ void AUmbraPlayerController::DirectArrow(const FInputActionValue& InputActionVal
 
 			DesiredDirection = DesiredDirection.GetSafeNormal();
 
-			const float RotationSpeed = 0.5f;
+			const float RotationSpeed = 2.0f;
         
 			if (!DesiredDirection.IsZero())
 			{

@@ -3,6 +3,7 @@
 
 #include "AbilitySystem/Abilities/Shadows/UmbraLineShadowController.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "UmbraGameplayTags.h"
 #include "AbilitySystem/UmbraAbilitySystemComponent.h"
 #include "Character/UmbraPlayerCharacter.h"
 #include "Character/Data/PlayerCharacterInfo.h"
@@ -66,7 +67,7 @@ void AUmbraLineShadowController::OnStartWalking()
 	bWantsToWalk = true;
 	if (AUmbraBaseCharacter* ControlledCharacter = Cast<AUmbraBaseCharacter>(GetCharacter()))
 	{
-		ControlledCharacter->GetCharacterMovement()->MaxWalkSpeed = ControlledCharacter->BaseWalkSpeed;
+		ControlledCharacter->GetCharacterMovement()->MaxWalkSpeed = ControlledCharacter->GetMoveSpeed(FUmbraGameplayTags::Get().State_Stance_Standing, FUmbraGameplayTags::Get().State_Locomotion_Running);
 	}
 }
 
@@ -75,7 +76,7 @@ void AUmbraLineShadowController::OnStopWalking()
 	bWantsToWalk = false;
 	if (AUmbraBaseCharacter* ControlledCharacter = Cast<AUmbraBaseCharacter>(GetCharacter()))
 	{
-		ControlledCharacter->GetCharacterMovement()->MaxWalkSpeed = ControlledCharacter->BaseRunSpeed;
+		ControlledCharacter->GetCharacterMovement()->MaxWalkSpeed = ControlledCharacter->GetMoveSpeed(FUmbraGameplayTags::Get().State_Stance_Standing, FUmbraGameplayTags::Get().State_Locomotion_Running);
 	}
 }
 
