@@ -59,6 +59,11 @@ UAnimMontage* AUmbraBaseCharacter::GetRandomHitReactMontage_Implementation()
 	return HitReactMontages.Num() > 0 ? HitReactMontages[FMath::RandRange(0, HitReactMontages.Num() - 1)] : nullptr;
 }
 
+UAnimMontage* AUmbraBaseCharacter::GetRandomMeleeAttackMontage_Implementation()
+{
+	return MeleeAttackMontages.Num() > 0 ? MeleeAttackMontages[FMath::RandRange(0, MeleeAttackMontages.Num() - 1)] : nullptr;
+}
+
 UNiagaraSystem* AUmbraBaseCharacter::GetBloodEffect_Implementation() const
 {
 	return nullptr;

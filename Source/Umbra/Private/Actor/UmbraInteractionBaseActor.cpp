@@ -30,6 +30,10 @@ void AUmbraInteractionBaseActor::BeginPlay()
 	Super::BeginPlay();
 	
 	GetComponents<UMeshComponent>(Meshes);
+	for (auto Mesh : Meshes)
+	{
+		Mesh->SetRenderCustomDepth(true);
+	}
 }
 
 void AUmbraInteractionBaseActor::Tick(float DeltaTime)

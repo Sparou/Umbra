@@ -26,5 +26,5 @@ protected:
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
 
 	UFUNCTION(BlueprintCallable)
-	void WeaponTrace(TArray<AActor*>& OutHitActors, const TArray<AActor*>& ActorsToIgnore, const FVector& TraceStart, const FVector& TraceEnd, float Radius);
+	void WeaponTrace(TArray<AActor*>& OutHitActors, const TArray<AActor*>& ActorsToIgnore, const FVector& TraceStart, const FVector& TraceEnd, float Radius, bool bDrawDebug = false);
 };

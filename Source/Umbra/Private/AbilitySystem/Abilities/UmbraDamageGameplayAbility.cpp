@@ -15,7 +15,7 @@ void UUmbraDamageGameplayAbility::CauseDamage(AActor* TargetActor)
 }
 
 void UUmbraDamageGameplayAbility::WeaponTrace(TArray<AActor*>& OutHitActors,
-	const TArray<AActor*>& ActorsToIgnore, const FVector& TraceStart, const FVector& TraceEnd, float Radius)
+	const TArray<AActor*>& ActorsToIgnore, const FVector& TraceStart, const FVector& TraceEnd, float Radius, bool bDrawDebug)
 {
 	FCollisionQueryParams SphereParams;
 	SphereParams.AddIgnoredActors(ActorsToIgnore);
@@ -33,6 +33,19 @@ void UUmbraDamageGameplayAbility::WeaponTrace(TArray<AActor*>& OutHitActors,
 		FCollisionShape::MakeSphere(Radius),
 		SphereParams);
 
+	if (!bHit && bDrawDebug)
+	{
+		DrawDebugSphere(GetWorld(), TraceStart, 5.f, 10, FColor::Red, false, 3.f);
+		DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 3.f, 0, 2);
+		DrawDebugSphere(GetWorld(), TraceEnd, 5.f, 10, FColor::Red, false, 3.f);
+	}
+	if (bHit && bDrawDebug)
+	{
+		DrawDebugSphere(GetWorld(), TraceStart, 5.f, 10, FColor::Green, false, 3.f);
+		DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Green, false, 3.f, 0, 2);
+		DrawDebugSphere(GetWorld(), TraceEnd, 5.f, 10, FColor::Green, false, 3.f);
+	}
+	
 	for (const auto& Hit : Hits)
 	{
 		OutHitActors.AddUnique(Hit.GetActor());
