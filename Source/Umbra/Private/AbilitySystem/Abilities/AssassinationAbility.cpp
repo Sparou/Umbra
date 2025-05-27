@@ -74,8 +74,8 @@ void UAssassinationAbility::StartAssassination()
 
 	if (UMotionWarpingComponent* MotionWarping = SourceCharacter->FindComponentByClass<UMotionWarpingComponent>())
 	{
-		FVector WarpLocation = TargetCharacter->GetActorLocation() + AssassinationData.KillerStarterLocation;
-		
+		FVector WarpLocation = TargetCharacter->GetActorTransform().TransformPosition(AssassinationData.KillerStarterLocation);
+
 		FVector Direction = TargetCharacter->GetActorLocation() - WarpLocation;
 		Direction.Z = 0;
 		Direction.Normalize();

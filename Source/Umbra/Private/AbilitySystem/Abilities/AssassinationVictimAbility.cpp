@@ -26,6 +26,7 @@ void UAssassinationVictimAbility::ActivateAbility(const FGameplayAbilitySpecHand
 		{
 			AIController->StopMovement();
 			AIController->BrainComponent->StopLogic("Stealth Victim");
+			AIController->ClearFocus(EAIFocusPriority::Gameplay);
 		}
 	}
 	

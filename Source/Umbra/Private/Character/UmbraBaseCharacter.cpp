@@ -14,19 +14,13 @@ AUmbraBaseCharacter::AUmbraBaseCharacter()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>("Motion Warping");
-	WeaponMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("Weapon Mesh");
-	if (GetMesh())
-	{
-		WeaponMeshComponent->SetupAttachment(GetMesh(), FName("WeaponHandSocket"));
-		UE_LOG(LogTemp, Error, TEXT("GetMesh() не вернул nullptr!"));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("GetMesh() вернул nullptr!"));
-	}
 	AbilitySystemComponent = CreateDefaultSubobject<UUmbraAbilitySystemComponent>("Ability System");
 	TagManager = CreateDefaultSubobject<UTagManager>("Tag Manager");
-
+	PolygonMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Polygon Mesh"));
+	PolygonMesh->SetupAttachment(GetMesh());
+	WeaponMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("Weapon Mesh");
+	WeaponMeshComponent->SetupAttachment(PolygonMesh, "RWeaponSocket");
+	
 	GetCharacterMovement()->MaxWalkSpeed = StandRunSpeed;
 	GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchRunSpeed;
 }
@@ -118,6 +112,11 @@ FWeaponSocketLocations AUmbraBaseCharacter::GetWeaponSocketLocations_Implementat
 UAnimMontage* AUmbraBaseCharacter::GetRandomHitReactMontage_Implementation()
 {
 	return HitReactMontages.Num() > 0 ? HitReactMontages[FMath::RandRange(0, HitReactMontages.Num() - 1)] : nullptr;
+}
+
+UAnimMontage* AUmbraBaseCharacter::GetRandomMeleeAttackMontage_Implementation()
+{
+	return MeleeAttackMontages.Num() > 0 ? MeleeAttackMontages[FMath::RandRange(0, MeleeAttackMontages.Num() - 1)] : nullptr;
 }
 
 UNiagaraSystem* AUmbraBaseCharacter::GetBloodEffect_Implementation() const

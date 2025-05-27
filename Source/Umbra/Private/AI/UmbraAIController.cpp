@@ -183,13 +183,13 @@ void AUmbraAIController::OnPercepted(AActor* SourceActor, const FAIStimulus Stim
 					/* assignment in case ChooseEnemy service haven't yet worked out */
 					if(!Blackboard->GetValueAsObject(CurrentEnemy))
 					{
-						ChooseEnemy();
+						//ChooseEnemy();
 					}
 				}
 			}
 			if(AUmbraEnemyCharacter* EnemyActor = Cast<AUmbraEnemyCharacter>(SourceActor))
 			{
-				if(EnemyActor->IsDead())
+				if(ICombatInterface::Execute_IsDead(EnemyActor))
 				{
 					//TODO:
 					//ReactToEvent(SeeCorpse);
@@ -218,7 +218,7 @@ void AUmbraAIController::OnPercepted(AActor* SourceActor, const FAIStimulus Stim
 		if(Stimulus.WasSuccessfullySensed())
 		{
 			Blackboard->SetValueAsVector(SoundLocation, Stimulus.StimulusLocation);
-			DrawDebugSphere(GetWorld(), Stimulus.StimulusLocation, 5.f, 6, FColor::Red, false, 1.f, 0, 1.f);
+			//DrawDebugSphere(GetWorld(), Stimulus.StimulusLocation, 5.f, 6, FColor::Red, false, 1.f, 0, 1.f);
 
 			//TODO: call event only if it's emitting not by known enemy
 			if(!KnownEnemies.Contains(SourceActor))
