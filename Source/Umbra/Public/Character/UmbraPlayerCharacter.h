@@ -37,9 +37,6 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Data")
 	TObjectPtr<UAssassinationsData> AssassinationsData;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TObjectPtr<USkeletalMeshComponent> PolygonMesh;
 	
 	virtual void InitAbilityActorInfo() override;
 private:

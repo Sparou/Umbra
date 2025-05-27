@@ -17,9 +17,6 @@ AUmbraPlayerCharacter::AUmbraPlayerCharacter(const FObjectInitializer& ObjInit)
 	InteractionComponent = CreateDefaultSubobject<UInteractionComponent>("Interaction Component");
 	TraversalComponent = CreateDefaultSubobject<UTraversalComponent>("Traversal Component");
 	LightingDetector = CreateDefaultSubobject<ULightingDetection>(TEXT("LightingDetection"));
-	PolygonMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Polygon Mesh"));
-	PolygonMesh->SetupAttachment(GetMesh());
-	WeaponMeshComponent->SetupAttachment(PolygonMesh, "RWeaponSocket");
 }
 
 UAssassinationsData* AUmbraPlayerCharacter::GetAssassinationsData()

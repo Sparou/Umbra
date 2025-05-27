@@ -14,11 +14,13 @@ AUmbraBaseCharacter::AUmbraBaseCharacter()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>("Motion Warping");
-	WeaponMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("Weapon Mesh");
-	WeaponMeshComponent->SetupAttachment(GetMesh(), FName("RWeaponSocket"));
 	AbilitySystemComponent = CreateDefaultSubobject<UUmbraAbilitySystemComponent>("Ability System");
 	TagManager = CreateDefaultSubobject<UTagManager>("Tag Manager");
-
+	PolygonMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Polygon Mesh"));
+	PolygonMesh->SetupAttachment(GetMesh());
+	WeaponMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("Weapon Mesh");
+	WeaponMeshComponent->SetupAttachment(PolygonMesh, "RWeaponSocket");
+	
 	GetCharacterMovement()->MaxWalkSpeed = StandRunSpeed;
 	GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchRunSpeed;
 }
