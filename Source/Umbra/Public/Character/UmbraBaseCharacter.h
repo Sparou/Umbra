@@ -40,6 +40,9 @@ public:
 	virtual bool IsDead_Implementation() const override;
 	virtual void Die() override;
 
+	UPROPERTY(BlueprintAssignable)
+	FOnCharacterDead OnDeathDelegate;
+
 	/** IOutline Interface **/
 	virtual void EnableOutline_Implementation(int32 StencilValue) override;
 	virtual void DisableOutline_Implementation() override;

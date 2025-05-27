@@ -188,4 +188,5 @@ void AUmbraBaseCharacter::MulticastHandleDeath_Implementation()
 	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 	
 	bIsDead = true;
+	OnDeathDelegate.Broadcast();
 }
