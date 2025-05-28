@@ -33,12 +33,46 @@ public:
 
 	TObjectPtr<UAbilitySystemComponent> GetAbilitySystemComponent() { return AbilitySystemComponent; }
 
+
+	/* For invisibility */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Invisibility")
+	bool IsShadow = false;
+	
+	UPROPERTY(ReplicatedUsing = OnRep_InvisibilityChanged)
+	bool bIsInvisible;
+
+	UPROPERTY(EditAnywhere, Category = "Invisibility")
+	UMaterialInterface* InvisibleMaterial;
+	
+	UPROPERTY(EditAnywhere, Category = "Invisibility")
+	UMaterialInterface* OriginalMaterial;
+
+	UPROPERTY(EditAnywhere, Category = "Invisibility")
+	UMaterialInterface* InvisibleWeaponMaterials;
+	
+	UPROPERTY(EditAnywhere, Category = "Invisibility")
+	UMaterialInterface* OriginalWeaponMaterials;
+	
+	UFUNCTION()
+	void OnRep_InvisibilityChanged();
+
+	UFUNCTION()
+	void SetInvisibility(bool bInvisible);
+
+	UFUNCTION(Server, Reliable)
+	void ServerSetInvisibility(bool bInvisible);
+	
+
 	/** ICombatInterface implementation */
 	virtual FWeaponSocketLocations GetWeaponSocketLocations_Implementation() const override;
 	virtual UAnimMontage* GetRandomHitReactMontage_Implementation() override;
+	virtual UAnimMontage* GetRandomMeleeAttackMontage_Implementation() override;
 	virtual UNiagaraSystem* GetBloodEffect_Implementation() const override;
 	virtual bool IsDead_Implementation() const override;
 	virtual void Die() override;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnCharacterDead OnDeathDelegate;
 
 	/** IOutline Interface **/
 	virtual void EnableOutline_Implementation(int32 StencilValue) override;
@@ -56,6 +90,9 @@ protected:
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<USkeletalMeshComponent> PolygonMesh;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TObjectPtr<UMotionWarpingComponent> MotionWarpingComponent;
 	
@@ -68,6 +105,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Weapon")
 	FName WeaponTipSocketName;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
+	TArray<UAnimMontage*> MeleeAttackMontages;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
 	TArray<UAnimMontage*> HitReactMontages;
 	

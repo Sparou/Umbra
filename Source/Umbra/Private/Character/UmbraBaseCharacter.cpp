@@ -14,11 +14,13 @@ AUmbraBaseCharacter::AUmbraBaseCharacter()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>("Motion Warping");
-	WeaponMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("Weapon Mesh");
-	WeaponMeshComponent->SetupAttachment(GetMesh(), FName("WeaponHandSocket"));
 	AbilitySystemComponent = CreateDefaultSubobject<UUmbraAbilitySystemComponent>("Ability System");
 	TagManager = CreateDefaultSubobject<UTagManager>("Tag Manager");
-
+	PolygonMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Polygon Mesh"));
+	PolygonMesh->SetupAttachment(GetMesh());
+	WeaponMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("Weapon Mesh");
+	WeaponMeshComponent->SetupAttachment(PolygonMesh, "RWeaponSocket");
+	
 	GetCharacterMovement()->MaxWalkSpeed = StandRunSpeed;
 	GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchRunSpeed;
 }
@@ -41,6 +43,59 @@ float AUmbraBaseCharacter::GetMoveSpeed(const FGameplayTag& Stance, const FGamep
 	return StandRunSpeed;
 }
 
+void AUmbraBaseCharacter::OnRep_InvisibilityChanged()
+{
+	if (!OriginalMaterial && GetMesh())
+	{
+		OriginalMaterial = GetMesh()->GetMaterial(0);
+		OriginalWeaponMaterials = GetMesh()->GetMaterial(2);
+	}
+	
+	if (IsLocallyControlled() || IsShadow)
+	{
+		if (bIsInvisible)
+		{
+			if (InvisibleMaterial)   GetMesh()->SetMaterial(0, InvisibleMaterial);
+			if (InvisibleMaterial)   WeaponMeshComponent->SetMaterial(0, InvisibleWeaponMaterials);
+		}
+		else
+		{
+			if (InvisibleMaterial)   GetMesh()->SetMaterial(0, OriginalMaterial);
+			if (InvisibleMaterial)   WeaponMeshComponent->SetMaterial(0, OriginalWeaponMaterials);
+		}
+	}
+	else
+	{
+		// Остальные игроки: делаем полностью невидимым
+		GetMesh()->SetVisibility(!bIsInvisible, true);
+	}
+}
+
+void AUmbraBaseCharacter::SetInvisibility(bool bInvisible)
+{
+	if (HasAuthority())
+	{
+		bIsInvisible = bInvisible;
+		OnRep_InvisibilityChanged();
+	}
+	else
+	{
+		ServerSetInvisibility(bInvisible);
+	}
+}
+
+void AUmbraBaseCharacter::ServerSetInvisibility_Implementation(bool bInvisible)
+{
+	SetInvisibility(bInvisible);
+}
+
+void AUmbraBaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
+	DOREPLIFETIME(AUmbraBaseCharacter, bIsInvisible);
+}
+
 FWeaponSocketLocations AUmbraBaseCharacter::GetWeaponSocketLocations_Implementation() const
 {
 	if (WeaponMeshComponent && WeaponMeshComponent->DoesSocketExist(WeaponBaseSocketName) && WeaponMeshComponent->DoesSocketExist(WeaponTipSocketName))
@@ -57,6 +112,11 @@ FWeaponSocketLocations AUmbraBaseCharacter::GetWeaponSocketLocations_Implementat
 UAnimMontage* AUmbraBaseCharacter::GetRandomHitReactMontage_Implementation()
 {
 	return HitReactMontages.Num() > 0 ? HitReactMontages[FMath::RandRange(0, HitReactMontages.Num() - 1)] : nullptr;
+}
+
+UAnimMontage* AUmbraBaseCharacter::GetRandomMeleeAttackMontage_Implementation()
+{
+	return MeleeAttackMontages.Num() > 0 ? MeleeAttackMontages[FMath::RandRange(0, MeleeAttackMontages.Num() - 1)] : nullptr;
 }
 
 UNiagaraSystem* AUmbraBaseCharacter::GetBloodEffect_Implementation() const
@@ -108,12 +168,6 @@ void AUmbraBaseCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 }
-
-void AUmbraBaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-}
-
 
 UTagManager* AUmbraBaseCharacter::GetTagManager()
 {
@@ -188,4 +242,5 @@ void AUmbraBaseCharacter::MulticastHandleDeath_Implementation()
 	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 	
 	bIsDead = true;
+	OnDeathDelegate.Broadcast();
 }

@@ -42,10 +42,18 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	bool bWantsToCrouch;
 
+	UPROPERTY(BlueprintReadOnly)
+	bool bWantsToThough;
+	
+
 	UFUNCTION(BlueprintCallable)
 	void SwitchToDefaultContext();
+	
 	UFUNCTION(BlueprintCallable)
 	void SwitchToCameraOnlyContext();
+
+	UFUNCTION(BlueprintCallable)
+	void SwitchToArrowContext();
 	
 protected:
 
@@ -59,12 +67,18 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<UInputMappingContext> CameraOnlyInputContext;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<UInputMappingContext> ArrowContext;
 	
 	UPROPERTY(EditAnywhere, Category = "Input|Basic")
 	TObjectPtr<UInputAction> InteractAction;
 
 	UPROPERTY(EditAnywhere, Category = "Input|Basic")
 	TObjectPtr<UInputAction> MoveAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input|Basic")
+	TObjectPtr<UInputAction> ArrowAction;
 
 	UPROPERTY(EditAnywhere, Category = "Input|Basic")
 	TObjectPtr<UInputAction> LookAction;
@@ -117,6 +131,9 @@ private:
 	UInteractionComponent* GetInteractionComponent();
 	
 	void SwitchCharacter(FGameplayTag CharacterTag);
+	void Interact();
+
+	void DirectArrow(const FInputActionValue& InputActionValue);
 
 	
 	void OnInteract();
@@ -140,6 +157,9 @@ private:
 	void OnStopCrouch();
 
 	void OnStartDrop();
+
+	void OnStartThrough();
+	void OnStopThrough();
 	
 	void AbilityInputTagPressed(FGameplayTag InputTag);
 	void AbilityInputTagReleased(FGameplayTag InputTag);
