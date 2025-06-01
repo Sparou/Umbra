@@ -39,13 +39,13 @@ protected:
 
     UPROPERTY(EditAnywhere, Category="Actions")
     TObjectPtr<UTraversalActionsData> TraversalActions;
-	
-	/*
-	 * Определяет максимальную высоту стены, при которой
-	 * пероснаж, стоящий на земле, может соврешить действие climb
-	 */
-	float ClimbMaximumWallHeight = 250.f;
-	
+    
+    /*
+     * Определяет максимальную высоту стены, при которой
+     * пероснаж, стоящий на земле, может соврешить действие climb
+     */
+    float ClimbMaximumWallHeight = 250.f;
+    
     /*
      * Определяет минимальную высоту стены, при которой
      * могут быть совершены действия Mantle и Vault
@@ -61,19 +61,19 @@ protected:
     UPROPERTY(EditAnywhere, Category="Transitions")
     float MantleMaximumWallHeight = 160.f;
 
-	/*
-	 * Определяет минимальную глубину стены, при которой
-	 * может быть совершено действие Vault.
-	 */
-	UPROPERTY(EditAnywhere, Category="Transitions")
-	float VaultMinimumDepth = 0.0f;
+    /*
+     * Определяет минимальную глубину стены, при которой
+     * может быть совершено действие Vault.
+     */
+    UPROPERTY(EditAnywhere, Category="Transitions")
+    float VaultMinimumDepth = 0.0f;
 
-	/*
-	 * Определяет максимальную глубину стены, при которой
-	 * может быть совершено действие Vault
-	 */
-	UPROPERTY(EditAnywhere, Category="Transitions")
-	float VaultMaximumDepth = 120.f;
+    /*
+     * Определяет максимальную глубину стены, при которой
+     * может быть совершено действие Vault
+     */
+    UPROPERTY(EditAnywhere, Category="Transitions")
+    float VaultMaximumDepth = 120.f;
     
     /*
      * Определяет минимальную высоту Wall Depth относительно
@@ -258,8 +258,8 @@ protected:
     
     /* Climb Movement */
 
-	UPROPERTY(EditDefaultsOnly, Category="Climbing")
-	float ClimbSpeed = 55.f;
+    UPROPERTY(EditDefaultsOnly, Category="Climbing")
+    float ClimbSpeed = 55.f;
 
     /* Определяет смещение персонажа по оси X относительно точки ClimbTopResult */
     UPROPERTY(EditDefaultsOnly, Category="Climbing")
@@ -277,17 +277,17 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category="Climbing")
     float ClimbMovementFreeHangZOffset = 110.f;
 
-	// Так как Dedicated Server может не обновлять позиции костей, для него
-	// задаются конкретные значения для снижения нагрузки.
-	//  Вычислеяется относительно ActorLocation.Z 
-	UPROPERTY(EditDefaultsOnly, Category="Climbing")
-	float ClimbMovementDedicatedServerBracedHandZOffset = 75.f;
+    // Так как Dedicated Server может не обновлять позиции костей, для него
+    // задаются конкретные значения для снижения нагрузки.
+    //  Вычислеяется относительно ActorLocation.Z 
+    UPROPERTY(EditDefaultsOnly, Category="Climbing")
+    float ClimbMovementDedicatedServerBracedHandZOffset = 75.f;
 
-	// Так как Dedicated Server может не обновлять позиции костей, для него
-	// задаются конкретные значения для снижения нагрузки. 
-	// Вычислеяется относительно ActorLocation.Z 
-	UPROPERTY(EditDefaultsOnly, Category="Climbing")
-	float ClimbMovementDedicatedServerFreeHangHandZOffset = 95.f;
+    // Так как Dedicated Server может не обновлять позиции костей, для него
+    // задаются конкретные значения для снижения нагрузки. 
+    // Вычислеяется относительно ActorLocation.Z 
+    UPROPERTY(EditDefaultsOnly, Category="Climbing")
+    float ClimbMovementDedicatedServerFreeHangHandZOffset = 95.f;
     
     UPROPERTY(EditDefaultsOnly, Category="Climbing")
     float IsDroppingResetTime = 0.5f;
@@ -767,50 +767,50 @@ public:
     void GridScan(int GridWidth, int GridHeight, const FVector& ScanBaseLocation, const FRotator& ScanRotation);
     void PlayTraversalMontage();
 
-	UFUNCTION(NetMulticast, Reliable)
-	void MulticastPlayTraversalMontage(
-		FGameplayTag ActionTag,
-		FVector TopResultWarpLocation,
-		FVector BalanceWarpLocation,
-		FVector DepthResultWarpLocation,
-		FVector VaultResultWarpLocation,
-		FRotator WallRot,
-		FHitResult NextClimb
-	);
+    UFUNCTION(NetMulticast, Reliable)
+    void MulticastPlayTraversalMontage(
+        FGameplayTag ActionTag,
+        FVector TopResultWarpLocation,
+        FVector BalanceWarpLocation,
+        FVector DepthResultWarpLocation,
+        FVector VaultResultWarpLocation,
+        FRotator WallRot,
+        FHitResult NextClimb
+    );
 
-	UFUNCTION(NetMulticast, Reliable)
-	void MulticastJump();
-	
+    UFUNCTION(NetMulticast, Reliable)
+    void MulticastJump();
+    
     void AddMovementInput(float ScaleValue, bool Front);
 
-	void ResetMovement();
+    void ResetMovement();
 
-	UFUNCTION(Server, Reliable)
-	void ServerResetMovement();
-	
+    UFUNCTION(Server, Reliable)
+    void ServerResetMovement();
+    
     void DropFromClimb();
 
-	UFUNCTION(Server, Reliable)
-	void ServerDropFromClimb();
+    UFUNCTION(Server, Reliable)
+    void ServerDropFromClimb();
 
-	UFUNCTION(Server, Reliable)
-	void ServerTriggerTraversalAction(bool bJumpAction);
+    UFUNCTION(Server, Reliable)
+    void ServerTriggerTraversalAction(bool bJumpAction);
 
-	UFUNCTION(BlueprintCallable)
-	FGameplayTag GetCurrentTraversalState() const { return TraversalState; };
-	UFUNCTION(BlueprintCallable)
-	FGameplayTag GetCurrentTraversalAction() const { return TraversalAction; };
+    UFUNCTION(BlueprintCallable)
+    FGameplayTag GetCurrentTraversalState() const { return TraversalState; };
+    UFUNCTION(BlueprintCallable)
+    FGameplayTag GetCurrentTraversalAction() const { return TraversalAction; };
 
 private:
-	UPROPERTY(ReplicatedUsing=OnRep_TraversalState)
+    UPROPERTY(ReplicatedUsing=OnRep_TraversalState)
     FGameplayTag TraversalState = FUmbraGameplayTags::Get().Traversal_State_FreeRoam;
-	UPROPERTY(ReplicatedUsing=OnRep_TraversalAction)
-	FGameplayTag TraversalAction = FUmbraGameplayTags::Get().Traversal_Action_NoAction;
-	UPROPERTY(ReplicatedUsing=OnRep_ClimbStyle)
+    UPROPERTY(ReplicatedUsing=OnRep_TraversalAction)
+    FGameplayTag TraversalAction = FUmbraGameplayTags::Get().Traversal_Action_NoAction;
+    UPROPERTY(ReplicatedUsing=OnRep_ClimbStyle)
     FGameplayTag ClimbStyle = FUmbraGameplayTags::Get().Traversal_ClimbStyle_BracedClimb;
-	UPROPERTY(ReplicatedUsing=OnRep_ClimbDirection)
+    UPROPERTY(ReplicatedUsing=OnRep_ClimbDirection)
     FGameplayTag ClimbDirection = FUmbraGameplayTags::Get().Traversal_Direction_NoDirection;
-	
+    
     FHitResult WallHitResult = FHitResult();
     FHitResult WallEdgeResult = FHitResult();
     FHitResult WallTopResult = FHitResult();
@@ -818,15 +818,15 @@ private:
     FHitResult WallVaultResult = FHitResult();
     FHitResult NextClimbResult = FHitResult();
     FHitResult CurrentClimbResult = FHitResult();
-	
-	FRotator WallRotation = FRotator();
+    
+    FRotator WallRotation = FRotator();
     float WallHeight;
     float WallDepth;
     float VaultHeight;
-	
+    
     bool bInLand = true;
 
-	UPROPERTY(Replicated)
+    UPROPERTY(Replicated)
     bool bIsDropping = false;
 
     FTraversalActionData CurrentActionData;
@@ -846,7 +846,7 @@ private:
 
 protected:
 
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 private:
     
@@ -859,15 +859,15 @@ private:
     void SetClimbDirection (const FGameplayTag& NewClimbDirection);
     void SetTraversalAction(const FGameplayTag& NewTraversalAction);
 
-	UFUNCTION()
-	void OnRep_TraversalState();
-	UFUNCTION()
-	void OnRep_TraversalAction();
-	UFUNCTION()
-	void OnRep_ClimbStyle();
-	UFUNCTION()
-	void OnRep_ClimbDirection();
-	
+    UFUNCTION()
+    void OnRep_TraversalState();
+    UFUNCTION()
+    void OnRep_TraversalAction();
+    UFUNCTION()
+    void OnRep_ClimbStyle();
+    UFUNCTION()
+    void OnRep_ClimbDirection();
+    
     /* Wall Detection */
     FHitResult DetectWall() const;
     bool FindWallEdge(int GridWidth, int GridHeight, const FVector& ScanBaseLocation, const FRotator& ScanRotation, FHitResult& OutWallEdgeResult);
@@ -883,14 +883,14 @@ private:
 
     void ClimbMovement();
 
-	UFUNCTION(Server, Reliable)
-	void ServerSendClimbInput(float FValue, float RValue);
-	
+    UFUNCTION(Server, Reliable)
+    void ServerSendClimbInput(float FValue, float RValue);
+    
     void StopClimbMovement();
 
-	UFUNCTION(Server, Reliable)
-	void ServerStopClimbMovement();
-	
+    UFUNCTION(Server, Reliable)
+    void ServerStopClimbMovement();
+    
     bool ClimbCheckForSides(const FVector& ImpactPoint);
     void SetNewClimbPosition(float NewLocationX, float NewLocationY, float NewLocationZ, FRotator NewRotation);
     bool ValidateClimbSurface(const FVector& Location, const FRotator& Rotation) const;
@@ -916,7 +916,7 @@ private:
     void FindHopLocation();
 
     bool ValidateMantleSurface() const;
-    
+    bool ValidateVaultPath() const;
     bool ValidateVaultSurface() const;
 
     /* Helper Functions */
