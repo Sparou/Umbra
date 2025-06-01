@@ -40,6 +40,9 @@ public:
 	virtual UNiagaraSystem* GetBloodEffect_Implementation() const override;
 	virtual bool IsDead_Implementation() const override;
 	virtual void Die() override;
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnCharacterDeath CharacterDeathDelegate;
 
 	/** IOutline Interface **/
 	virtual void EnableOutline_Implementation(int32 StencilValue) override;

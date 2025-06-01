@@ -192,6 +192,7 @@ void AUmbraBaseCharacter::MulticastHandleDeath_Implementation()
 	GetMesh()->SetEnableGravity(true);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+	CharacterDeathDelegate.Broadcast();
 	
 	bIsDead = true;
 }
