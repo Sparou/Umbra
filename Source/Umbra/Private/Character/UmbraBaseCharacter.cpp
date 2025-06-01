@@ -84,20 +84,20 @@ void AUmbraBaseCharacter::Die()
 
 void AUmbraBaseCharacter::EnableOutline_Implementation(int32 StencilValue)
 {
-	if (GetMesh()->bRenderCustomDepth == true && GetMesh()->CustomDepthStencilValue == XRAY_STENCIL_VALUE)
+	if (PolygonMesh->bRenderCustomDepth == true && GetMesh()->CustomDepthStencilValue == XRAY_STENCIL_VALUE)
 	{
 		return;
 	}
 	
-	GetMesh()->SetRenderCustomDepth(true);
-	GetMesh()->SetCustomDepthStencilValue(StencilValue);
+	PolygonMesh->SetRenderCustomDepth(true);
+	PolygonMesh->SetCustomDepthStencilValue(ENEMY_OUTLINE_STENCIL_VALUE);
 }
 
 void AUmbraBaseCharacter::DisableOutline_Implementation()
 {
-	if (GetMesh()->CustomDepthStencilValue != XRAY_STENCIL_VALUE)
+	if (PolygonMesh->CustomDepthStencilValue != XRAY_STENCIL_VALUE)
 	{
-		GetMesh()->SetRenderCustomDepth(false);
+		PolygonMesh->SetRenderCustomDepth(false);
 	}
 }
 
@@ -166,8 +166,7 @@ void AUmbraBaseCharacter::Dissolve()
 	if (IsValid(DissolveMaterial))
 	{
 		UMaterialInstanceDynamic* DM = UMaterialInstanceDynamic::Create(DissolveMaterial, this);
-		GetMesh()->SetMaterial(0, DM);
-		GetMesh()->SetMaterial(1, DM);
+		PolygonMesh->SetMaterial(0, DM);
 		StartDissolveTimeline(DM);
 	}
 }
