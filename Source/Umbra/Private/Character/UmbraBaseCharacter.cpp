@@ -20,7 +20,7 @@ AUmbraBaseCharacter::AUmbraBaseCharacter()
 	PolygonMesh->SetupAttachment(GetMesh());
 	WeaponMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("Weapon Mesh");
 	WeaponMeshComponent->SetupAttachment(PolygonMesh, "RWeaponSocket");
-	
+
 	GetCharacterMovement()->MaxWalkSpeed = StandRunSpeed;
 	GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchRunSpeed;
 }

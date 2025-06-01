@@ -65,6 +65,8 @@ public:
 	bool ReactToEvent(const FName EventName);
 	bool ChooseEnemy();
 
+	virtual void BeginPlay() override;
+
 protected:
 	UPROPERTY()
 	TObjectPtr<UBehaviorTreeComponent> BehaviorTreeComponent;
@@ -138,4 +140,7 @@ protected:
 private:
 	UFUNCTION()
 	void OnPercepted(AActor* SourceActor, const FAIStimulus Stimulus);
+
+	UFUNCTION()
+	void OnGameplayTagChanged(const FGameplayTag& Tag, bool bAdded);
 };

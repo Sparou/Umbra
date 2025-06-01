@@ -15,6 +15,7 @@ class UMBRA_API UEQC_MaintainDistanceFromActor : public UEnvQueryContext
 public:
 	virtual void ProvideContext(FEnvQueryInstance& QueryInstance, FEnvQueryContextData& ContextData) const override;
 
+
 private:
 	UPROPERTY(EditAnywhere, Category = "Blackboard")
 	FBlackboardKeySelector CurrentEnemyKey;

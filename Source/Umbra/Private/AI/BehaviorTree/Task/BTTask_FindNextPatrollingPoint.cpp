@@ -27,8 +27,11 @@ EBTNodeResult::Type UBTTask_FindNextPatrollingPoint::ExecuteTask(UBehaviorTreeCo
 	UBlackboardComponent* BlackboardComponent = OwnerComp.GetBlackboardComponent();
 	if(!BlackboardComponent) return EBTNodeResult::Failed;
 
-	BlackboardComponent->SetValueAsVector(CurrentDestinationPoint.SelectedKeyName, PatrollingInterface->GetCurrentDestinationPoint()->GetActorLocation());
-	PatrollingInterface->IncrementCurrentDestinationPoint();
-	
-	return EBTNodeResult::Succeeded;
+	if(const AActor* PattrollingPoint = PatrollingInterface->GetCurrentDestinationPoint())
+	{
+		BlackboardComponent->SetValueAsVector(CurrentDestinationPoint.SelectedKeyName, PattrollingPoint->GetActorLocation());
+		PatrollingInterface->IncrementCurrentDestinationPoint();
+		return EBTNodeResult::Succeeded;
+	}
+	return EBTNodeResult::Failed;
 }
