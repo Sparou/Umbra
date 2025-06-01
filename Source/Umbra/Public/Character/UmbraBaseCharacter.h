@@ -68,7 +68,6 @@ public:
 	virtual FWeaponSocketLocations GetWeaponSocketLocations_Implementation() const override;
 	virtual UAnimMontage* GetRandomHitReactMontage_Implementation() override;
 	virtual UAnimMontage* GetRandomMeleeAttackMontage_Implementation() override;
-	virtual UNiagaraSystem* GetBloodEffect_Implementation() const override;
 	virtual bool IsDead_Implementation() const override;
 	virtual void Die() override;
 	
