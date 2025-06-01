@@ -1184,14 +1184,7 @@ void UTraversalComponent::ClimbMovement()
 		WallRotation);
 	
 	float NewLocationZ = ClimbTopHitResult.ImpactPoint.Z;
-
-	// if (GetOwnerRole() < ROLE_Authority)
-	// {
-	// 	UE_LOG(TraversalComponentLog, Warning, TEXT("ClimbMovement: [Not Authority]"));
-	// 	UE_LOG(TraversalComponentLog, Log, TEXT("X = [%f], Y = [%f], Z = [%f]"), HorizontalLocation.X, HorizontalLocation.Y, NewLocationZ);
-	// }
-
-	UE_LOG(TraversalComponentLog, Log, TEXT("X = [%f], Y = [%f], Z = [%f]"), HorizontalLocation.X, HorizontalLocation.Y, NewLocationZ);
+	
 	SetNewClimbPosition(HorizontalLocation.X, HorizontalLocation.Y, NewLocationZ, WallRotation);
 	DecideClimbStyle(ClimbTopHitResult.ImpactPoint, WallRotation);
 }
