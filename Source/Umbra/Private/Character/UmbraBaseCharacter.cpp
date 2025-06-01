@@ -242,5 +242,4 @@ void AUmbraBaseCharacter::MulticastHandleDeath_Implementation()
 	CharacterDeathDelegate.Broadcast();
 	
 	bIsDead = true;
-	OnDeathDelegate.Broadcast();
 }
