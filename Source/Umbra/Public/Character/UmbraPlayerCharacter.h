@@ -24,6 +24,8 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	UAssassinationsData* GetAssassinationsData();
+	
+	const ULightingDetection* GetLightingDetector() const;
 
 protected:
 

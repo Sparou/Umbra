@@ -16,6 +16,7 @@ AUmbraPlayerCharacter::AUmbraPlayerCharacter(const FObjectInitializer& ObjInit)
 	AttributeSet = CreateDefaultSubobject<UUmbraAttributeSet>("Attribute Set");
 	InteractionComponent = CreateDefaultSubobject<UInteractionComponent>("Interaction Component");
 	TraversalComponent = CreateDefaultSubobject<UTraversalComponent>("Traversal Component");
+	LightingDetector = CreateDefaultSubobject<ULightingDetection>("Lighting Detector");
 }
 
 UAssassinationsData* AUmbraPlayerCharacter::GetAssassinationsData()
@@ -23,7 +24,12 @@ UAssassinationsData* AUmbraPlayerCharacter::GetAssassinationsData()
 	return AssassinationsData;
 }
 
-void AUmbraPlayerCharacter::BeginPlay()
+	const ULightingDetection* AUmbraPlayerCharacter::GetLightingDetector() const
+	{
+	return LightingDetector;
+	}
+
+	void AUmbraPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 

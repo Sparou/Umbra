@@ -84,8 +84,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void StartDissolve();
-
-	const ULightingDetection* GetLightingDetector() const;
 	
 protected:
   
@@ -164,9 +162,5 @@ protected:
 	void MulticastDissolve();
 	
 private:
-	/** Компонент определения освещённости */
-	UPROPERTY(VisibleAnywhere, Category = "Lighting")
-	ULightingDetection* LightingDetector;
-
 	bool bIsDead = false;
 };

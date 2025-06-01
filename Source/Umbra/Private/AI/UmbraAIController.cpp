@@ -177,18 +177,17 @@ void AUmbraAIController::OnPercepted(AActor* SourceActor, const FAIStimulus Stim
 	//FString Message = "Stimuled by" + Stimulus.Type.Name.ToString() + "strength = " + FString::SanitizeFloat(Stimulus.Strength);
 	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, Message);
 	if(!SourceActor) return;
-
-	AUmbraBaseCharacter* BaseCharacter = Cast<AUmbraBaseCharacter>(GetCharacter());
-	if(!BaseCharacter) return;
 	
-	if(Stimulus.Type == UAISense::GetSenseID(UAISense_Sight::StaticClass()) && BaseCharacter->GetLightingDetector()->LightPercentage > 50.f)
+	if(Stimulus.Type == UAISense::GetSenseID(UAISense_Sight::StaticClass()))
 	{
 		if(Stimulus.WasSuccessfullySensed())
 		{
 			if(AUmbraPlayerCharacter* PlayerActor = Cast<AUmbraPlayerCharacter>(SourceActor))
 			{
+				const float light = PlayerActor->GetLightingDetector()->LightPercentage;
+				UE_LOG(LogTemp, Warning, TEXT("Light = %s"), *FString::SanitizeFloat(light))
 				//TODO: check if bot sees player after ending invisibility when stimulus was already received 
-				if(true/*!PlayerActor->GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(InvisibleTag))*/)
+				if(light > 50.f/*!PlayerActor->GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(InvisibleTag))*/)
 				{
 					if(!Blackboard->GetValueAsBool(EverSeenEnemy))
 					{
@@ -236,9 +235,12 @@ void AUmbraAIController::OnPercepted(AActor* SourceActor, const FAIStimulus Stim
 		{
 			if(AUmbraPlayerCharacter* PlayerActor = Cast<AUmbraPlayerCharacter>(SourceActor))
 			{
-				KnownEnemies[SourceActor].IsVisible = false;
-				KnownEnemies[SourceActor].LastKnownLocation = Stimulus.StimulusLocation;
-				KnownEnemies[SourceActor].LastSeenTime = GetWorld()->GetTimeSeconds();
+				if(KnownEnemies.Contains(SourceActor))
+				{
+					KnownEnemies[SourceActor].IsVisible = false;
+					KnownEnemies[SourceActor].LastKnownLocation = Stimulus.StimulusLocation;
+					KnownEnemies[SourceActor].LastSeenTime = GetWorld()->GetTimeSeconds();
+				}
 			}
 		}
 	}
