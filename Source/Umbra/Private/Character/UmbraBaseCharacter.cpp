@@ -119,11 +119,6 @@ UAnimMontage* AUmbraBaseCharacter::GetRandomMeleeAttackMontage_Implementation()
 	return MeleeAttackMontages.Num() > 0 ? MeleeAttackMontages[FMath::RandRange(0, MeleeAttackMontages.Num() - 1)] : nullptr;
 }
 
-UNiagaraSystem* AUmbraBaseCharacter::GetBloodEffect_Implementation() const
-{
-	return nullptr;
-}
-
 bool AUmbraBaseCharacter::IsDead_Implementation() const
 {
 	return bIsDead;

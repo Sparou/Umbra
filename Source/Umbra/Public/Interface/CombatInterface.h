@@ -21,11 +21,11 @@ struct FWeaponSocketLocations
 {
 	GENERATED_BODY()
 	
-	UPROPERTY(BlueprintReadOnly, Category = "Sockets")
-	FVector WeaponBase;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Sockets")
+	FVector WeaponBase = FVector(0, 0, 0);
 
-	UPROPERTY(BlueprintReadOnly, Category = "Sockets")
-	FVector WeaponTip;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Sockets")
+	FVector WeaponTip = FVector::ZeroVector;
 };
 
 /**
@@ -39,9 +39,6 @@ class UMBRA_API ICombatInterface
 public:
 
 	virtual void Die() = 0;
-	
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void UpdateFacingTarget(const FVector& TargetLocation);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	FWeaponSocketLocations GetWeaponSocketLocations() const;
@@ -51,9 +48,6 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	UAnimMontage* GetRandomMeleeAttackMontage();
-	
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	UNiagaraSystem* GetBloodEffect() const;
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	bool IsDead() const;
