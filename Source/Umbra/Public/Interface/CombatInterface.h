@@ -7,7 +7,7 @@
 #include "NiagaraSystem.h"
 #include "CombatInterface.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterDead);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterDeath);
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI, BlueprintType)

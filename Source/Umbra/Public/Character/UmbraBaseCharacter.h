@@ -70,6 +70,9 @@ public:
 	virtual UNiagaraSystem* GetBloodEffect_Implementation() const override;
 	virtual bool IsDead_Implementation() const override;
 	virtual void Die() override;
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnCharacterDeath CharacterDeathDelegate;
 
 	UPROPERTY(BlueprintAssignable)
 	FOnCharacterDead OnDeathDelegate;
