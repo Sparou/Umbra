@@ -24,7 +24,8 @@ void AUmbraEnemyCharacter::PossessedBy(AController* NewController)
 
 	UmbraAIController = Cast<AUmbraAIController>(NewController);
 	UmbraAIController->GetBlackboardComponent()->InitializeBlackboard(*BehaviorTree->BlackboardAsset);
-	UmbraAIController->RunBehaviorTree(BehaviorTree);
+	if(bIsActive) UmbraAIController->RunBehaviorTree(BehaviorTree);
+	
 }
 
 const AUmbraAlarmBell* AUmbraEnemyCharacter::NearestAlarmBell() const
@@ -76,18 +77,6 @@ void AUmbraEnemyCharacter::ChoosePath()
 void AUmbraEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	TArray<AActor*> FoundActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AUmbraAlarmBell::StaticClass(), FoundActors);
-
-	//TODO: change to subscribing on only chosen bells
-	for (AActor* Actor : FoundActors)
-	{
-		if (AUmbraAlarmBell* Bell = Cast<AUmbraAlarmBell>(Actor))
-		{
-			AlarmBells.Add(Bell);
-		}
-	}
 	
 	for (AUmbraAlarmBell* AlarmBell : AlarmBells)
 	{
@@ -141,5 +130,6 @@ void AUmbraEnemyCharacter::OnAlarm(FVector BellLocation)
 	UBlackboardComponent* BlackboardComponent = AIController->GetBlackboardComponent();
 	if(!BlackboardComponent) return;
 
+	if(!bIsActive) UmbraAIController->RunBehaviorTree(BehaviorTree);
 	BlackboardComponent->SetValueAsVector(TriggeredAlarmLocation, BellLocation);
 }

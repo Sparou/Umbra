@@ -19,6 +19,7 @@ EBTNodeResult::Type UBTTask_Ring::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
 	if(!NearestAlarmBell) return EBTNodeResult::Failed;
 
 	float Distance = FVector::Dist(Character->GetActorLocation(), NearestAlarmBell->GetActorLocation());
+	//DrawDebugLine(GetWorld(), Character->GetActorLocation(), NearestAlarmBell->GetActorLocation(), FColor::Red, true, -1, 0, 5);
 	if(Distance > AcceptanceRadius)
 	{
 		return EBTNodeResult::Failed;

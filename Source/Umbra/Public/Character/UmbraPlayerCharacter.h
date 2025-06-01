@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Character/UmbraBaseCharacter.h"
-#include "Stealth/LightingDetection.h"
 #include "Blueprint/UserWidget.h"
 #include "UmbraPlayerCharacter.generated.h"
 
@@ -40,10 +39,6 @@ protected:
 
 	virtual void InitAbilityActorInfo() override;
 private:
-	/** Компонент определения освещённости */
-	UPROPERTY(VisibleAnywhere, Category = "Lighting")
-	ULightingDetection* LightingDetector;
-
 	/** Наш виджет-класс полоски */
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UUserWidget> LightWidgetClass;	

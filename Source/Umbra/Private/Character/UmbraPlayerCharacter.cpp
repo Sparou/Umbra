@@ -16,7 +16,6 @@ AUmbraPlayerCharacter::AUmbraPlayerCharacter(const FObjectInitializer& ObjInit)
 	AttributeSet = CreateDefaultSubobject<UUmbraAttributeSet>("Attribute Set");
 	InteractionComponent = CreateDefaultSubobject<UInteractionComponent>("Interaction Component");
 	TraversalComponent = CreateDefaultSubobject<UTraversalComponent>("Traversal Component");
-	LightingDetector = CreateDefaultSubobject<ULightingDetection>(TEXT("LightingDetection"));
 }
 
 UAssassinationsData* AUmbraPlayerCharacter::GetAssassinationsData()

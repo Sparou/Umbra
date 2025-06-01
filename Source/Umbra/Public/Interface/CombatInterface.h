@@ -20,10 +20,10 @@ struct FWeaponSocketLocations
 	GENERATED_BODY()
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Sockets")
-	FVector WeaponBase;
+	FVector WeaponBase = FVector::ZeroVector;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Sockets")
-	FVector WeaponTip;
+	FVector WeaponTip = FVector::ZeroVector;
 };
 
 /**

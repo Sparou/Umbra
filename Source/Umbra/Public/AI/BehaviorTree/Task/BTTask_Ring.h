@@ -19,5 +19,5 @@ public:
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Node", meta = (ClampMin = "0.0"))
-	float AcceptanceRadius = 5.f;
+	float AcceptanceRadius = 100.f;
 };

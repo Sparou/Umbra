@@ -8,6 +8,7 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
+#include "Stealth/LightingDetection.h"
 #include "Umbra/Umbra.h"
 
 AUmbraBaseCharacter::AUmbraBaseCharacter()
@@ -18,6 +19,7 @@ AUmbraBaseCharacter::AUmbraBaseCharacter()
 	WeaponMeshComponent->SetupAttachment(GetMesh(), FName("RWeaponSocket"));
 	AbilitySystemComponent = CreateDefaultSubobject<UUmbraAbilitySystemComponent>("Ability System");
 	TagManager = CreateDefaultSubobject<UTagManager>("Tag Manager");
+	LightingDetector = CreateDefaultSubobject<ULightingDetection>("LightingDetection");
 
 	GetCharacterMovement()->MaxWalkSpeed = StandRunSpeed;
 	GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchRunSpeed;
@@ -126,6 +128,11 @@ void AUmbraBaseCharacter::StartDissolve()
 	{
 		MulticastDissolve();
 	}
+}
+
+const ULightingDetection* AUmbraBaseCharacter::GetLightingDetector() const
+{
+	return LightingDetector;
 }
 
 void AUmbraBaseCharacter::ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, const float Level) const

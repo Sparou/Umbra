@@ -2,6 +2,8 @@
 
 
 #include "AI/UmbraAIController.h"
+
+#include "UmbraGameplayTags.h"
 #include "AbilitySystem/UmbraEnemyAttributeSet.h"
 #include "AI/UmbraAIPerceptionComponent.h"
 #include "AI/Data/DA_EnemyChoicePriority.h"
@@ -10,8 +12,11 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Character/UmbraEnemyCharacter.h"
 #include "Character/UmbraPlayerCharacter.h"
+#include "Character/Component/TagManager.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Perception/AISense_Hearing.h"
 #include "Perception/AISense_Sight.h"
+#include "Stealth/LightingDetection.h"
 
 AUmbraAIController::AUmbraAIController()
 {
@@ -107,12 +112,26 @@ bool AUmbraAIController::ChooseEnemy()
 		const float NormalizedLastSeenTimeInterval = 1.f - FMath::Clamp(LastSeenTimeInterval / MaxTimeNotSeen, 0.f, 1.f);
 		const float CurrentEnemyBonus = IsCurrentEnemy ? 1.f : 0.f;
 
-		//TODO: test weights
 		const float Priority = ThreatWeight * NormalizedThreat +
 								DistanceWeight * NormalizedDistance +
 								TimeSinceSeenWeight * NormalizedLastSeenTimeInterval +
 								IsCurrentTargetBonus * CurrentEnemyBonus;
 
+		UE_LOG(LogTemp, Display, TEXT("Player %s have priority %f: threat = %f, distance = %f, time = %f, curTargetBon = %f"),
+			*EnemyData.Key->GetName(),
+			Priority,
+			ThreatWeight * NormalizedThreat,
+			DistanceWeight * NormalizedDistance,
+			TimeSinceSeenWeight * NormalizedLastSeenTimeInterval,
+			IsCurrentTargetBonus * CurrentEnemyBonus);
+		FString Message = "Player" + EnemyData.Key->GetName() + "have priority" + FString::SanitizeFloat(Priority) +
+			": threat = " + FString::SanitizeFloat(ThreatWeight * NormalizedThreat) + ", distance = " +
+				FString::SanitizeFloat(DistanceWeight * NormalizedDistance) + ", time = " +
+					FString::SanitizeFloat(TimeSinceSeenWeight * NormalizedLastSeenTimeInterval) + ", curTargetBon = " +
+						FString::SanitizeFloat(IsCurrentTargetBonus * CurrentEnemyBonus);
+		
+
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, Message);
 		if(Priority > BestPriority)
 		{
 			BestPriority = Priority;
@@ -145,13 +164,24 @@ bool AUmbraAIController::ChooseEnemy()
 	return true;
 }
 
+void AUmbraAIController::BeginPlay()
+{
+	Super::BeginPlay();
+
+	AUmbraBaseCharacter* UmbraCharacter = Cast<AUmbraBaseCharacter>(GetCharacter());
+	UmbraCharacter->GetTagManager()->OnGameplayTagChanged.AddDynamic(this, &AUmbraAIController::OnGameplayTagChanged);
+}
+
 void AUmbraAIController::OnPercepted(AActor* SourceActor, const FAIStimulus Stimulus)
 {
 	//FString Message = "Stimuled by" + Stimulus.Type.Name.ToString() + "strength = " + FString::SanitizeFloat(Stimulus.Strength);
 	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, Message);
 	if(!SourceActor) return;
+
+	AUmbraBaseCharacter* BaseCharacter = Cast<AUmbraBaseCharacter>(GetCharacter());
+	if(!BaseCharacter) return;
 	
-	if(Stimulus.Type == UAISense::GetSenseID(UAISense_Sight::StaticClass()))
+	if(Stimulus.Type == UAISense::GetSenseID(UAISense_Sight::StaticClass()) && BaseCharacter->GetLightingDetector()->LightPercentage > 50.f)
 	{
 		if(Stimulus.WasSuccessfullySensed())
 		{
@@ -218,7 +248,7 @@ void AUmbraAIController::OnPercepted(AActor* SourceActor, const FAIStimulus Stim
 		if(Stimulus.WasSuccessfullySensed())
 		{
 			Blackboard->SetValueAsVector(SoundLocation, Stimulus.StimulusLocation);
-			DrawDebugSphere(GetWorld(), Stimulus.StimulusLocation, 5.f, 6, FColor::Red, false, 1.f, 0, 1.f);
+			//DrawDebugSphere(GetWorld(), Stimulus.StimulusLocation, 5.f, 6, FColor::Red, false, 1.f, 0, 1.f);
 
 			//TODO: call event only if it's emitting not by known enemy
 			if(!KnownEnemies.Contains(SourceActor))
@@ -231,4 +261,12 @@ void AUmbraAIController::OnPercepted(AActor* SourceActor, const FAIStimulus Stim
 		}
 	}
 	
+}
+
+void AUmbraAIController::OnGameplayTagChanged(const FGameplayTag& Tag, bool bAdded)
+{
+	if(!bAdded) return;
+	AUmbraBaseCharacter* UmbraCharacter = Cast<AUmbraBaseCharacter>(GetCharacter());
+	UmbraCharacter->GetCharacterMovement()->MaxWalkSpeed =
+		UmbraCharacter->GetMoveSpeed(FUmbraGameplayTags::Get().State_Stance_Standing, Tag);
 }
