@@ -11,7 +11,7 @@
 struct FGameplayTagContainer;
 struct FGameplayTag;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGamplayTagChanged, FGameplayTag, Tag, bool, bAdded);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGamplayTagChanged, const FGameplayTag&, Tag, bool, bAdded);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class UMBRA_API UTagManager : public UActorComponent

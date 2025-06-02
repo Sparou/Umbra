@@ -11,6 +11,7 @@ UBTTask_MoveToDynamicLocation::UBTTask_MoveToDynamicLocation()
 	NodeName = "Move To Dynamic Location";
 	bNotifyTick = true;
 	bNotifyTaskFinished = true;
+	bTickIntervals = true;
 }
 
 EBTNodeResult::Type UBTTask_MoveToDynamicLocation::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -18,6 +19,8 @@ EBTNodeResult::Type UBTTask_MoveToDynamicLocation::ExecuteTask(UBehaviorTreeComp
 	UBlackboardComponent* BlackboardComponent = OwnerComp.GetBlackboardComponent();
 	AAIController* AIController = OwnerComp.GetAIOwner();
 	if(!BlackboardComponent || !AIController) return EBTNodeResult::Failed;
+
+	SetNextTickTime(NodeMemory, TickTime);
 
 	//TODO: May be invalid?
 	PreviousTargetLocation = BlackboardComponent->GetValueAsVector(TargetLocationKey.SelectedKeyName);
@@ -68,6 +71,8 @@ void UBTTask_MoveToDynamicLocation::TickTask(UBehaviorTreeComponent& OwnerComp, 
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 		return;
 	}
+
+	SetNextTickTime(NodeMemory, TickTime);
 }
 
 void UBTTask_MoveToDynamicLocation::OnTaskFinished(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory,

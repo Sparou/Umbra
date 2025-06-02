@@ -20,7 +20,7 @@ AUmbraBaseCharacter::AUmbraBaseCharacter()
 	PolygonMesh->SetupAttachment(GetMesh());
 	WeaponMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("Weapon Mesh");
 	WeaponMeshComponent->SetupAttachment(PolygonMesh, "RWeaponSocket");
-	
+
 	GetCharacterMovement()->MaxWalkSpeed = StandRunSpeed;
 	GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchRunSpeed;
 }
@@ -119,11 +119,6 @@ UAnimMontage* AUmbraBaseCharacter::GetRandomMeleeAttackMontage_Implementation()
 	return MeleeAttackMontages.Num() > 0 ? MeleeAttackMontages[FMath::RandRange(0, MeleeAttackMontages.Num() - 1)] : nullptr;
 }
 
-UNiagaraSystem* AUmbraBaseCharacter::GetBloodEffect_Implementation() const
-{
-	return nullptr;
-}
-
 bool AUmbraBaseCharacter::IsDead_Implementation() const
 {
 	return bIsDead;
@@ -137,20 +132,20 @@ void AUmbraBaseCharacter::Die()
 
 void AUmbraBaseCharacter::EnableOutline_Implementation(int32 StencilValue)
 {
-	if (GetMesh()->bRenderCustomDepth == true && GetMesh()->CustomDepthStencilValue == XRAY_STENCIL_VALUE)
+	if (PolygonMesh->bRenderCustomDepth == true && GetMesh()->CustomDepthStencilValue == XRAY_STENCIL_VALUE)
 	{
 		return;
 	}
 	
-	GetMesh()->SetRenderCustomDepth(true);
-	GetMesh()->SetCustomDepthStencilValue(StencilValue);
+	PolygonMesh->SetRenderCustomDepth(true);
+	PolygonMesh->SetCustomDepthStencilValue(ENEMY_OUTLINE_STENCIL_VALUE);
 }
 
 void AUmbraBaseCharacter::DisableOutline_Implementation()
 {
-	if (GetMesh()->CustomDepthStencilValue != XRAY_STENCIL_VALUE)
+	if (PolygonMesh->CustomDepthStencilValue != XRAY_STENCIL_VALUE)
 	{
-		GetMesh()->SetRenderCustomDepth(false);
+		PolygonMesh->SetRenderCustomDepth(false);
 	}
 }
 
@@ -213,8 +208,7 @@ void AUmbraBaseCharacter::Dissolve()
 	if (IsValid(DissolveMaterial))
 	{
 		UMaterialInstanceDynamic* DM = UMaterialInstanceDynamic::Create(DissolveMaterial, this);
-		GetMesh()->SetMaterial(0, DM);
-		GetMesh()->SetMaterial(1, DM);
+		PolygonMesh->SetMaterial(0, DM);
 		StartDissolveTimeline(DM);
 	}
 }
@@ -240,7 +234,7 @@ void AUmbraBaseCharacter::MulticastHandleDeath_Implementation()
 	GetMesh()->SetEnableGravity(true);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+	CharacterDeathDelegate.Broadcast();
 	
 	bIsDead = true;
-	OnDeathDelegate.Broadcast();
 }

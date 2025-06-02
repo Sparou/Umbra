@@ -267,7 +267,7 @@ void UTraversalComponent::SetTraversalState(const FGameplayTag& NewTraversalStat
 	}
 	else if (NewTraversalState.MatchesTagExact(UGT.Traversal_State_Vault))
 	{
-		SetTraversalStateSettings(ECollisionEnabled::Type::NoCollision, MOVE_Flying, false);
+		SetTraversalStateSettings(ECollisionEnabled::Type::QueryAndPhysics, MOVE_Flying, false);
 	}
 	
 }
@@ -335,6 +335,11 @@ void UTraversalComponent::SetTraversalAction(const FGameplayTag& NewTraversalAct
 	else
 	{
 		CurrentActionData = TraversalActions->FindActionDataByTag(NewTraversalAction);
+		if (!CurrentActionData.Montage)
+		{
+			TraversalAction =  UGT.Traversal_Action_NoAction;
+			return;
+		}
 		PlayTraversalMontage();
 	}
 }
@@ -800,7 +805,7 @@ void UTraversalComponent::DecideTraversalType(bool JumpAction)
 					{
 						if (CharacterMovement->Velocity.Length() > VaultMinimumVelocity)
 						{
-							if (ValidateVaultSurface())
+							if (ValidateVaultSurface() && ValidateVaultPath())
 							{
 								UE_LOG(TraversalComponentLog, Log, TEXT("DecideTraversalType: [%s]"), *UGT.Traversal_State_Vault.ToString());
 								SetTraversalAction(UGT.Traversal_Action_Vault);
@@ -820,6 +825,10 @@ void UTraversalComponent::DecideTraversalType(bool JumpAction)
 					{
 						UE_LOG(TraversalComponentLog, Warning, TEXT("DecideTraversalType: [%s]"), *UGT.Traversal_State_Mantle.ToString());
 						SetTraversalAction(UGT.Traversal_Action_Mantle);
+					}
+					else if (JumpAction)
+					{
+						OwnerCharacter->Jump();
 					}
 				}
 				else if (ValidateMantleSurface())
@@ -1063,7 +1072,8 @@ void UTraversalComponent::ClimbMovement()
 		FVector WallDetectionTraceEnd = VectorDirectionMoveWithRotation(
 			WallDetectionTraceStart,
 			UGT.Traversal_Direction_Forward,
-			ClimbMovementWallDetectionDistance, OwnerCharacter->GetActorRotation());
+			ClimbMovementWallDetectionDistance,
+			OwnerCharacter->GetActorRotation());
 		
 		UKismetSystemLibrary::SphereTraceSingle(
 			this,
@@ -1154,6 +1164,8 @@ void UTraversalComponent::ClimbMovement()
 			}
 		}
 	}
+
+	if (!ClimbWallHitResult.bBlockingHit) return;
 	
 	if (ClimbCheckForSides(ClimbTopHitResult.ImpactPoint)) return;
 	
@@ -1170,12 +1182,6 @@ void UTraversalComponent::ClimbMovement()
 		WallRotation);
 	
 	float NewLocationZ = ClimbTopHitResult.ImpactPoint.Z;
-
-	if (GetOwnerRole() < ROLE_Authority)
-	{
-		UE_LOG(TraversalComponentLog, Warning, TEXT("ClimbMovement: [Not Authority]"));
-		UE_LOG(TraversalComponentLog, Log, TEXT("X = [%f], Y = [%f], Z = [%f]"), HorizontalLocation.X, HorizontalLocation.Y, NewLocationZ);
-	}
 	
 	SetNewClimbPosition(HorizontalLocation.X, HorizontalLocation.Y, NewLocationZ, WallRotation);
 	DecideClimbStyle(ClimbTopHitResult.ImpactPoint, WallRotation);
@@ -1978,6 +1984,34 @@ void UTraversalComponent::FindHopLocation()
 
 /********************* Vault **********************/
 
+bool UTraversalComponent::ValidateVaultPath() const
+{
+	float CapsuleHeight = Capsule->GetScaledCapsuleHalfHeight() * 2;
+	FVector TraceStart = VectorDirectionMove(
+		OwnerCharacter->GetActorLocation(),
+		UGT.Traversal_Direction_Up,
+		CapsuleHeight);
+
+	FVector TraceEnd = VectorDirectionMove(
+		WallVaultResult.ImpactPoint,
+		UGT.Traversal_Direction_Up,
+		CapsuleHeight);
+
+	FHitResult VaultPathHitResult;
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(OwnerCharacter);
+	
+	GetWorld()->LineTraceSingleByChannel(
+		VaultPathHitResult,
+		TraceStart,
+		TraceEnd,
+		ECC_Visibility,
+		QueryParams);
+
+	UE_LOG(TraversalComponentLog, Log, TEXT("ValidateVaultPath: BlockingHit = [%d]"), VaultPathHitResult.bBlockingHit);
+	return !VaultPathHitResult.bBlockingHit;
+}
+
 bool UTraversalComponent::ValidateVaultSurface() const
 {
 	float OnObstacleCapsuleTraceHeight = Capsule->GetScaledCapsuleHalfHeight() / 2.f;
@@ -2294,7 +2328,7 @@ void UTraversalComponent::ValidateIsInLand()
 		bInLand = false;
 		return;
 	}
-
+	
 	FHitResult HitResult;
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(OwnerCharacter);
@@ -2305,7 +2339,7 @@ void UTraversalComponent::ValidateIsInLand()
 		SkeletalMesh->GetSocketLocation("root"),
 		FQuat::Identity,
 		ECC_Visibility,
-		FCollisionShape::MakeBox(FVector(10.f, 10.f, 4.f)),
+		FCollisionShape::MakeBox(FVector(15.f, 15.f, 15.f)),
 		QueryParams);
 }
 
