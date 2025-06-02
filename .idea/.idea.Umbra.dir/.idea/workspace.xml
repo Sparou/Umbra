@@ -7,12 +7,36 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dea8b4f8-9b1d-41c1-9f71-42c11d681219" name="Changes" comment="">
+    <list default="true" id="2aaaaba1-c24e-4444-a389-fb7b1dcedf75" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Umbra.dir/.idea/encodings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Umbra.dir/.idea/projectSettingsUpdater.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Umbra.dir/.idea/projectSettingsUpdater.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Umbra.dir/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Umbra.dir/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Umbra/Private/Character/UmbraBaseCharacter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Umbra/Private/Character/UmbraBaseCharacter.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Umbra/Private/Character/UmbraPlayerCharacter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Umbra/Private/Character/UmbraPlayerCharacter.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Umbra/Public/Character/UmbraBaseCharacter.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Umbra/Public/Character/UmbraBaseCharacter.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Umbra/Public/Character/UmbraPlayerCharacter.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Umbra/Public/Character/UmbraPlayerCharacter.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Umbra/.idea/shelf/Uncommitted_changes_before_Checkout_at_27_05_2025_19_32_[Changes]/MainLocation.umap" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Umbra/.idea/shelf/Uncommitted_changes_before_Checkout_at_27_05_2025_19_32_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Umbra/.idea/shelf/Uncommitted_changes_before_Checkout_at_27_05_2025_19_32_[Changes]1/MainLocation.umap" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Umbra/.idea/shelf/Uncommitted_changes_before_Checkout_at_27_05_2025_19_32_[Changes]1/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Umbra/.idea/shelf/Uncommitted_changes_before_Checkout_at_27_05_2025_19_32__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Umbra/.idea/shelf/Uncommitted_changes_before_Checkout_at_27_05_2025_19_32__Changes_1.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/House12_SM_Bld_House_Base_Long_03_4_001.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/House12_SM_Bld_House_Base_Long_03_4_001.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/House12_SM_Bld_House_Base_Long_03_4_002.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/House12_SM_Bld_House_Base_Long_03_4_002.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/House12_SM_Bld_House_Base_Long_03_4_003.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/House12_SM_Bld_House_Base_Long_03_4_003.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/House20.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/House20.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/House6_SM_Bld_House_Base_Long_03_4_001.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/House6_SM_Bld_House_Base_Long_03_4_001.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/House7_SM_Bld_House_Base_07_002.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/House7_SM_Bld_House_Base_07_002.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/Wall10_SM_Bld_Base_Large_05_1_004.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/Wall10_SM_Bld_Base_Large_05_1_004.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/Wall11_SM_Bld_Base_Large_05_1_002.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/Wall11_SM_Bld_Base_Large_05_1_002.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/Wall12_SM_Bld_Base_Large_DoorWay_01_1_003.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/Wall12_SM_Bld_Base_Large_DoorWay_01_1_003.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/Wall13.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/Wall13.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/Wall1_SM_Bld_Base_Large_DoorWay_01_1_005.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/Wall1_SM_Bld_Base_Large_DoorWay_01_1_005.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/Wall2_SM_Bld_Base_Large_05_1_016.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/Wall2_SM_Bld_Base_Large_05_1_016.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/Wall3_SM_Bld_Base_Large_05_1_001.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/Wall3_SM_Bld_Base_Large_05_1_001.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/Wall4_SM_Bld_Base_Large_DoorWay_01_1_002.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/Wall4_SM_Bld_Base_Large_DoorWay_01_1_002.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/Wall5_SM_Bld_Base_Large_DoorWay_01_1_008.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/Wall5_SM_Bld_Base_Large_DoorWay_01_1_008.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/Wall6.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/Wall6.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/Wall7_SM_Bld_Base_Large_05_1_010.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/Wall7_SM_Bld_Base_Large_05_1_010.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/Wall9_SM_Bld_Base_Large_05_1_007.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/Wall9_SM_Bld_Base_Large_05_1_007.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/MainLocation.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/MainLocation.umap" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Stealth/BP_FlickeringLight.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Stealth/BP_FlickeringLight.uasset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -25,27 +49,19 @@
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
     &quot;state&quot;: &quot;OPEN&quot;,
-    &quot;assignee&quot;: &quot;Sparou&quot;
+    &quot;assignee&quot;: &quot;gryzlovn&quot;
   }
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/Sparou/Umbra.git&quot;,
-    &quot;accountId&quot;: &quot;24db85e0-d3b6-41d7-a530-bea90ce5ebaa&quot;
+    &quot;accountId&quot;: &quot;8b9514f3-462c-4f69-bb82-1fbc85b13ab2&quot;
   }
 }</component>
-  <component name="HighlightingSettingsPerFile">
-    <setting file="cidr-memory-view://1" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Intermediate/Build/Win64/UnrealEditor/Inc/Umbra/UHT/CombatInterface.gen.cpp" root0="FORCE_HIGHLIGHTING" />
-  </component>
-  <component name="ProblemsViewState">
-    <option name="selectedTabId" value="Toolset" />
-  </component>
   <component name="ProjectColorInfo">{
-  &quot;customColor&quot;: &quot;&quot;,
-  &quot;associatedIndex&quot;: 3
+  &quot;associatedIndex&quot;: 0
 }</component>
-  <component name="ProjectId" id="2xdB2qSlZSiuFQhAf0BCizS2Lxe" />
+  <component name="ProjectId" id="2xwpwgIWq4nMxIdPdRmvc5hc507" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -54,14 +70,13 @@
   &quot;keyToString&quot;: {
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;Uproject.Umbra.executor&quot;: &quot;Debug&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;character-core&quot;,
+    &quot;Uproject.Umbra.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -71,10 +86,10 @@
         <option name="CONFIGURATION" value="DebugGame Editor" />
         <option name="PLATFORM" value="Win64" />
         <option name="CURRENT_LAUNCH_PROFILE" value="Local" />
-        <option name="EXECUTABLE_PATH" value="D:\Unreal Engine\UE_5.5\Engine\Binaries\Win64\UnrealEditor-Win64-DebugGame.exe" />
-        <option name="MANDATORY_PROGRAM_PARAMETERS" value=" &quot;D:\Developings\Umbra\Umbra.uproject&quot;" />
+        <option name="EXECUTABLE_PATH" value="E:\Unreal\UE_5.5\Engine\Binaries\Win64\UnrealEditor-Win64-DebugGame.exe" />
+        <option name="MANDATORY_PROGRAM_PARAMETERS" value=" &quot;E:\Git\Umbra\Umbra\Umbra.uproject&quot;" />
         <option name="CUSTOM_PROGRAM_PARAMETERS" value="" />
-        <option name="WORKING_DIRECTORY" value="D:\Unreal Engine\UE_5.5" />
+        <option name="WORKING_DIRECTORY" value="E:\Unreal\UE_5.5" />
         <option name="PASS_PARENT_ENVS" value="1" />
         <option name="USE_EXTERNAL_CONSOLE" value="1" />
         <option name="TERMINAL_INTERACTION_BEHAVIOR" value="FORCE_CONSOLE" />
@@ -84,10 +99,10 @@
         <option name="CONFIGURATION" value="DebugGame" />
         <option name="PLATFORM" value="Win64" />
         <option name="CURRENT_LAUNCH_PROFILE" value="Local" />
-        <option name="EXECUTABLE_PATH" value="D:\Developings\Umbra\Binaries\Win64\Umbra-Win64-DebugGame.exe" />
+        <option name="EXECUTABLE_PATH" value="E:\Git\Umbra\Umbra\Binaries\Win64\Umbra-Win64-DebugGame.exe" />
         <option name="MANDATORY_PROGRAM_PARAMETERS" value="" />
         <option name="CUSTOM_PROGRAM_PARAMETERS" value="" />
-        <option name="WORKING_DIRECTORY" value="D:\Unreal Engine\UE_5.5" />
+        <option name="WORKING_DIRECTORY" value="E:\Unreal\UE_5.5" />
         <option name="PASS_PARENT_ENVS" value="1" />
         <option name="USE_EXTERNAL_CONSOLE" value="1" />
         <option name="TERMINAL_INTERACTION_BEHAVIOR" value="FORCE_CONSOLE" />
@@ -97,10 +112,10 @@
         <option name="CONFIGURATION" value="Development Editor" />
         <option name="PLATFORM" value="Win64" />
         <option name="CURRENT_LAUNCH_PROFILE" value="Local" />
-        <option name="EXECUTABLE_PATH" value="D:\Unreal Engine\UE_5.5\Engine\Binaries\Win64\UnrealEditor.exe" />
-        <option name="MANDATORY_PROGRAM_PARAMETERS" value=" &quot;D:\Developings\Umbra\Umbra.uproject&quot;" />
+        <option name="EXECUTABLE_PATH" value="E:\Unreal\UE_5.5\Engine\Binaries\Win64\UnrealEditor.exe" />
+        <option name="MANDATORY_PROGRAM_PARAMETERS" value=" &quot;E:\Git\Umbra\Umbra\Umbra.uproject&quot;" />
         <option name="CUSTOM_PROGRAM_PARAMETERS" value="" />
-        <option name="WORKING_DIRECTORY" value="D:\Unreal Engine\UE_5.5" />
+        <option name="WORKING_DIRECTORY" value="E:\Unreal\UE_5.5" />
         <option name="PASS_PARENT_ENVS" value="1" />
         <option name="USE_EXTERNAL_CONSOLE" value="1" />
         <option name="TERMINAL_INTERACTION_BEHAVIOR" value="FORCE_CONSOLE" />
@@ -110,10 +125,10 @@
         <option name="CONFIGURATION" value="Development" />
         <option name="PLATFORM" value="Win64" />
         <option name="CURRENT_LAUNCH_PROFILE" value="Local" />
-        <option name="EXECUTABLE_PATH" value="D:\Developings\Umbra\Binaries\Win64\Umbra.exe" />
+        <option name="EXECUTABLE_PATH" value="E:\Git\Umbra\Umbra\Binaries\Win64\Umbra.exe" />
         <option name="MANDATORY_PROGRAM_PARAMETERS" value="" />
         <option name="CUSTOM_PROGRAM_PARAMETERS" value="" />
-        <option name="WORKING_DIRECTORY" value="D:\Unreal Engine\UE_5.5" />
+        <option name="WORKING_DIRECTORY" value="E:\Unreal\UE_5.5" />
         <option name="PASS_PARENT_ENVS" value="1" />
         <option name="USE_EXTERNAL_CONSOLE" value="1" />
         <option name="TERMINAL_INTERACTION_BEHAVIOR" value="FORCE_CONSOLE" />
@@ -123,10 +138,10 @@
         <option name="CONFIGURATION" value="Shipping" />
         <option name="PLATFORM" value="Win64" />
         <option name="CURRENT_LAUNCH_PROFILE" value="Local" />
-        <option name="EXECUTABLE_PATH" value="D:\Developings\Umbra\Binaries\Win64\Umbra-Win64-Shipping.exe" />
+        <option name="EXECUTABLE_PATH" value="E:\Git\Umbra\Umbra\Binaries\Win64\Umbra-Win64-Shipping.exe" />
         <option name="MANDATORY_PROGRAM_PARAMETERS" value="" />
         <option name="CUSTOM_PROGRAM_PARAMETERS" value="" />
-        <option name="WORKING_DIRECTORY" value="D:\Unreal Engine\UE_5.5" />
+        <option name="WORKING_DIRECTORY" value="E:\Unreal\UE_5.5" />
         <option name="PASS_PARENT_ENVS" value="1" />
         <option name="USE_EXTERNAL_CONSOLE" value="1" />
         <option name="TERMINAL_INTERACTION_BEHAVIOR" value="FORCE_CONSOLE" />
@@ -143,15 +158,13 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="dea8b4f8-9b1d-41c1-9f71-42c11d681219" name="Changes" comment="" />
-      <created>1748257866580</created>
+      <changelist id="2aaaaba1-c24e-4444-a389-fb7b1dcedf75" name="Changes" comment="" />
+      <created>1748859230266</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1748257866580</updated>
-      <workItem from="1748257868294" duration="85000" />
-      <workItem from="1748258921709" duration="263000" />
-      <workItem from="1748259244911" duration="833000" />
-      <workItem from="1748342703941" duration="468000" />
+      <updated>1748859230266</updated>
+      <workItem from="1748859232638" duration="2132000" />
+      <workItem from="1748865522983" duration="3785000" />
     </task>
     <servers />
   </component>
@@ -159,25 +172,18 @@
     <option name="version" value="3" />
   </component>
   <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <breakpoint enabled="true" type="DotNet_Exception_Breakpoints">
-          <properties exception="System.OperationCanceledException" breakIfHandledByOtherCode="false" displayValue="System.OperationCanceledException" />
-          <option name="timeStamp" value="1" />
-        </breakpoint>
-        <breakpoint enabled="true" type="DotNet_Exception_Breakpoints">
-          <properties exception="System.Threading.Tasks.TaskCanceledException" breakIfHandledByOtherCode="false" displayValue="System.Threading.Tasks.TaskCanceledException" />
-          <option name="timeStamp" value="2" />
-        </breakpoint>
-        <breakpoint enabled="true" type="DotNet_Exception_Breakpoints">
-          <properties exception="System.Threading.ThreadAbortException" breakIfHandledByOtherCode="false" displayValue="System.Threading.ThreadAbortException" />
-          <option name="timeStamp" value="3" />
-        </breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>
