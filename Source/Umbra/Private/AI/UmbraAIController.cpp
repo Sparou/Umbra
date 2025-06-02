@@ -187,7 +187,7 @@ void AUmbraAIController::OnPercepted(AActor* SourceActor, const FAIStimulus Stim
 				const float light = PlayerActor->GetLightingDetector()->LightPercentage;
 				UE_LOG(LogTemp, Warning, TEXT("Light = %s"), *FString::SanitizeFloat(light))
 				//TODO: check if bot sees player after ending invisibility when stimulus was already received 
-				if(light > 50.f/*!PlayerActor->GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(InvisibleTag))*/)
+				if(true/*!PlayerActor->GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(InvisibleTag))*/)
 				{
 					if(!Blackboard->GetValueAsBool(EverSeenEnemy))
 					{
