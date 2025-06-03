@@ -28,9 +28,11 @@ void FUmbraGameplayTags::InitializeNativeGameplayTags()
 
 	GameplayTags.Combat_Damage = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Combat.Damage"));
 	GameplayTags.Combat_HitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Combat.HitReact"));
+	GameplayTags.Combat_SpawnProjectile = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Combat.SpawnProjectile"));
 
 	/** Ability Tags */
 	GameplayTags.Ability_Melee = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Melee"));
+	GameplayTags.Ability_Distant = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Distant"));
 	GameplayTags.Ability_Stealth_Kill = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Stealth.Kill"));
 	GameplayTags.Ability_Stealth_Victim = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Stealth.Victim"));
 	GameplayTags.Ability_Through = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Through"));

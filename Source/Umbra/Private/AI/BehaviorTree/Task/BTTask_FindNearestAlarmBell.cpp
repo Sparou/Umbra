@@ -19,7 +19,10 @@ EBTNodeResult::Type UBTTask_FindNearestAlarmBell::ExecuteTask(UBehaviorTreeCompo
 	UBlackboardComponent* BlackboardComponent = AIController->GetBlackboardComponent();
 	if(!BlackboardComponent) return EBTNodeResult::Failed;
 
-	BlackboardComponent->SetValueAsVector(BlackboardKey.SelectedKeyName, Character->NearestAlarmBell()->GetActorLocation());
+	const AUmbraAlarmBell* NearestBell = Character->NearestAlarmBell();
+	if(!NearestBell) return EBTNodeResult::Failed;
+	
+	BlackboardComponent->SetValueAsVector(BlackboardKey.SelectedKeyName, NearestBell->GetActorLocation());
 	
 	return EBTNodeResult::Succeeded;
 }

@@ -3,6 +3,7 @@
 #include "Character/UmbraBaseCharacter.h"
 #include "MotionWarpingComponent.h"
 #include "AbilitySystem/UmbraAbilitySystemComponent.h"
+#include "AbilitySystem/Abilities/Projectile/UmbraProjectileGameplayAbility.h"
 #include "Character/Component/TagManager.h"
 #include "TraversalSystem/TraversalComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -107,6 +108,16 @@ FWeaponSocketLocations AUmbraBaseCharacter::GetWeaponSocketLocations_Implementat
 	} 
 	UE_LOG(LogTemp, Error, TEXT("Weapon sockets are not set up properly!"));
 	return FWeaponSocketLocations();
+}
+
+FVector AUmbraBaseCharacter::GetProjectileSpawnLocation_Implementation() const
+{
+	return PolygonMesh->GetSocketLocation("ProjectileSpawnSocket");
+}
+
+void AUmbraBaseCharacter::SetWarp_Implementation(FName WarpName, FVector TargetLocation, FRotator TargetRotation)
+{
+	MotionWarpingComponent->AddOrUpdateWarpTargetFromLocationAndRotation(WarpName, TargetLocation, TargetRotation);
 }
 
 UAnimMontage* AUmbraBaseCharacter::GetRandomHitReactMontage_Implementation()

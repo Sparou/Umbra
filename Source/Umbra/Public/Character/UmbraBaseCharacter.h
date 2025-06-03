@@ -66,6 +66,8 @@ public:
 
 	/** ICombatInterface implementation */
 	virtual FWeaponSocketLocations GetWeaponSocketLocations_Implementation() const override;
+	virtual FVector GetProjectileSpawnLocation_Implementation() const override;
+	virtual void SetWarp_Implementation(FName WarpName, FVector TargetLocation, FRotator TargetRotation) override;
 	virtual UAnimMontage* GetRandomHitReactMontage_Implementation() override;
 	virtual UAnimMontage* GetRandomMeleeAttackMontage_Implementation() override;
 	virtual bool IsDead_Implementation() const override;
