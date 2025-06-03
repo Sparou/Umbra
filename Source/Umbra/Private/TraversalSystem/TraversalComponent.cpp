@@ -1165,7 +1165,16 @@ void UTraversalComponent::ClimbMovement()
 		}
 	}
 
+	//DrawDebugSphere(GetWorld(), ClimbWallHitResult.ImpactPoint, 4.f, 8, FColor::White, false, 0.1f);
+	//DrawDebugSphere(GetWorld(), ClimbTopHitResult.ImpactPoint, 4.f, 8, FColor::Black, false, 0.1f);
+	//DrawDebugSphere(GetWorld(), WallVaultResult.ImpactPoint, 4.f, 8, FColor::Green, false, 5.f);
+	
 	if (!ClimbWallHitResult.bBlockingHit) return;
+	if (ClimbTopHitResult.bStartPenetrating)
+	{
+		StopClimbMovement();
+		return;
+	}
 	
 	if (ClimbCheckForSides(ClimbTopHitResult.ImpactPoint)) return;
 	
@@ -1241,7 +1250,9 @@ bool UTraversalComponent::ClimbCheckForSides(const FVector& ImpactPoint)
 			ClimbCheckForSidesDebugHitColor,
 			ClimbCheckForSidesDebugTime);
 
-		if (HitResult.bBlockingHit && i == ClimbCheckForSidesIterations - 1)
+		UE_LOG(TraversalComponentLog, Log, TEXT("Iteration = [%d], Hit = [%s]"), i, *HitResult.ImpactPoint.ToString());
+		
+		if ((HitResult.bBlockingHit || HitResult.bStartPenetrating) && i == ClimbCheckForSidesIterations - 1)
 		{
 			StopClimbMovement();
 			return true;
