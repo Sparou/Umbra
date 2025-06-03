@@ -7,17 +7,7 @@
     <projectFile>../../../Unreal/UE_5.5/Engine/Source/Programs/UnrealBuildTool/UnrealBuildTool.csproj</projectFile>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bbefeefe-da94-417f-9930-bf87c49da940" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Umbra.dir/.idea/encodings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Umbra.dir/.idea/projectSettingsUpdater.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Umbra.dir/.idea/projectSettingsUpdater.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Umbra.dir/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Umbra.dir/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Umbra/.idea/shelf/Uncommitted_changes_before_Checkout_at_27_05_2025_19_32_[Changes]/MainLocation.umap" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Umbra/.idea/shelf/Uncommitted_changes_before_Checkout_at_27_05_2025_19_32_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Umbra/.idea/shelf/Uncommitted_changes_before_Checkout_at_27_05_2025_19_32_[Changes]1/MainLocation.umap" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Umbra/.idea/shelf/Uncommitted_changes_before_Checkout_at_27_05_2025_19_32_[Changes]1/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Umbra/.idea/shelf/Uncommitted_changes_before_Checkout_at_27_05_2025_19_32__Changes_.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Umbra/.idea/shelf/Uncommitted_changes_before_Checkout_at_27_05_2025_19_32__Changes_1.xml" beforeDir="false" />
-    </list>
+    <list default="true" id="bbefeefe-da94-417f-9930-bf87c49da940" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -26,38 +16,38 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "gryzlovn"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;gryzlovn&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/Sparou/Umbra.git",
-    "accountId": "8b9514f3-462c-4f69-bb82-1fbc85b13ab2"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Sparou/Umbra.git&quot;,
+    &quot;accountId&quot;: &quot;8b9514f3-462c-4f69-bb82-1fbc85b13ab2&quot;
   }
-}]]></component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "customColor": "",
-  "associatedIndex": 7
-}]]></component>
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 7
+}</component>
   <component name="ProjectId" id="2xx27k2pNeDIcmDnZvFWATR4yQI" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    ".NET Project.UnrealBuildTool.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;.NET Project.UnrealBuildTool.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
-  <component name="RunManager" selected=".NET Project.UnrealBuildTool">
+}</component>
+  <component name="RunManager" selected="Docker.EpicGames.Perforce.Fixture/Dockerfile">
     <configuration name="AutomationTool" type="DotNetProject" factoryName=".NET Project">
       <option name="EXE_PATH" value="" />
       <option name="PROGRAM_PARAMETERS" value="" />
@@ -121,7 +111,10 @@
       <method v="2" />
     </configuration>
     <configuration default="true" type="docker-deploy" factoryName="dockerfile" temporary="true">
-      <deployment type="dockerfile" />
+      <deployment type="dockerfile">
+        <settings />
+      </deployment>
+      <EXTENSION ID="com.jetbrains.rider.docker.debug" isFastModeEnabled="true" isSslEnabled="false" />
       <method v="2" />
     </configuration>
   </component>
@@ -134,6 +127,7 @@
       <option name="presentableId" value="Default" />
       <updated>1748865243286</updated>
       <workItem from="1748865246747" duration="251000" />
+      <workItem from="1748952480235" duration="45000" />
     </task>
     <servers />
   </component>
