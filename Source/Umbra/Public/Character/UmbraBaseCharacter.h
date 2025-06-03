@@ -69,6 +69,8 @@ public:
 	virtual FWeaponSocketLocations GetWeaponSocketLocations_Implementation() const override;
 	virtual UAnimMontage* GetRandomHitReactMontage_Implementation(FGameplayAbilityActivationInfo AbilityActivationInfo, float SeedMultiplier = 100.f) override;
 	virtual UAnimMontage* GetRandomMeleeAttackMontage_Implementation(FGameplayAbilityActivationInfo AbilityActivationInfo, float SeedMultiplier = 100.f) override;
+	virtual FVector GetProjectileSpawnLocation_Implementation() const override;
+	virtual void SetWarp_Implementation(FName WarpName, FVector TargetLocation, FRotator TargetRotation) override;
 	virtual bool IsDead_Implementation() const override;
 	virtual void Die() override;
 	

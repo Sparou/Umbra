@@ -3,6 +3,7 @@
 #include "Character/UmbraBaseCharacter.h"
 #include "MotionWarpingComponent.h"
 #include "AbilitySystem/UmbraAbilitySystemComponent.h"
+#include "AbilitySystem/Abilities/Projectile/UmbraProjectileGameplayAbility.h"
 #include "Character/Component/TagManager.h"
 #include "TraversalSystem/TraversalComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -110,10 +111,19 @@ FWeaponSocketLocations AUmbraBaseCharacter::GetWeaponSocketLocations_Implementat
 	return FWeaponSocketLocations();
 }
 
+FVector AUmbraBaseCharacter::GetProjectileSpawnLocation_Implementation() const
+{
+	return PolygonMesh->GetSocketLocation("ProjectileSpawnSocket");
+}
+
+void AUmbraBaseCharacter::SetWarp_Implementation(FName WarpName, FVector TargetLocation, FRotator TargetRotation)
+{
+	MotionWarpingComponent->AddOrUpdateWarpTargetFromLocationAndRotation(WarpName, TargetLocation, TargetRotation);
+}
+
 UAnimMontage* AUmbraBaseCharacter::GetRandomHitReactMontage_Implementation(FGameplayAbilityActivationInfo AbilityActivationInfo, float SeedMultiplier)
 {
 	FRandomStream RandomStream(AbilityActivationInfo.GetActivationPredictionKey().Current * SeedMultiplier);
-	UE_LOG(LogTemp, Log, TEXT("Random Seed: %d"), RandomStream.GetCurrentSeed());
 	return HitReactMontages.Num() > 0 ? HitReactMontages[RandomStream.RandRange(0, HitReactMontages.Num() - 1)] : nullptr;
 }
 

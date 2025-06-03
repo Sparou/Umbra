@@ -44,6 +44,12 @@ public:
 	FWeaponSocketLocations GetWeaponSocketLocations() const;
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	FVector GetProjectileSpawnLocation() const;
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void SetWarp(FName WarpName, FVector TargetLocation, FRotator TargetRotation);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	UAnimMontage* GetRandomHitReactMontage(FGameplayAbilityActivationInfo AbilityActivationInfo, float SeedMultiplier = 100.f);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)

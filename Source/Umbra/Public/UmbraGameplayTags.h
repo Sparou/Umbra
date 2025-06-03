@@ -35,9 +35,11 @@ public:
 	
 	FGameplayTag Combat_Damage;
 	FGameplayTag Combat_HitReact;
+	FGameplayTag Combat_SpawnProjectile;
 
 	/** Ability Tags */
 	FGameplayTag Ability_Melee;
+	FGameplayTag Ability_Distant;
 	FGameplayTag Ability_Stealth_Kill;
 	FGameplayTag Ability_Stealth_Victim;
 	FGameplayTag Ability_Through;
