@@ -7,6 +7,7 @@
 #include "TraversalSystem/TraversalComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameplayAbilitySpec.h"
 #include "Net/UnrealNetwork.h"
 #include "Umbra/Umbra.h"
 
@@ -109,14 +110,18 @@ FWeaponSocketLocations AUmbraBaseCharacter::GetWeaponSocketLocations_Implementat
 	return FWeaponSocketLocations();
 }
 
-UAnimMontage* AUmbraBaseCharacter::GetRandomHitReactMontage_Implementation()
+UAnimMontage* AUmbraBaseCharacter::GetRandomHitReactMontage_Implementation(FGameplayAbilityActivationInfo AbilityActivationInfo, float SeedMultiplier)
 {
-	return HitReactMontages.Num() > 0 ? HitReactMontages[FMath::RandRange(0, HitReactMontages.Num() - 1)] : nullptr;
+	FRandomStream RandomStream(AbilityActivationInfo.GetActivationPredictionKey().Current * SeedMultiplier);
+	UE_LOG(LogTemp, Log, TEXT("Random Seed: %d"), RandomStream.GetCurrentSeed());
+	return HitReactMontages.Num() > 0 ? HitReactMontages[RandomStream.RandRange(0, HitReactMontages.Num() - 1)] : nullptr;
 }
 
-UAnimMontage* AUmbraBaseCharacter::GetRandomMeleeAttackMontage_Implementation()
+UAnimMontage* AUmbraBaseCharacter::GetRandomMeleeAttackMontage_Implementation(FGameplayAbilityActivationInfo AbilityActivationInfo,	float SeedMultiplier)
 {
-	return MeleeAttackMontages.Num() > 0 ? MeleeAttackMontages[FMath::RandRange(0, MeleeAttackMontages.Num() - 1)] : nullptr;
+	FRandomStream RandomStream(AbilityActivationInfo.GetActivationPredictionKey().Current * SeedMultiplier);
+	UE_LOG(LogTemp, Log, TEXT("Random Seed: %d"), RandomStream.GetCurrentSeed());
+	return MeleeAttackMontages.Num() > 0 ? MeleeAttackMontages[RandomStream.RandRange(0, MeleeAttackMontages.Num() - 1)] : nullptr;
 }
 
 bool AUmbraBaseCharacter::IsDead_Implementation() const

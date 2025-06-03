@@ -16,6 +16,7 @@ class UAbilitySystemComponent;
 class UMotionWarpingComponent;
 class UAttributeSet;
 class UGameplayEffect;
+struct FGameplayAbilityActivationInfo;
 
 UCLASS()
 class UMBRA_API AUmbraBaseCharacter : public ACharacter, public ICombatInterface, public IOutlineInterface
@@ -66,8 +67,8 @@ public:
 
 	/** ICombatInterface implementation */
 	virtual FWeaponSocketLocations GetWeaponSocketLocations_Implementation() const override;
-	virtual UAnimMontage* GetRandomHitReactMontage_Implementation() override;
-	virtual UAnimMontage* GetRandomMeleeAttackMontage_Implementation() override;
+	virtual UAnimMontage* GetRandomHitReactMontage_Implementation(FGameplayAbilityActivationInfo AbilityActivationInfo, float SeedMultiplier = 100.f) override;
+	virtual UAnimMontage* GetRandomMeleeAttackMontage_Implementation(FGameplayAbilityActivationInfo AbilityActivationInfo, float SeedMultiplier = 100.f) override;
 	virtual bool IsDead_Implementation() const override;
 	virtual void Die() override;
 	
