@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "NiagaraSystem.h"
+#include "GameplayAbilitySpec.h"
 #include "CombatInterface.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterDeath);
@@ -44,10 +44,10 @@ public:
 	FWeaponSocketLocations GetWeaponSocketLocations() const;
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	UAnimMontage* GetRandomHitReactMontage();
+	UAnimMontage* GetRandomHitReactMontage(FGameplayAbilityActivationInfo AbilityActivationInfo, float SeedMultiplier = 100.f);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	UAnimMontage* GetRandomMeleeAttackMontage();
+	UAnimMontage* GetRandomMeleeAttackMontage(FGameplayAbilityActivationInfo AbilityActivationInfo, float SeedMultiplier = 100.f);
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	bool IsDead() const;
