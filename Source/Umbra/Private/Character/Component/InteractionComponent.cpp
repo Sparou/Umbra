@@ -3,7 +3,7 @@
 #include "Character/Component/InteractionComponent.h"
 
 #include "UmbraCollisionChannels.h"
-#include "Interaction/InteractionInterface.h"
+#include "Interface/InteractionInterface.h"
 #include "Interface/OutlineInterface.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"

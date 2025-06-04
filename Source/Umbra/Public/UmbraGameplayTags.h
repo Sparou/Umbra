@@ -22,11 +22,15 @@ public:
 	FGameplayTag Character_Faceless;
 
 	/** Input Tags */
+	FGameplayTag Input_LMB;
+	FGameplayTag Input_RMB;
 	FGameplayTag Input_1;
 	FGameplayTag Input_2;
 	FGameplayTag Input_3;
 	FGameplayTag Input_4;
 	FGameplayTag Input_T;
+	FGameplayTag Input_F;
+
 	
 	/** Combat Tags */
 	FGameplayTag WeaponTrace_Start;

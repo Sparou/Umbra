@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Character/UmbraBaseCharacter.h"
-#include "Interaction/InteractionInterface.h"
+#include "Interface/InteractionInterface.h"
 #include "Interface/PatrollingInterface.h"
 #include "UmbraEnemyCharacter.generated.h"
 
