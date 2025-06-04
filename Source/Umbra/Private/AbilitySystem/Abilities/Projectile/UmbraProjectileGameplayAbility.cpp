@@ -59,6 +59,7 @@ FVector UUmbraProjectileGameplayAbility::GetTargetLocation()
 	{
 		UE_LOG(UmbraAbilitiesLog, Warning, TEXT("[%s] isn't UmbraBaseCharacter!"), *BaseCharacter->GetName());
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+		return FVector::ZeroVector;
 	}
 
 	if(BaseCharacter->IsPlayerControlled())
@@ -77,6 +78,7 @@ FVector UUmbraProjectileGameplayAbility::GetTargetLocation()
 	{
 		UE_LOG(UmbraAbilitiesLog, Warning, TEXT("[%s] isn't controlled by UmbraAIController!"), *BaseCharacter->GetName());
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+		return FVector::ZeroVector;
 	}
 
 	const UBlackboardComponent* BlackboardComponent = AIController->GetBlackboardComponent();
@@ -84,6 +86,7 @@ FVector UUmbraProjectileGameplayAbility::GetTargetLocation()
 	{
 		UE_LOG(UmbraAbilitiesLog, Warning, TEXT("[%s] has no BlackboardComponent!"), *BaseCharacter->GetName());
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+		return FVector::ZeroVector;
 	}
 
 	const ACharacter* TargetCharacter = Cast<ACharacter>(BlackboardComponent->GetValueAsObject(BlackboardVariableName));
@@ -91,6 +94,7 @@ FVector UUmbraProjectileGameplayAbility::GetTargetLocation()
 	{
 		UE_LOG(UmbraAbilitiesLog, Warning, TEXT("[%s] has no CurrentEnemy in Blackboard!"), *BaseCharacter->GetName());
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+		return FVector::ZeroVector;
 	}
 
 	return TargetCharacter->GetMesh()->GetBoneLocation(BoneName);

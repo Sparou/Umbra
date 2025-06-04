@@ -40,7 +40,8 @@ UAISense_Sight::EVisibilityResult AUmbraPlayerCharacter::CanBeSeenFrom(const FCa
 	const float LightPercentageThreshold = VisibilityFromDistanceSquaredCurve->Eval(Distance);
 	
 	//UE_LOG(LogTemp, Warning, TEXT("Threshold = %f; CurLight = %f"), LightPercentageThreshold, LightingDetector->LightPercentage);
-	if(LightingDetector->LightPercentage <= LightPercentageThreshold)
+	if(LightingDetector->LightPercentage <= LightPercentageThreshold ||
+		GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(InvisibilityTagName)))
 	{
 		return UAISense_Sight::EVisibilityResult::NotVisible;
 	}

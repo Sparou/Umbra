@@ -249,6 +249,7 @@ void AUmbraAIController::OnPercepted(AActor* SourceActor, const FAIStimulus Stim
 	{
 		if(Stimulus.WasSuccessfullySensed())
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Sound emitted by %s"), *SourceActor->GetName());
 			Blackboard->SetValueAsVector(SoundLocation, Stimulus.StimulusLocation);
 			//DrawDebugSphere(GetWorld(), Stimulus.StimulusLocation, 5.f, 6, FColor::Red, false, 1.f, 0, 1.f);
 

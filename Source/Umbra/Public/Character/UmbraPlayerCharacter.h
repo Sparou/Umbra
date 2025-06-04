@@ -62,5 +62,8 @@ private:
 	
 	/** Наш виджет-класс полоски */
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	TSubclassOf<UUserWidget> LightWidgetClass;	
+	TSubclassOf<UUserWidget> LightWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Tag Name")
+	FName InvisibilityTagName = "Ability.Invisibility";
 };
