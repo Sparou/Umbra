@@ -20,7 +20,7 @@ protected:
 	TSubclassOf<AUmbraBaseProjectile> ProjectileClass;
 
 	UFUNCTION(BlueprintCallable)
-	void SpawnProjectile(const FVector& SpawnLocation);
+	void SpawnProjectile(const FVector& SpawnLocation, bool bDrawDebug = false);
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI", meta = (ToolTip = "Blackboard value name for case of using the ability by AI"))
 	FName BlackboardVariableName = "CurrentEnemy";

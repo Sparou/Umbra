@@ -1,13 +1,13 @@
 // Copyrighted by Vorona Games
 
-
 #include "Actor/UmbraBaseProjectile.h"
-
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "GameplayEffect.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+
+DEFINE_LOG_CATEGORY(UmbraProjectileLog)
 
 AUmbraBaseProjectile::AUmbraBaseProjectile()
 {
@@ -23,6 +23,7 @@ void AUmbraBaseProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 
+	UE_LOG(UmbraProjectileLog, Log, TEXT("%s was created!"), *GetNameSafe(this));
 	SetLifeSpan(LifeSpan);
 
 	SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &AUmbraBaseProjectile::OnSphereBeginOverlap);
@@ -37,9 +38,9 @@ void AUmbraBaseProjectile::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedC
 		return;
 	}
 	
-	UE_LOG(LogTemp, Warning, TEXT("This actor is %s; Other Actor is %s"),
-		*this->GetName(),
-		*OtherActor->GetName());
+	UE_LOG(UmbraProjectileLog, Log, TEXT("Projectile = [%s] | Other Actor = [%s]"),
+		*GetNameSafe(this),
+		*GetNameSafe(OtherActor));
 	
 	if(HasAuthority())
 	{

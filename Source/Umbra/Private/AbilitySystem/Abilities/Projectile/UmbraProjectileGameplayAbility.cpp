@@ -2,28 +2,35 @@
 
 
 #include "AbilitySystem/Abilities/Projectile/UmbraProjectileGameplayAbility.h"
-
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "UmbraGameplayTags.h"
 #include "Actor/UmbraBaseProjectile.h"
 #include "AI/UmbraAIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Character/UmbraBaseCharacter.h"
 
-void UUmbraProjectileGameplayAbility::SpawnProjectile(const FVector& SpawnLocation)
+void UUmbraProjectileGameplayAbility::SpawnProjectile(const FVector& SpawnLocation, bool bDrawDebug)
 {
 	if(!GetAvatarActorFromActorInfo()->HasAuthority()) return;
 
 	const FVector TargetLocation = GetTargetLocation();
 	const FRotator SpawnRotation = (TargetLocation - SpawnLocation).Rotation();
+
+	UE_LOG(UmbraAbilitiesLog, Log, TEXT("%s: Spawn Location = [%s]"), *GetNameSafe(this), *SpawnLocation.ToString());\
+	UE_LOG(UmbraAbilitiesLog, Log, TEXT("%s: Spawn Rotation = [%s]"), *GetNameSafe(this), *SpawnRotation.ToString())
+	UE_LOG(UmbraAbilitiesLog, Log, TEXT("%s: Target Location = [%s]"), *GetNameSafe(this), *TargetLocation.ToString());
+
+	if (bDrawDebug)
+	{
+		DrawDebugSphere(GetWorld(), SpawnLocation, 5, 10, FColor::Green, false, 3.f);
+		DrawDebugSphere(GetWorld(), TargetLocation, 5, 10, FColor::Red, false, 3.f);
+		DrawDebugLine(GetWorld(), SpawnLocation, TargetLocation, FColor::Blue, false, 2.f);
+	}
+	
 	FTransform Transform = FTransform();
 	Transform.SetLocation(SpawnLocation);
 	Transform.SetRotation(SpawnRotation.Quaternion());
-
-	UE_LOG(UmbraAbilitiesLog, Warning, TEXT("Spawn location = [%s]"), *SpawnLocation.ToString());
-	UE_LOG(UmbraAbilitiesLog, Warning, TEXT("Target location = [%s]"), *TargetLocation.ToString());
-	//DrawDebugLine(GetWorld(), SpawnLocation, TargetLocation, FColor::Red, true);
-	//DrawDebugSphere(GetWorld(), SpawnLocation, 5.f, 16, FColor::Red, true);
 
 	AUmbraBaseProjectile* Projectile = GetWorld()->SpawnActorDeferred<AUmbraBaseProjectile>(
 		ProjectileClass,
@@ -37,8 +44,11 @@ void UUmbraProjectileGameplayAbility::SpawnProjectile(const FVector& SpawnLocati
 		DamageEffectClass,
 		GetAbilityLevel(),
 		SourceASC->MakeEffectContext());
+	
+	const float ScaledDamage = Damage.GetValueAtLevel(GetAbilityLevel());
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(GameplayEffectSpecHandle, FUmbraGameplayTags::Get().Combat_Damage, ScaledDamage);
+	
 	Projectile->SetGameplayEffectSpecHandle(GameplayEffectSpecHandle);
-
 	Projectile->FinishSpawning(Transform);
 }
 
