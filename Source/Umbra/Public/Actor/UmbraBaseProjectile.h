@@ -7,6 +7,8 @@
 #include "GameFramework/Actor.h"
 #include "UmbraBaseProjectile.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(UmbraProjectileLog, Log, All)
+
 class UProjectileMovementComponent;
 class USphereComponent;
 

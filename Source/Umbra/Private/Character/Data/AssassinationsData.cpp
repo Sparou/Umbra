@@ -2,6 +2,8 @@
 
 
 #include "Character/Data/AssassinationsData.h"
+
+#include "GameplayAbilitySpec.h"
 #include "GameplayTagContainer.h"
 
 FAssassinationData UAssassinationsData::GetRandomAssassinationDataForPosition(const FGameplayTag& Position)
@@ -25,6 +27,19 @@ FAssassinationData UAssassinationsData::GetRandomAssassinationDataForPositionWit
 
 	return GetRandomAssassinationDataFromContainerWithSeed(Data[Position], Seed);
 }
+
+FAssassinationData UAssassinationsData::GetRandomAssassinationDataFromAbility(
+	FGameplayAbilityActivationInfo ActivationInfo, const FGameplayTag& Position, float SeedMultiplier)
+{
+	if (Data[Position].Container.Num() <= 0)
+	{
+		return FAssassinationData();
+	}
+	
+	FRandomStream RandomStream(ActivationInfo.GetActivationPredictionKey().Current * SeedMultiplier);
+	return Data[Position].Container[RandomStream.RandRange(0, Data[Position].Container.Num() - 1)];
+}
+
 
 FAssassinationData UAssassinationsData::GetRandomAssassinationDataFromContainer(const FAssassinationDataContainer& AssassinationDataContainer)
 {

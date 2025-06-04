@@ -9,9 +9,9 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "TraversalComponent.generated.h"
 
-struct FTraversalActionData;
 DECLARE_LOG_CATEGORY_EXTERN(TraversalComponentLog, Log, All);
 
+struct FTraversalActionData;
 class UCapsuleComponent;
 class UCameraComponent;
 class UCharacterMovementComponent;

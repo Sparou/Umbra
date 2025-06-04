@@ -7,6 +7,8 @@
 #include "GameplayTagContainer.h"
 #include "AssassinationsData.generated.h"
 
+struct FGameplayAbilityActivationInfo;
+
 USTRUCT(BlueprintType)
 struct FAssassinationData
 {
@@ -50,6 +52,8 @@ public:
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FAssassinationData GetRandomAssassinationDataForPositionWithSeed(const FGameplayTag& Position, int32 Seed);
+
+	FAssassinationData GetRandomAssassinationDataFromAbility(FGameplayAbilityActivationInfo ActivationInfo, const FGameplayTag& Position, float SeedMultiplier = 100.f);
 
 private:
 

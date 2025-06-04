@@ -22,20 +22,17 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	float ActivationDistance = 170.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float RandomSeedMultiplier = 100.f;
 	
 protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 private:
 	AUmbraPlayerCharacter* SourceCharacter;
 	AActor* TargetCharacter;
 	FAssassinationData AssassinationData;
-
-	UPROPERTY(ReplicatedUsing = OnRep_RandomSeed)
-	int32 RandomSeed = -1;
-	UFUNCTION()
-	void OnRep_RandomSeed();
 	
 	void StartAssassination();
 	void SendEventToTarget();

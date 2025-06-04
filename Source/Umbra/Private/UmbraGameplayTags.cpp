@@ -15,11 +15,14 @@ void FUmbraGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Character_Faceless = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Character.Faceless"));
 
 	/** Input Tags */
+	GameplayTags.Input_LMB = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.LMB"));
+	GameplayTags.Input_RMB = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.RMB"));
 	GameplayTags.Input_1 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.1"));
 	GameplayTags.Input_2 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.2"));
 	GameplayTags.Input_3 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.3"));
 	GameplayTags.Input_4 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.4"));
 	GameplayTags.Input_T = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.T"));
+	GameplayTags.Input_F = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.F"));
 
 	/** Combat Tags */
 	GameplayTags.WeaponTrace_Start = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("WeaponTrace.Start"));

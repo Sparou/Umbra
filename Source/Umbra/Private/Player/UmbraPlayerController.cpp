@@ -12,8 +12,9 @@
 #include "Character/Data/PlayerCharacterInfo.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "Input/UmbraInputComponent.h"
-#include "Interaction/InteractionInterface.h"
+#include "Interface/InteractionInterface.h"
 #include "Kismet/GameplayStatics.h"
 
 void AUmbraPlayerController::SwitchToDefaultContext()
@@ -75,6 +76,7 @@ void AUmbraPlayerController::SetupInputComponent()
 	UmbraInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::OnStopCrouch);
 	UmbraInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &AUmbraPlayerController::OnStartThrough);
 	UmbraInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::OnStopThrough);
+	UmbraInputComponent->BindAction(CameraZoomAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::CameraZoom);
 
 	// For arrow movement
 	UmbraInputComponent->BindAction(ArrowAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::DirectArrow);
@@ -82,12 +84,6 @@ void AUmbraPlayerController::SetupInputComponent()
 	
 	UmbraInputComponent->BindAbilityActions(InputConfig, this, &AUmbraPlayerController::AbilityInputTagPressed,
 	                                        &AUmbraPlayerController::AbilityInputTagReleased, &AUmbraPlayerController::AbilityInputTagHeld);
-
-	UmbraInputComponent->BindAction(SwitchToAssassinAction, ETriggerEvent::Started, this,
-	                                   &AUmbraPlayerController::SwitchCharacter, FUmbraGameplayTags::Get().Character_Assassin);
-
-	UmbraInputComponent->BindAction(SwitchToTrapperAction, ETriggerEvent::Started, this,
-		&AUmbraPlayerController::SwitchCharacter, FUmbraGameplayTags::Get().Character_Trapper);
 }
 
 UUmbraAbilitySystemComponent* AUmbraPlayerController::GetAbilitySystemComponent()
@@ -150,26 +146,14 @@ UInteractionComponent* AUmbraPlayerController::GetInteractionComponent()
 	return InteractionComponent;
 }
 
-
-void AUmbraPlayerController::SwitchCharacter(FGameplayTag CharacterTag)
+USpringArmComponent* AUmbraPlayerController::GetSpingArmComponent()
 {
-	if (OwnedCharacters.Num() == 0) return;
+	if (!SpringArmComponent)
+	{
+		SpringArmComponent = GetCharacter()->GetComponentByClass<USpringArmComponent>();
+	}
 
-	//TODO: Добавить защиту от переключение на уже используемого персонажа
-	
-	TSubclassOf<AUmbraPlayerCharacter> NewCharacterBlueprint = PlayerCharactersInfo->FindPlayerCharacterBlueprintByTag(CharacterTag);
-	if (IsValid(NewCharacterBlueprint) && OwnedCharacters.Contains(NewCharacterBlueprint))
-	{
-		if (AActor* NewCharacter = UGameplayStatics::GetActorOfClass(GetWorld(), NewCharacterBlueprint))
-		{
-			Possess(Cast<APawn>(NewCharacter));
-		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Character [%s] not found in OwnedCharacters of [%s]"),
-			*CharacterTag.ToString(), *GetNameSafe(this));
-	}
+	return SpringArmComponent;
 }
 
 void AUmbraPlayerController::OnInteract()
@@ -275,6 +259,17 @@ void AUmbraPlayerController::Look(const FInputActionValue& InputActionValue)
 	APawn* CurrentPawn = GetPawn();
 	CurrentPawn->AddControllerYawInput(LookAxisVector.X);
 	CurrentPawn->AddControllerPitchInput(LookAxisVector.Y);
+}
+
+void AUmbraPlayerController::CameraZoom(const FInputActionValue& InputActionValue)
+{
+	if (GetSpingArmComponent())
+	{
+		SpringArmComponent->TargetArmLength = FMath::Clamp(
+			SpringArmComponent->TargetArmLength - CameraZoomStep * InputActionValue.Get<float>(),
+			MinCameraZoom,
+			MaxCameraZoom);
+	}
 }
 
 void AUmbraPlayerController::OnStartMoving()
