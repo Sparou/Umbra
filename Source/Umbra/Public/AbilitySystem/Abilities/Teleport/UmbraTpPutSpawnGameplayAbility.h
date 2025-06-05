@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/Abilities/UmbraCooldownGameplayAbility.h"
+#include "AbilitySystem/Abilities/UmbraCDDurationGameplayAbility.h"
 #include "UmbraTpPutSpawnGameplayAbility.generated.h"
 
 class AUmbraPortalActor;
@@ -11,7 +11,7 @@ class AUmbraPortalActor;
  * 
  */
 UCLASS() 
-class UMBRA_API UUmbraTpPutSpawnGameplayAbility : public UUmbraCooldownGameplayAbility
+class UMBRA_API UUmbraTpPutSpawnGameplayAbility : public UUmbraCDDurationGameplayAbility
 {
 	GENERATED_BODY()
 

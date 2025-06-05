@@ -26,8 +26,7 @@ void UUmbraTpSpawnGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHan
 	FHitResult HitResult;
 	FCollisionQueryParams TraceParams;
 	TraceParams.AddIgnoredActor(AvatarActor);
-
-	DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 2.f, 0, 1.f);
+	
 	
 	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult,Start, End, TraceChannel, TraceParams);
 	
@@ -36,15 +35,6 @@ void UUmbraTpSpawnGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHan
 		End += Forward * MaxTeleportDistance;
 		UE_LOG(LogTemp, Warning, TEXT("Teleport target: %s"), *Forward.ToString());
 		
-		DrawDebugSphere(
-			GetWorld(),
-			HitResult.ImpactPoint, // центр сферы — точка попадания
-			30.f,                  // радиус сферы
-			12,                    // сегменты (чем больше, тем плавнее)
-			FColor::Red,           // цвет
-			false,                 // рисовать навсегда? (false — только на время)
-			5.0f                   // длительность (секунды)
-		);
 		
 		bool bSafe = !GetWorld()->OverlapBlockingTestByChannel(
 			End,
@@ -57,16 +47,7 @@ void UUmbraTpSpawnGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHan
 		while (!bSafe)
 		{
 			End += Forward * WallOffset;
-			UE_LOG(LogTemp, Warning, TEXT("Teleport target: %s"), *Forward.ToString());
-			DrawDebugSphere(
-				GetWorld(),
-					End, // центр сферы — точка попадания
-					30.f,                  // радиус сферы
-					12,                    // сегменты (чем больше, тем плавнее)
-					FColor::Red,           // цвет
-					false,                 // рисовать навсегда? (false — только на время)
-					5.0f                   // длительность (секунды)
-				);
+			// UE_LOG(LogTemp, Warning, TEXT("Teleport target: %s"), *Forward.ToString());
 			
 			bSafe = !GetWorld()->OverlapBlockingTestByChannel(End, FQuat::Identity, TraceChannel, FCollisionShape::MakeCapsule(34.f, 88.f), TraceParams);
 		}
@@ -74,16 +55,17 @@ void UUmbraTpSpawnGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHan
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No hit"));
+		// UE_LOG(LogTemp, Warning, TEXT("No hit"));
 		AvatarActor->SetActorLocation(End);
 	}
+	// DrawDebugLine(GetWorld(), Start, End, FColor::Blue, false, 2.0f, 0, 2.0f);
 	
 	ACharacter* Character = Cast<ACharacter>(ActorInfo->AvatarActor);
 	FActorSpawnParameters Params;
 	Params.Owner = Character;
 	if (AUmbraPortalActor* Portal = GetWorld()->SpawnActor<AUmbraPortalActor>(PortalClass, Start, FRotator::ZeroRotator, Params))
 	{
-		Portal->TargetLocation = End;
+		Portal->Init(End);
 	}
 	
 	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);

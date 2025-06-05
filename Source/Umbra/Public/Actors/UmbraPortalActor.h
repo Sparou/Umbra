@@ -38,6 +38,6 @@ protected:
 		int32 OtherBodyIndex,
 		bool bFromSweep,
 		const FHitResult& SweepResult);
-
+	
 	static TArray<AActor*> RecentlyTeleportedActors;
 };

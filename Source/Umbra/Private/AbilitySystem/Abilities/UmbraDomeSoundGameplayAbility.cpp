@@ -24,7 +24,6 @@ void UUmbraDomeSoundGameplayAbility::ActivateAbility(const FGameplayAbilitySpecH
 
 	if (AUmbraSoundDome* SpawnedDome = AvatarActor->GetWorld()->SpawnActor<AUmbraSoundDome>(DomeActorClass, SpawnLocation, FRotator::ZeroRotator, Params))
 	{
-		UE_LOG(LogTemp, Display, TEXT("Init Dome"));
 		SpawnedDome->Init(DomeRadius, AbilityDuration);
 	}
 }

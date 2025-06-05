@@ -38,7 +38,6 @@ void AUmbraPlayerController::SwitchToCameraOnlyContext()
 
 void AUmbraPlayerController::SwitchToArrowContext()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, "SwitchToArrowContext");
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 	if (Subsystem)
 	{
@@ -216,8 +215,8 @@ void AUmbraPlayerController::DirectArrow(const FInputActionValue& InputActionVal
 				return;
 			}
 
-			const FVector WorldUp = FVector::UpVector;
-			const FVector RightVector = FVector::CrossProduct(WorldUp, CurrentForward).GetSafeNormal();
+			const FVector ArrowUp = ControlledPawn->GetActorUpVector();
+			const FVector RightVector = FVector::CrossProduct(ArrowUp, CurrentForward).GetSafeNormal();
 			
 
 			FVector DesiredDirection = CurrentForward 
@@ -231,21 +230,23 @@ void AUmbraPlayerController::DirectArrow(const FInputActionValue& InputActionVal
         
 			if (!DesiredDirection.IsZero())
 			{
-				FQuat CurrentQuat = ControlledPawn->GetActorQuat();
-
 				// Поворот по локальной оси Y (Pitch)
-				FQuat PitchQuat = FQuat(ControlledPawn->GetActorRightVector(), FMath::DegreesToRadians(InputAxisVector.Y * RotationSpeed));
+				const FVector LocalRight = ControlledPawn->GetActorRightVector();
+				FQuat PitchQuat = FQuat(LocalRight, FMath::DegreesToRadians(InputAxisVector.Y * RotationSpeed));
 
-				// Поворот по локальной оси Z (Yaw)
-				FQuat YawQuat = FQuat(FVector::UpVector, FMath::DegreesToRadians(InputAxisVector.X * RotationSpeed));
+				// Поворот по локальной оси Z (Yaw) — ИСПРАВЛЕНО: локальная ось "вверх", а не мировая!
+				const FVector LocalUp = ControlledPawn->GetActorUpVector();
+				FQuat YawQuat = FQuat(LocalUp, FMath::DegreesToRadians(InputAxisVector.X * RotationSpeed));
 
-				FQuat NewQuat = YawQuat * PitchQuat * CurrentQuat;
+				// Применяем вращения в нужном порядке
+				FQuat NewQuat = PitchQuat * YawQuat * ControlledPawn->GetActorQuat();
 				ControlledPawn->SetActorRotation(NewQuat);
 
-				// Получаем новое направление движения после поворота
+				// Обновляем направление движения
 				FVector NewForward = ControlledPawn->GetActorForwardVector();
-				MoveComp->Velocity = NewForward * MoveComp->InitialSpeed; // или другая желаемая скорость
+				MoveComp->Velocity = NewForward * MoveComp->InitialSpeed;
 			}
+
 		}
 	}
 }

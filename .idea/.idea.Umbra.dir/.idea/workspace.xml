@@ -9,15 +9,82 @@
   <component name="ChangeListManager">
     <list default="true" id="dea8b4f8-9b1d-41c1-9f71-42c11d681219" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Umbra.dir/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Umbra.dir/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Config/DefaultEditor.ini" beforeDir="false" afterPath="$PROJECT_DIR$/Config/DefaultEditor.ini" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Blueprints/AbilitySystem/Arrows/BP_Arrow.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/AbilitySystem/Arrows/BP_Arrow.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Blueprints/AbilitySystem/Arrows/GA_HitArrow.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/AbilitySystem/Arrows/GA_HitArrow.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Blueprints/AbilitySystem/GA_Assassination.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/AbilitySystem/GA_Assassination.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Blueprints/AbilitySystem/GA_CarryBody.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/AbilitySystem/GA_CarryBody.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Blueprints/AbilitySystem/GA_Invisibility.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/AbilitySystem/GA_Invisibility.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Blueprints/AbilitySystem/GA_MeleeAttack.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/AbilitySystem/GA_MeleeAttack.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Blueprints/AbilitySystem/GA_ShadowDouble.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/AbilitySystem/GA_ShadowDouble.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Blueprints/AbilitySystem/GA_Through.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/AbilitySystem/GA_Through.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Blueprints/AbilitySystem/SoundAbilities/GA_SoundDome.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/AbilitySystem/SoundAbilities/GA_SoundDome.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Blueprints/AbilitySystem/TeleportAbilities/BP_Portal.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/AbilitySystem/TeleportAbilities/BP_Portal.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Blueprints/AbilitySystem/TeleportAbilities/GA_PutTeleps.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/AbilitySystem/TeleportAbilities/GA_PutTeleps.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Blueprints/AbilitySystem/TeleportAbilities/GA_TelepHit.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/AbilitySystem/TeleportAbilities/GA_TelepHit.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Blueprints/AbilitySystem/TeleportAbilities/GA_TeleportForward.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/AbilitySystem/TeleportAbilities/GA_TeleportForward.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Blueprints/AbilitySystem/TeleportAbilities/GA_TeleportSpawn.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/AbilitySystem/TeleportAbilities/GA_TeleportSpawn.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Blueprints/AbilitySystem/Traps/BP_TrapTeleport.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/AbilitySystem/Traps/BP_TrapTeleport.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Blueprints/AbilitySystem/Traps/GA_PutTrap.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/AbilitySystem/Traps/GA_PutTrap.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Blueprints/Actors/BPA_MainMenuActor.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/Actors/BPA_MainMenuActor.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Blueprints/Characters/PlayerCharacters/BPC_PlayerBase.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/Characters/PlayerCharacters/BPC_PlayerBase.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Blueprints/Game/BP_GameModeBase.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/Game/BP_GameModeBase.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Blueprints/Input/IMC_UmbraPlayerContext.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/Input/IMC_UmbraPlayerContext.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Blueprints/UI/Widgets/WB_MainMenu.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/UI/Widgets/WB_MainMenu.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Characters/Archer/ABP_Archer.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Characters/Archer/ABP_Archer.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Characters/Archer/AM_Bow_Aim_Pull.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Characters/Archer/AM_Bow_Aim_Pull.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Characters/Archer/ArchBow_Idle_LookAt_C.uasset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Characters/Archer/BS_Archer_Run.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Characters/Archer/BS_Archer_Run.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Characters/Archer/Bow_Aim_Pull.uasset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Characters/Archer/Bow_InPlace_Walk_Bwd.uasset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Characters/Archer/Bow_InPlace_Walk_Bwd_45_L.uasset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Characters/Archer/Bow_InPlace_Walk_Bwd_45_L_Aim.uasset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Characters/Archer/Bow_InPlace_Walk_Bwd_45_R.uasset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Characters/Archer/Bow_InPlace_Walk_Bwd_45_R_Aim.uasset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Characters/Archer/Bow_InPlace_Walk_Fwd.uasset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Characters/Archer/Bow_InPlace_Walk_Fwd_45_L.uasset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Characters/Archer/Bow_InPlace_Walk_Fwd_45_L_Aim.uasset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Characters/Archer/Bow_InPlace_Walk_Fwd_45_R.uasset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Characters/Archer/Bow_InPlace_Walk_Fwd_45_R_Aim.uasset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Characters/Polygon/Animations/ABP_Polygon.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Characters/Polygon/Animations/ABP_Polygon.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Characters/Polygon/Meshes/SKM_Ninja.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Characters/Polygon/Meshes/SKM_Ninja.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Characters/Polygon/Meshes/SKM_Villager_Male_01.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Characters/Polygon/Meshes/SKM_Villager_Male_01.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Characters/Polygon/Meshes/SKM_Villager_Male_02.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Characters/Polygon/Meshes/SKM_Villager_Male_02.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Characters/Polygon/Meshes/SK_Polygon.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Characters/Polygon/Meshes/SK_Polygon.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/PolygonSamurai_Tex_01_Mat.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/PolygonSamurai_Tex_01_Mat.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Assets/PolygonSamurai_Tex_02_Mat.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Assets/PolygonSamurai_Tex_02_Mat.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/Lamps/Lantern.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/Lamps/Lantern.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/GameDesign/MainLocation.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/GameDesign/MainLocation.umap" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Levels/GAS_SeGo7.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Levels/GAS_SeGo7.umap" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Levels/MainMenu.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Levels/MainMenu.umap" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/PolygonFantasyKingdom/Materials/Misc/Mat_PolygonFantasyKingdom_Mat_Glass_Cross.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/PolygonFantasyKingdom/Materials/Misc/Mat_PolygonFantasyKingdom_Mat_Glass_Cross.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/PolygonSamurai/Materials/Mat_PolygonSamurai_01.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/PolygonSamurai/Materials/Mat_PolygonSamurai_01.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/PolygonSamurai/Materials/Mat_PolygonSamurai_04.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/PolygonSamurai/Materials/Mat_PolygonSamurai_04.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/PolygonSamurai/Materials/Mat_PolygonSamurai_Water.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/PolygonSamurai/Materials/Mat_PolygonSamurai_Water.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Umbra/Private/AbilitySystem/Abilities/Arrows/UmbraHitArrowGameplayAbility.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Umbra/Private/AbilitySystem/Abilities/Arrows/UmbraHitArrowGameplayAbility.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Umbra/Private/AbilitySystem/Abilities/Shadows/UmbraShadowDoubleGameplayAbility.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Umbra/Private/AbilitySystem/Abilities/Shadows/UmbraShadowDoubleGameplayAbility.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Umbra/Private/AbilitySystem/Abilities/Teleport/UmbraTelepHitGameplayAbility.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Umbra/Private/AbilitySystem/Abilities/Teleport/UmbraTelepHitGameplayAbility.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Umbra/Private/AbilitySystem/Abilities/Teleport/UmbraTpFdCooldownGameplayAbility.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Umbra/Private/AbilitySystem/Abilities/Teleport/UmbraTpFdCooldownGameplayAbility.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Umbra/Private/AbilitySystem/Abilities/Teleport/UmbraTpPutSpawnGameplayAbility.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Umbra/Private/AbilitySystem/Abilities/Teleport/UmbraTpPutSpawnGameplayAbility.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Umbra/Private/AbilitySystem/Abilities/Teleport/UmbraTpSpawnGameplayAbility.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Umbra/Private/AbilitySystem/Abilities/Teleport/UmbraTpSpawnGameplayAbility.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Umbra/Private/AbilitySystem/Abilities/UmbraDomeSoundGameplayAbility.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Umbra/Private/AbilitySystem/Abilities/UmbraDomeSoundGameplayAbility.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Umbra/Private/Actors/UmbraPortalActor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Umbra/Private/Actors/UmbraPortalActor.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Umbra/Private/Actors/UmbraSoundDome.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Umbra/Private/Actors/UmbraSoundDome.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/Umbra/Private/Character/UmbraBaseCharacter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Umbra/Private/Character/UmbraBaseCharacter.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Umbra/Private/Character/UmbraPlayerCharacter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Umbra/Private/Character/UmbraPlayerCharacter.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Umbra/Private/Player/UmbraPlayerController.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Umbra/Private/Player/UmbraPlayerController.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Umbra/Private/UmbraGameplayTags.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Umbra/Private/UmbraGameplayTags.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Umbra/Public/AbilitySystem/Abilities/Teleport/UmbraTpPutSpawnGameplayAbility.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Umbra/Public/AbilitySystem/Abilities/Teleport/UmbraTpPutSpawnGameplayAbility.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Umbra/Public/Actors/UmbraPortalActor.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Umbra/Public/Actors/UmbraPortalActor.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/Umbra/Public/Character/UmbraBaseCharacter.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Umbra/Public/Character/UmbraBaseCharacter.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Umbra/Public/Character/UmbraPlayerCharacter.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Umbra/Public/Character/UmbraPlayerCharacter.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Umbra.uproject.DotSettings.user" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="DpaMonitoringSettings">
+    <option name="firstShow" value="false" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -31,12 +98,57 @@
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/Sparou/Umbra.git&quot;,
-    &quot;accountId&quot;: &quot;24db85e0-d3b6-41d7-a530-bea90ce5ebaa&quot;
+    &quot;accountId&quot;: &quot;356cc674-5432-4b76-abae-ec270268b748&quot;
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="cidr-memory-view://1" root0="FORCE_HIGHLIGHTING" />
+    <setting file="cidr-memory-view://0" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Plugins/Runtime/GameplayAbilities/Source/GameplayAbilities/Private/Abilities/GameplayAbility.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Plugins/Runtime/GameplayAbilities/Source/GameplayAbilities/Private/AbilitySystemComponent_Abilities.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Editor/GraphEditor/Public/SGraphPanel.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/AnimGraphRuntime/Private/KismetAnimationLibrary.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/Core/Private/Logging/StructuredLog.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/Core/Private/Misc/OutputDeviceDebug.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/Core/Private/UObject/UnrealNames.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/Core/Private/Windows/WindowsErrorOutputDevice.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/Core/Public/Containers/Array.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/Core/Public/Math/Vector2D.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/Core/Public/Misc/LazySingleton.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/CoreUObject/Private/Templates/Casts.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/CoreUObject/Private/UObject/Class.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/CoreUObject/Private/UObject/ScriptCore.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/CoreUObject/Public/Templates/Casts.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/CoreUObject/Public/UObject/ObjectHandle.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/CoreUObject/Public/UObject/Package.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/CoreUObject/Public/UObject/UObjectBase.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/D3D12RHI/Private/D3D12Util.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/Engine/Classes/Animation/AnimInstance.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/Engine/Classes/Components/PrimitiveComponent.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/Engine/Classes/Components/StaticMeshComponent.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/Engine/Classes/Engine/Engine.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/Engine/Classes/Engine/EngineTypes.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/Engine/Classes/Engine/SkeletalMesh.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/Engine/Classes/Engine/World.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/Engine/Classes/GameFramework/Actor.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/Engine/Classes/GameFramework/Character.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/Engine/Classes/GameFramework/Controller.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/Engine/Classes/GameFramework/Pawn.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/Engine/Private/Actor.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/Engine/Private/Character.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/Engine/Private/Collision/ChaosVDSQTraceHelper.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/Engine/Private/Components/PrimitiveComponent.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/Engine/Private/Components/ProjectileMovementComponent.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/Engine/Private/KismetSystemLibrary.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/Engine/Private/Pawn.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/Engine/Private/PlayerController.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/Experimental/Chaos/Public/Chaos/AABBTree.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/Experimental/Chaos/Public/Chaos/GJK.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/PhysicsCore/Public/SQVisitor.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/Slate/Private/Framework/Application/SlateUser.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../Programms/UnrealEngines/UE_5.5/Engine/Source/Runtime/UMG/Private/Components/TextBlock.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Intermediate/Build/Win64/UnrealEditor/Inc/Umbra/UHT/CombatInterface.gen.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Source/Umbra/Public/AbilitySystem/Abilities/Stealth/UmbraInvisibilityGameplayAbility.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Source/Umbra/Umbra.Build.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="Toolset" />
@@ -55,7 +167,7 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;Uproject.Umbra.executor&quot;: &quot;Debug&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;character-core&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;GASeGo&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -71,10 +183,10 @@
         <option name="CONFIGURATION" value="DebugGame Editor" />
         <option name="PLATFORM" value="Win64" />
         <option name="CURRENT_LAUNCH_PROFILE" value="Local" />
-        <option name="EXECUTABLE_PATH" value="D:\Unreal Engine\UE_5.5\Engine\Binaries\Win64\UnrealEditor-Win64-DebugGame.exe" />
-        <option name="MANDATORY_PROGRAM_PARAMETERS" value=" &quot;D:\Developings\Umbra\Umbra.uproject&quot;" />
+        <option name="EXECUTABLE_PATH" value="F:\Programms\UnrealEngines\UE_5.5\Engine\Binaries\Win64\UnrealEditor-Win64-DebugGame.exe" />
+        <option name="MANDATORY_PROGRAM_PARAMETERS" value=" &quot;F:\Project\UnrealEngine\Umbra\Umbra.uproject&quot;" />
         <option name="CUSTOM_PROGRAM_PARAMETERS" value="" />
-        <option name="WORKING_DIRECTORY" value="D:\Unreal Engine\UE_5.5" />
+        <option name="WORKING_DIRECTORY" value="F:\Programms\UnrealEngines\UE_5.5" />
         <option name="PASS_PARENT_ENVS" value="1" />
         <option name="USE_EXTERNAL_CONSOLE" value="1" />
         <option name="TERMINAL_INTERACTION_BEHAVIOR" value="FORCE_CONSOLE" />
@@ -84,10 +196,10 @@
         <option name="CONFIGURATION" value="DebugGame" />
         <option name="PLATFORM" value="Win64" />
         <option name="CURRENT_LAUNCH_PROFILE" value="Local" />
-        <option name="EXECUTABLE_PATH" value="D:\Developings\Umbra\Binaries\Win64\Umbra-Win64-DebugGame.exe" />
+        <option name="EXECUTABLE_PATH" value="F:\Project\UnrealEngine\Umbra\Binaries\Win64\Umbra-Win64-DebugGame.exe" />
         <option name="MANDATORY_PROGRAM_PARAMETERS" value="" />
         <option name="CUSTOM_PROGRAM_PARAMETERS" value="" />
-        <option name="WORKING_DIRECTORY" value="D:\Unreal Engine\UE_5.5" />
+        <option name="WORKING_DIRECTORY" value="F:\Programms\UnrealEngines\UE_5.5" />
         <option name="PASS_PARENT_ENVS" value="1" />
         <option name="USE_EXTERNAL_CONSOLE" value="1" />
         <option name="TERMINAL_INTERACTION_BEHAVIOR" value="FORCE_CONSOLE" />
@@ -97,10 +209,10 @@
         <option name="CONFIGURATION" value="Development Editor" />
         <option name="PLATFORM" value="Win64" />
         <option name="CURRENT_LAUNCH_PROFILE" value="Local" />
-        <option name="EXECUTABLE_PATH" value="D:\Unreal Engine\UE_5.5\Engine\Binaries\Win64\UnrealEditor.exe" />
-        <option name="MANDATORY_PROGRAM_PARAMETERS" value=" &quot;D:\Developings\Umbra\Umbra.uproject&quot;" />
+        <option name="EXECUTABLE_PATH" value="F:\Programms\UnrealEngines\UE_5.5\Engine\Binaries\Win64\UnrealEditor.exe" />
+        <option name="MANDATORY_PROGRAM_PARAMETERS" value=" &quot;F:\Project\UnrealEngine\Umbra\Umbra.uproject&quot;" />
         <option name="CUSTOM_PROGRAM_PARAMETERS" value="" />
-        <option name="WORKING_DIRECTORY" value="D:\Unreal Engine\UE_5.5" />
+        <option name="WORKING_DIRECTORY" value="F:\Programms\UnrealEngines\UE_5.5" />
         <option name="PASS_PARENT_ENVS" value="1" />
         <option name="USE_EXTERNAL_CONSOLE" value="1" />
         <option name="TERMINAL_INTERACTION_BEHAVIOR" value="FORCE_CONSOLE" />
@@ -110,10 +222,10 @@
         <option name="CONFIGURATION" value="Development" />
         <option name="PLATFORM" value="Win64" />
         <option name="CURRENT_LAUNCH_PROFILE" value="Local" />
-        <option name="EXECUTABLE_PATH" value="D:\Developings\Umbra\Binaries\Win64\Umbra.exe" />
+        <option name="EXECUTABLE_PATH" value="F:\Project\UnrealEngine\Umbra\Binaries\Win64\Umbra.exe" />
         <option name="MANDATORY_PROGRAM_PARAMETERS" value="" />
         <option name="CUSTOM_PROGRAM_PARAMETERS" value="" />
-        <option name="WORKING_DIRECTORY" value="D:\Unreal Engine\UE_5.5" />
+        <option name="WORKING_DIRECTORY" value="F:\Programms\UnrealEngines\UE_5.5" />
         <option name="PASS_PARENT_ENVS" value="1" />
         <option name="USE_EXTERNAL_CONSOLE" value="1" />
         <option name="TERMINAL_INTERACTION_BEHAVIOR" value="FORCE_CONSOLE" />
@@ -123,10 +235,10 @@
         <option name="CONFIGURATION" value="Shipping" />
         <option name="PLATFORM" value="Win64" />
         <option name="CURRENT_LAUNCH_PROFILE" value="Local" />
-        <option name="EXECUTABLE_PATH" value="D:\Developings\Umbra\Binaries\Win64\Umbra-Win64-Shipping.exe" />
+        <option name="EXECUTABLE_PATH" value="F:\Project\UnrealEngine\Umbra\Binaries\Win64\Umbra-Win64-Shipping.exe" />
         <option name="MANDATORY_PROGRAM_PARAMETERS" value="" />
         <option name="CUSTOM_PROGRAM_PARAMETERS" value="" />
-        <option name="WORKING_DIRECTORY" value="D:\Unreal Engine\UE_5.5" />
+        <option name="WORKING_DIRECTORY" value="F:\Programms\UnrealEngines\UE_5.5" />
         <option name="PASS_PARENT_ENVS" value="1" />
         <option name="USE_EXTERNAL_CONSOLE" value="1" />
         <option name="TERMINAL_INTERACTION_BEHAVIOR" value="FORCE_CONSOLE" />
@@ -152,6 +264,14 @@
       <workItem from="1748258921709" duration="263000" />
       <workItem from="1748259244911" duration="833000" />
       <workItem from="1748342703941" duration="468000" />
+      <workItem from="1748521697477" duration="3238000" />
+      <workItem from="1748543932129" duration="3181000" />
+      <workItem from="1748584070781" duration="5934000" />
+      <workItem from="1748591176031" duration="672000" />
+      <workItem from="1748591868430" duration="2817000" />
+      <workItem from="1748793677731" duration="1820000" />
+      <workItem from="1748964806891" duration="606000" />
+      <workItem from="1749107211171" duration="3282000" />
     </task>
     <servers />
   </component>
@@ -161,23 +281,5 @@
   <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <breakpoint enabled="true" type="DotNet_Exception_Breakpoints">
-          <properties exception="System.OperationCanceledException" breakIfHandledByOtherCode="false" displayValue="System.OperationCanceledException" />
-          <option name="timeStamp" value="1" />
-        </breakpoint>
-        <breakpoint enabled="true" type="DotNet_Exception_Breakpoints">
-          <properties exception="System.Threading.Tasks.TaskCanceledException" breakIfHandledByOtherCode="false" displayValue="System.Threading.Tasks.TaskCanceledException" />
-          <option name="timeStamp" value="2" />
-        </breakpoint>
-        <breakpoint enabled="true" type="DotNet_Exception_Breakpoints">
-          <properties exception="System.Threading.ThreadAbortException" breakIfHandledByOtherCode="false" displayValue="System.Threading.ThreadAbortException" />
-          <option name="timeStamp" value="3" />
-        </breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>
