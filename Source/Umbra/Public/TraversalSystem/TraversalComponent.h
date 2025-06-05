@@ -37,6 +37,9 @@ public:
 protected:
     virtual void BeginPlay() override;
 
+    UPROPERTY(EditAnywhere)
+    bool bOnScreenDebug = false;
+    
     UPROPERTY(EditAnywhere, Category="Actions")
     TObjectPtr<UTraversalActionsData> TraversalActions;
     

@@ -93,5 +93,10 @@ FVector UUmbraProjectileGameplayAbility::GetTargetLocation()
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 	}
 
-	return TargetCharacter->GetMesh()->GetBoneLocation(BoneName);
+	if (TargetCharacter->GetMesh())
+	{
+		return TargetCharacter->GetMesh()->GetBoneLocation(BoneName);
+	}
+	
+	return FVector::ZeroVector;
 }
