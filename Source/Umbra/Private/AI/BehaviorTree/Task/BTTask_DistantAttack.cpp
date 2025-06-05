@@ -43,7 +43,7 @@ void UBTTask_DistantAttack::OnAbilityEnded(const FAbilityEndedData& AbilityEnded
 		return;
 	}
 
-	if(AbilityEndedData.AbilityThatEnded->AbilityTags.HasTag(DistantAttackTag))
+	if(AbilityEndedData.AbilityThatEnded->GetAssetTags().HasTag(DistantAttackTag))
 	{
 		CachedASC->OnAbilityEnded.RemoveAll(this);
 

@@ -80,3 +80,4 @@ void UBTTask_MoveToDynamicLocation::OnTaskFinished(UBehaviorTreeComponent& Owner
 {
 	bIsMoving = false;
 }
+
