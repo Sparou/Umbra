@@ -7,10 +7,9 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "AbilitySystem/Abilities/GameplayAbilitiesFunctionLibrary.h"
 #include "Character/Component/InteractionComponent.h"
-#include "TraversalSystem/TraversalComponent.h"
+#include "Character/Component/TraversalComponent.h"
 #include "Character/UmbraPlayerCharacter.h"
 #include "Components/CapsuleComponent.h"
-#include "Net/UnrealNetwork.h"
 #include "Player/UmbraPlayerController.h"
 
 DEFINE_LOG_CATEGORY(UmbraAbilitiesLog)
@@ -23,40 +22,7 @@ void UAssassinationAbility::ActivateAbility(const FGameplayAbilitySpecHandle Han
 	if (!InitializeSourceCharacter()) return;
 	if (!InitializeTargetCharacter()) return;
 	if (!ValidateActivationDistance()) return;
-	
-	if (HasAuthority(&ActivationInfo))
-	{
-		RandomSeed = FMath::Rand();
-	}
-	else
-	{
-		return;
-	}
 
-	if (!InitializeAssassinationData()) return;
-
-	if (AUmbraPlayerController* UmbraPlayerController = Cast<AUmbraPlayerController>(SourceCharacter->GetController()))
-	{
-		UmbraPlayerController->SwitchToCameraOnlyContext();
-	}
-	
-	SendEventToTarget();
-	StartAssassination();
-}
-
-void UAssassinationAbility::OnRep_RandomSeed()
-{
-
-	/*
-	 * Если сервер запустить способность быстрее (как происхоидт в случае с Simulated Proxy)
-	 * то возможно ситуация, когда инициатор и цель способности не будут инициализированы.
-	 */
-	if (!SourceCharacter || !TargetCharacter)
-	{
-		GetWorld()->GetTimerManager().SetTimerForNextTick(this, &UAssassinationAbility::OnRep_RandomSeed);
-		return;
-	}
-	
 	if (!InitializeAssassinationData()) return;
 
 	if (AUmbraPlayerController* UmbraPlayerController = Cast<AUmbraPlayerController>(SourceCharacter->GetController()))
@@ -170,13 +136,14 @@ bool UAssassinationAbility::InitializeTargetCharacter()
 
 bool UAssassinationAbility::InitializeAssassinationData()
 {
-	AssassinationData = SourceCharacter->GetAssassinationsData()->GetRandomAssassinationDataForPositionWithSeed(
+	AssassinationData = SourceCharacter->GetAssassinationsData()->GetRandomAssassinationDataFromAbility(
+		GetCurrentActivationInfo(),
 		UGameplayAbilitiesFunctionLibrary::GetActorPositionRelativeToTarget(SourceCharacter, TargetCharacter, HeightDifferenceThreshold),
-		RandomSeed);
+		RandomSeedMultiplier);
 	
 	if (!AssassinationData.KillerMontage || !AssassinationData.VictimMontage)
 	{
-		UE_LOG(UmbraAbilitiesLog, Warning, TEXT("[Assasination Ability]: Animations not found!"))
+		UE_LOG(UmbraAbilitiesLog, Warning, TEXT("[Assassination Ability]: Animations not found!"))
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 		return false;
 	}
@@ -200,11 +167,4 @@ void UAssassinationAbility::EnableMovement()
 	{
 		UmbraPlayerController->SwitchToDefaultContext();
 	}
-}
-
-void UAssassinationAbility::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME(UAssassinationAbility, RandomSeed);
 }

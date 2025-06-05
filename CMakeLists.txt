@@ -33,20 +33,20 @@ include("C:/Users/limosoque/Documents/GitHub/Umbra/Intermediate/ProjectFiles/cma
 set_source_files_properties(${PROJECT_CONFIG_FILES} PROPERTIES HEADER_FILE_ONLY TRUE)
 source_group("Config Files" REGULAR_EXPRESSION .*.ini)
 
-add_custom_target(UnrealEditor-Win64-DebugGame call "C:/Programs/Epic Games/UE_5.4/Engine/Build/BatchFiles/Build.bat" UnrealEditor Win64 DebugGame  -game -progress -buildscw VERBATIM)
-add_custom_target(UnrealEditor-Win64-Shipping call "C:/Programs/Epic Games/UE_5.4/Engine/Build/BatchFiles/Build.bat" UnrealEditor Win64 Shipping  -game -progress -buildscw VERBATIM)
-add_custom_target(UnrealEditor call "C:/Programs/Epic Games/UE_5.4/Engine/Build/BatchFiles/Build.bat" UnrealEditor Win64 Development  -game -progress -buildscw VERBATIM)
+add_custom_target(UnrealEditor-Win64-DebugGame call "C:/Program Files/Epic Games/UE_5.5/Engine/Build/BatchFiles/Build.bat" UnrealEditor Win64 DebugGame  -game -progress -buildscw VERBATIM)
+add_custom_target(UnrealEditor-Win64-Shipping call "C:/Program Files/Epic Games/UE_5.5/Engine/Build/BatchFiles/Build.bat" UnrealEditor Win64 Shipping  -game -progress -buildscw VERBATIM)
+add_custom_target(UnrealEditor call "C:/Program Files/Epic Games/UE_5.5/Engine/Build/BatchFiles/Build.bat" UnrealEditor Win64 Development  -game -progress -buildscw VERBATIM)
 
-add_custom_target(UnrealGame-Win64-DebugGame call "C:/Programs/Epic Games/UE_5.4/Engine/Build/BatchFiles/Build.bat" UnrealGame Win64 DebugGame  -game -progress -buildscw VERBATIM)
-add_custom_target(UnrealGame-Win64-Shipping call "C:/Programs/Epic Games/UE_5.4/Engine/Build/BatchFiles/Build.bat" UnrealGame Win64 Shipping  -game -progress -buildscw VERBATIM)
-add_custom_target(UnrealGame call "C:/Programs/Epic Games/UE_5.4/Engine/Build/BatchFiles/Build.bat" UnrealGame Win64 Development  -game -progress -buildscw VERBATIM)
+add_custom_target(UnrealGame-Win64-DebugGame call "C:/Program Files/Epic Games/UE_5.5/Engine/Build/BatchFiles/Build.bat" UnrealGame Win64 DebugGame  -game -progress -buildscw VERBATIM)
+add_custom_target(UnrealGame-Win64-Shipping call "C:/Program Files/Epic Games/UE_5.5/Engine/Build/BatchFiles/Build.bat" UnrealGame Win64 Shipping  -game -progress -buildscw VERBATIM)
+add_custom_target(UnrealGame call "C:/Program Files/Epic Games/UE_5.5/Engine/Build/BatchFiles/Build.bat" UnrealGame Win64 Development  -game -progress -buildscw VERBATIM)
 
-add_custom_target(Umbra-Win64-DebugGame call "C:/Programs/Epic Games/UE_5.4/Engine/Build/BatchFiles/Build.bat" Umbra Win64 DebugGame "-project=C:/Users/limosoque/Documents/GitHub/Umbra/Umbra.uproject" -game -progress -buildscw VERBATIM)
-add_custom_target(Umbra-Win64-Shipping call "C:/Programs/Epic Games/UE_5.4/Engine/Build/BatchFiles/Build.bat" Umbra Win64 Shipping "-project=C:/Users/limosoque/Documents/GitHub/Umbra/Umbra.uproject" -game -progress -buildscw VERBATIM)
-add_custom_target(Umbra call "C:/Programs/Epic Games/UE_5.4/Engine/Build/BatchFiles/Build.bat" Umbra Win64 Development "-project=C:/Users/limosoque/Documents/GitHub/Umbra/Umbra.uproject" -game -progress -buildscw VERBATIM)
+add_custom_target(Umbra-Win64-DebugGame call "C:/Program Files/Epic Games/UE_5.5/Engine/Build/BatchFiles/Build.bat" Umbra Win64 DebugGame "-project=C:/Users/limosoque/Documents/GitHub/Umbra/Umbra.uproject" -game -progress -buildscw VERBATIM)
+add_custom_target(Umbra-Win64-Shipping call "C:/Program Files/Epic Games/UE_5.5/Engine/Build/BatchFiles/Build.bat" Umbra Win64 Shipping "-project=C:/Users/limosoque/Documents/GitHub/Umbra/Umbra.uproject" -game -progress -buildscw VERBATIM)
+add_custom_target(Umbra call "C:/Program Files/Epic Games/UE_5.5/Engine/Build/BatchFiles/Build.bat" Umbra Win64 Development "-project=C:/Users/limosoque/Documents/GitHub/Umbra/Umbra.uproject" -game -progress -buildscw VERBATIM)
 
-add_custom_target(UmbraEditor-Win64-DebugGame call "C:/Programs/Epic Games/UE_5.4/Engine/Build/BatchFiles/Build.bat" UmbraEditor Win64 DebugGame "-project=C:/Users/limosoque/Documents/GitHub/Umbra/Umbra.uproject" -game -progress -buildscw VERBATIM)
-add_custom_target(UmbraEditor-Win64-Shipping call "C:/Programs/Epic Games/UE_5.4/Engine/Build/BatchFiles/Build.bat" UmbraEditor Win64 Shipping "-project=C:/Users/limosoque/Documents/GitHub/Umbra/Umbra.uproject" -game -progress -buildscw VERBATIM)
-add_custom_target(UmbraEditor call "C:/Programs/Epic Games/UE_5.4/Engine/Build/BatchFiles/Build.bat" UmbraEditor Win64 Development "-project=C:/Users/limosoque/Documents/GitHub/Umbra/Umbra.uproject" -game -progress -buildscw VERBATIM)
+add_custom_target(UmbraEditor-Win64-DebugGame call "C:/Program Files/Epic Games/UE_5.5/Engine/Build/BatchFiles/Build.bat" UmbraEditor Win64 DebugGame "-project=C:/Users/limosoque/Documents/GitHub/Umbra/Umbra.uproject" -game -progress -buildscw VERBATIM)
+add_custom_target(UmbraEditor-Win64-Shipping call "C:/Program Files/Epic Games/UE_5.5/Engine/Build/BatchFiles/Build.bat" UmbraEditor Win64 Shipping "-project=C:/Users/limosoque/Documents/GitHub/Umbra/Umbra.uproject" -game -progress -buildscw VERBATIM)
+add_custom_target(UmbraEditor call "C:/Program Files/Epic Games/UE_5.5/Engine/Build/BatchFiles/Build.bat" UmbraEditor Win64 Development "-project=C:/Users/limosoque/Documents/GitHub/Umbra/Umbra.uproject" -game -progress -buildscw VERBATIM)
 
 add_executable(FakeTarget ${ENGINE_HEADER_FILES} ${ENGINE_SOURCE_FILES} ${ENGINE_CSHARP_FILES} ${ENGINE_SHADER_FILES} ${ENGINE_CONFIG_FILES} ${PROJECT_HEADER_FILES} ${PROJECT_SOURCE_FILES} ${PROJECT_CSHARP_FILES} ${PROJECT_SHADER_FILES} ${PROJECT_CONFIG_FILES})

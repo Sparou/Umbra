@@ -3,7 +3,7 @@
 
 #include "AbilitySystem/Abilities/Teleport/UmbraTpPutSpawnGameplayAbility.h"
 
-#include "Actors/UmbraPortalActor.h"
+#include "Actor/UmbraPortalActor.h"
 #include "GameFramework/Character.h"
 
 FVector UUmbraTpPutSpawnGameplayAbility::LocationPortalStart = FVector::ZeroVector;

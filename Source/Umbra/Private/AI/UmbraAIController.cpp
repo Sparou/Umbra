@@ -2,6 +2,8 @@
 
 
 #include "AI/UmbraAIController.h"
+
+#include "UmbraGameplayTags.h"
 #include "AbilitySystem/UmbraEnemyAttributeSet.h"
 #include "AI/UmbraAIPerceptionComponent.h"
 #include "AI/Data/DA_EnemyChoicePriority.h"
@@ -10,8 +12,11 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Character/UmbraEnemyCharacter.h"
 #include "Character/UmbraPlayerCharacter.h"
+#include "Character/Component/TagManager.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Perception/AISense_Hearing.h"
 #include "Perception/AISense_Sight.h"
+#include "Stealth/LightingDetection.h"
 
 AUmbraAIController::AUmbraAIController()
 {
@@ -107,12 +112,26 @@ bool AUmbraAIController::ChooseEnemy()
 		const float NormalizedLastSeenTimeInterval = 1.f - FMath::Clamp(LastSeenTimeInterval / MaxTimeNotSeen, 0.f, 1.f);
 		const float CurrentEnemyBonus = IsCurrentEnemy ? 1.f : 0.f;
 
-		//TODO: test weights
 		const float Priority = ThreatWeight * NormalizedThreat +
 								DistanceWeight * NormalizedDistance +
 								TimeSinceSeenWeight * NormalizedLastSeenTimeInterval +
 								IsCurrentTargetBonus * CurrentEnemyBonus;
 
+		UE_LOG(LogTemp, Display, TEXT("Player %s have priority %f: threat = %f, distance = %f, time = %f, curTargetBon = %f"),
+			*EnemyData.Key->GetName(),
+			Priority,
+			ThreatWeight * NormalizedThreat,
+			DistanceWeight * NormalizedDistance,
+			TimeSinceSeenWeight * NormalizedLastSeenTimeInterval,
+			IsCurrentTargetBonus * CurrentEnemyBonus);
+		FString Message = "Player" + EnemyData.Key->GetName() + "have priority" + FString::SanitizeFloat(Priority) +
+			": threat = " + FString::SanitizeFloat(ThreatWeight * NormalizedThreat) + ", distance = " +
+				FString::SanitizeFloat(DistanceWeight * NormalizedDistance) + ", time = " +
+					FString::SanitizeFloat(TimeSinceSeenWeight * NormalizedLastSeenTimeInterval) + ", curTargetBon = " +
+						FString::SanitizeFloat(IsCurrentTargetBonus * CurrentEnemyBonus);
+		
+
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, Message);
 		if(Priority > BestPriority)
 		{
 			BestPriority = Priority;
@@ -145,6 +164,14 @@ bool AUmbraAIController::ChooseEnemy()
 	return true;
 }
 
+void AUmbraAIController::BeginPlay()
+{
+	Super::BeginPlay();
+
+	AUmbraBaseCharacter* UmbraCharacter = Cast<AUmbraBaseCharacter>(GetCharacter());
+	UmbraCharacter->GetTagManager()->OnGameplayTagChanged.AddDynamic(this, &AUmbraAIController::OnGameplayTagChanged);
+}
+
 void AUmbraAIController::OnPercepted(AActor* SourceActor, const FAIStimulus Stimulus)
 {
 	//FString Message = "Stimuled by" + Stimulus.Type.Name.ToString() + "strength = " + FString::SanitizeFloat(Stimulus.Strength);
@@ -157,6 +184,8 @@ void AUmbraAIController::OnPercepted(AActor* SourceActor, const FAIStimulus Stim
 		{
 			if(AUmbraPlayerCharacter* PlayerActor = Cast<AUmbraPlayerCharacter>(SourceActor))
 			{
+				const float light = PlayerActor->GetLightingDetector()->LightPercentage;
+				UE_LOG(LogTemp, Warning, TEXT("Light = %s"), *FString::SanitizeFloat(light))
 				//TODO: check if bot sees player after ending invisibility when stimulus was already received 
 				if(true/*!PlayerActor->GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(InvisibleTag))*/)
 				{
@@ -206,9 +235,12 @@ void AUmbraAIController::OnPercepted(AActor* SourceActor, const FAIStimulus Stim
 		{
 			if(AUmbraPlayerCharacter* PlayerActor = Cast<AUmbraPlayerCharacter>(SourceActor))
 			{
-				KnownEnemies[SourceActor].IsVisible = false;
-				KnownEnemies[SourceActor].LastKnownLocation = Stimulus.StimulusLocation;
-				KnownEnemies[SourceActor].LastSeenTime = GetWorld()->GetTimeSeconds();
+				if(KnownEnemies.Contains(SourceActor))
+				{
+					KnownEnemies[SourceActor].IsVisible = false;
+					KnownEnemies[SourceActor].LastKnownLocation = Stimulus.StimulusLocation;
+					KnownEnemies[SourceActor].LastSeenTime = GetWorld()->GetTimeSeconds();
+				}
 			}
 		}
 	}
@@ -217,6 +249,7 @@ void AUmbraAIController::OnPercepted(AActor* SourceActor, const FAIStimulus Stim
 	{
 		if(Stimulus.WasSuccessfullySensed())
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Sound emitted by %s"), *SourceActor->GetName());
 			Blackboard->SetValueAsVector(SoundLocation, Stimulus.StimulusLocation);
 			//DrawDebugSphere(GetWorld(), Stimulus.StimulusLocation, 5.f, 6, FColor::Red, false, 1.f, 0, 1.f);
 
@@ -231,4 +264,12 @@ void AUmbraAIController::OnPercepted(AActor* SourceActor, const FAIStimulus Stim
 		}
 	}
 	
+}
+
+void AUmbraAIController::OnGameplayTagChanged(const FGameplayTag& Tag, bool bAdded)
+{
+	if(!bAdded) return;
+	AUmbraBaseCharacter* UmbraCharacter = Cast<AUmbraBaseCharacter>(GetCharacter());
+	UmbraCharacter->GetCharacterMovement()->MaxWalkSpeed =
+		UmbraCharacter->GetMoveSpeed(FUmbraGameplayTags::Get().State_Stance_Standing, Tag);
 }

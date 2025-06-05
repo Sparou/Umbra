@@ -8,6 +8,7 @@
 #include "Interface/OutlineInterface.h"
 #include "UmbraBaseCharacter.generated.h"
 
+class ULightingDetection;
 class UTagManager;
 class UMeshComponent;
 class UMaterialInterface;
@@ -17,6 +18,7 @@ class UAbilitySystemComponent;
 class UMotionWarpingComponent;
 class UAttributeSet;
 class UGameplayEffect;
+struct FGameplayAbilityActivationInfo;
 
 USTRUCT()
 struct FOriginalMaterialArray
@@ -77,14 +79,15 @@ public:
 
 	/** ICombatInterface implementation */
 	virtual FWeaponSocketLocations GetWeaponSocketLocations_Implementation() const override;
-	virtual UAnimMontage* GetRandomHitReactMontage_Implementation() override;
-	virtual UAnimMontage* GetRandomMeleeAttackMontage_Implementation() override;
-	virtual UNiagaraSystem* GetBloodEffect_Implementation() const override;
+	virtual UAnimMontage* GetRandomHitReactMontage_Implementation(FGameplayAbilityActivationInfo AbilityActivationInfo, float SeedMultiplier = 100.f) override;
+	virtual UAnimMontage* GetRandomMeleeAttackMontage_Implementation(FGameplayAbilityActivationInfo AbilityActivationInfo, float SeedMultiplier = 100.f) override;
+	virtual FVector GetProjectileSpawnLocation_Implementation() const override;
+	virtual void SetWarp_Implementation(FName WarpName, FVector TargetLocation, FRotator TargetRotation) override;
 	virtual bool IsDead_Implementation() const override;
 	virtual void Die() override;
-
+	
 	UPROPERTY(BlueprintAssignable)
-	FOnCharacterDead OnDeathDelegate;
+	FOnCharacterDeath CharacterDeathDelegate;
 
 	/** IOutline Interface **/
 	virtual void EnableOutline_Implementation(int32 StencilValue) override;
@@ -173,6 +176,5 @@ protected:
 	void MulticastDissolve();
 	
 private:
-
 	bool bIsDead = false;
 };

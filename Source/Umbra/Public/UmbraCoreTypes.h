@@ -12,3 +12,12 @@ enum class EStealthKillPosition : uint8
 	Left UMETA(DisplayName = "Left"),
 	Right UMETA(DisplayName = "Right")
 };
+
+USTRUCT(BlueprintType)
+struct FMotionWarpingParams
+{
+	GENERATED_BODY()
+
+	FVector Location = FVector::ZeroVector;
+	FRotator Rotation = FRotator::ZeroRotator;
+};

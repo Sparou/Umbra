@@ -22,11 +22,15 @@ public:
 	FGameplayTag Character_Faceless;
 
 	/** Input Tags */
+	FGameplayTag Input_LMB;
+	FGameplayTag Input_RMB;
 	FGameplayTag Input_1;
 	FGameplayTag Input_2;
 	FGameplayTag Input_3;
 	FGameplayTag Input_4;
 	FGameplayTag Input_T;
+	FGameplayTag Input_F;
+
 	
 	/** Combat Tags */
 	FGameplayTag WeaponTrace_Start;
@@ -35,9 +39,11 @@ public:
 	
 	FGameplayTag Combat_Damage;
 	FGameplayTag Combat_HitReact;
+	FGameplayTag Combat_SpawnProjectile;
 
 	/** Ability Tags */
 	FGameplayTag Ability_Melee;
+	FGameplayTag Ability_Distant;
 	FGameplayTag Ability_Stealth_Kill;
 	FGameplayTag Ability_Stealth_Victim;
 	FGameplayTag Ability_Through;

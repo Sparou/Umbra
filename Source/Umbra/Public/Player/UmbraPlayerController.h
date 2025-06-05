@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "UmbraPlayerController.generated.h"
 
+class USpringArmComponent;
 class UInteractionComponent;
 class UTraversalComponent;
 class UUmbraAbilitySystemComponent;
@@ -30,8 +31,6 @@ class UMBRA_API AUmbraPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(BlueprintReadWrite)
-	TObjectPtr<AActor> OverlapedActor = nullptr;
 
 	UPROPERTY(BlueprintReadOnly)
 	bool bWantsToWalk;
@@ -44,7 +43,6 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	bool bWantsToThough;
-	
 
 	UFUNCTION(BlueprintCallable)
 	void SwitchToDefaultContext();
@@ -59,8 +57,6 @@ protected:
 
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
-
-private:
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<UInputMappingContext> InputContext;
@@ -94,22 +90,24 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Input|Basic")
 	TObjectPtr<UInputAction> DropAction;
-	
-	UPROPERTY(EditAnywhere, Category = "Input|Characters")
-	TObjectPtr<UInputAction> SwitchToAssassinAction;
 
-	UPROPERTY(EditAnywhere, Category = "Input|Characters")
-	TObjectPtr<UInputAction> SwitchToTrapperAction;
+	UPROPERTY(EditAnywhere, Category = "Input|Camera")
+	TObjectPtr<UInputAction> CameraZoomAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input|Camera")
+	float CameraZoomStep = 10.f;
+
+	UPROPERTY(EditAnywhere, Category = "Input|Camera")
+	float MinCameraZoom = 150.f;
+
+	UPROPERTY(EditAnywhere, Category = "Input|Camera")
+	float MaxCameraZoom = 1000.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input|Abilities")
 	TObjectPtr<UUmbraInputConfig> InputConfig;
 	
-	UPROPERTY(EditAnywhere, Category = "Characters")
-	TArray<TSubclassOf<AUmbraPlayerCharacter>> OwnedCharacters;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Characters")
-	TObjectPtr<UPlayerCharacterInfo> PlayerCharactersInfo;
-
+private:
+	
 	UPROPERTY()
 	TObjectPtr<AUmbraBaseCharacter> ControlledCharacter;
 	UPROPERTY()
@@ -122,6 +120,8 @@ private:
 	TObjectPtr<UTagManager> TagManager;
 	UPROPERTY()
 	TObjectPtr<UInteractionComponent> InteractionComponent;
+	UPROPERTY()
+	TObjectPtr<USpringArmComponent> SpringArmComponent;
 
 	UUmbraAbilitySystemComponent* GetAbilitySystemComponent();
 	UTraversalComponent* GetTraversalComponent();
@@ -129,12 +129,12 @@ private:
 	UTagManager* GetTagManager();
 	AUmbraBaseCharacter* GetControlledCharacter();
 	UInteractionComponent* GetInteractionComponent();
+	USpringArmComponent* GetSpingArmComponent();
 	
 	void SwitchCharacter(FGameplayTag CharacterTag);
 	void Interact();
 
 	void DirectArrow(const FInputActionValue& InputActionValue);
-
 	
 	void OnInteract();
 	void Interact(AActor* InteractionTarget);
@@ -143,6 +143,7 @@ private:
 	
 	void Move(const FInputActionValue& InputActionValue);
 	void Look(const FInputActionValue& InputActionValue);
+	void CameraZoom(const FInputActionValue& InputActionValue);
 
 	void OnStartMoving();
 	void OnStopMoving();

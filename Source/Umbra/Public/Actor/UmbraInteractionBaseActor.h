@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Interaction/InteractionInterface.h"
+#include "Interface/InteractionInterface.h"
 #include "Interface/OutlineInterface.h"
 #include "UmbraInteractionBaseActor.generated.h"
 

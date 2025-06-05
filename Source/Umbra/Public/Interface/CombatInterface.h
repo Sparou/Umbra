@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "NiagaraSystem.h"
+#include "GameplayAbilitySpec.h"
 #include "CombatInterface.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterDead);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterDeath);
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI, BlueprintType)
@@ -21,11 +21,11 @@ struct FWeaponSocketLocations
 {
 	GENERATED_BODY()
 	
-	UPROPERTY(BlueprintReadOnly, Category = "Sockets")
-	FVector WeaponBase;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Sockets")
+	FVector WeaponBase = FVector(0, 0, 0);
 
-	UPROPERTY(BlueprintReadOnly, Category = "Sockets")
-	FVector WeaponTip;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Sockets")
+	FVector WeaponTip = FVector::ZeroVector;
 };
 
 /**
@@ -39,21 +39,21 @@ class UMBRA_API ICombatInterface
 public:
 
 	virtual void Die() = 0;
-	
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void UpdateFacingTarget(const FVector& TargetLocation);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	FWeaponSocketLocations GetWeaponSocketLocations() const;
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	UAnimMontage* GetRandomHitReactMontage();
+	FVector GetProjectileSpawnLocation() const;
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	UAnimMontage* GetRandomMeleeAttackMontage();
-	
+	void SetWarp(FName WarpName, FVector TargetLocation, FRotator TargetRotation);
+
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	UNiagaraSystem* GetBloodEffect() const;
+	UAnimMontage* GetRandomHitReactMontage(FGameplayAbilityActivationInfo AbilityActivationInfo, float SeedMultiplier = 100.f);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	UAnimMontage* GetRandomMeleeAttackMontage(FGameplayAbilityActivationInfo AbilityActivationInfo, float SeedMultiplier = 100.f);
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	bool IsDead() const;

@@ -15,11 +15,14 @@ void FUmbraGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Character_Faceless = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Character.Faceless"));
 
 	/** Input Tags */
+	GameplayTags.Input_LMB = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.LMB"));
+	GameplayTags.Input_RMB = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.RMB"));
 	GameplayTags.Input_1 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.1"));
 	GameplayTags.Input_2 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.2"));
 	GameplayTags.Input_3 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.3"));
 	GameplayTags.Input_4 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.4"));
 	GameplayTags.Input_T = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.T"));
+	GameplayTags.Input_F = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.F"));
 
 	/** Combat Tags */
 	GameplayTags.WeaponTrace_Start = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("WeaponTrace.Start"));
@@ -28,9 +31,11 @@ void FUmbraGameplayTags::InitializeNativeGameplayTags()
 
 	GameplayTags.Combat_Damage = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Combat.Damage"));
 	GameplayTags.Combat_HitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Combat.HitReact"));
+	GameplayTags.Combat_SpawnProjectile = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Combat.SpawnProjectile"));
 
 	/** Ability Tags */
 	GameplayTags.Ability_Melee = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Melee"));
+	GameplayTags.Ability_Distant = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Distant"));
 	GameplayTags.Ability_Stealth_Kill = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Stealth.Kill"));
 	GameplayTags.Ability_Stealth_Victim = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Stealth.Victim"));
 	GameplayTags.Ability_Through = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Through"));

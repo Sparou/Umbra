@@ -18,6 +18,7 @@ public:
 	UBTTask_SetBoolValue();
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+	virtual FString GetStaticDescription() const override;
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Blackboard")

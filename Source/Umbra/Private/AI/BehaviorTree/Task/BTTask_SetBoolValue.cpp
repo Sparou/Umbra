@@ -18,3 +18,10 @@ EBTNodeResult::Type UBTTask_SetBoolValue::ExecuteTask(UBehaviorTreeComponent& Ow
 	BlackboardComponent->SetValueAsBool(BlackboardKey.SelectedKeyName, Value);
 	return EBTNodeResult::Succeeded;
 }
+
+FString UBTTask_SetBoolValue::GetStaticDescription() const
+{
+	const FString KeyName = BlackboardKey.SelectedKeyName.ToString();
+	const FString KeyValue = Value ? "true" : "false";
+	return FString::Printf(TEXT("Set %s to %s"), *KeyName, *KeyValue);
+}

@@ -27,6 +27,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "AI", meta = (ToolTip = "the distance from the old location value to the new one at which the path will be updated"))
 	float PathUpdateThreshold = 100.f;
 
+	UPROPERTY(EditAnywhere, Category = "Tick")
+	float TickTime = 1.f;
+
 private:
 	FVector PreviousTargetLocation = FVector::ZeroVector;
 	bool bIsMoving = false;

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Character/UmbraBaseCharacter.h"
-#include "Interaction/InteractionInterface.h"
+#include "Interface/InteractionInterface.h"
 #include "Interface/PatrollingInterface.h"
 #include "UmbraEnemyCharacter.generated.h"
 
@@ -43,6 +43,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category = "AI")
 	TObjectPtr<UBehaviorTree> BehaviorTree;
+
+	UPROPERTY(EditAnywhere, Category = "AI", meta = (ToolTip = "if true, run behavior tree in PossessedBy"))
+	bool bIsActive = true;
 
 	//TODO: think whether u need to move patrollin n alarm logic to controller  
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI|Patrolling")

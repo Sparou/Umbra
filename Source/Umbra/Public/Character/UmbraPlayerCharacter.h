@@ -6,6 +6,7 @@
 #include "Character/UmbraBaseCharacter.h"
 #include "Stealth/LightingDetection.h"
 #include "Blueprint/UserWidget.h"
+#include "Perception/AISightTargetInterface.h"
 #include "UmbraPlayerCharacter.generated.h"
 
 class UAssassinationsData;
@@ -16,7 +17,7 @@ class UTraversalComponent;
  * 
  */
 UCLASS()
-class UMBRA_API AUmbraPlayerCharacter : public AUmbraBaseCharacter
+class UMBRA_API AUmbraPlayerCharacter : public AUmbraBaseCharacter, public IAISightTargetInterface 
 {
 	GENERATED_BODY()
 public:
@@ -24,6 +25,17 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	UAssassinationsData* GetAssassinationsData();
+	
+	const ULightingDetection* GetLightingDetector() const;
+
+	/** IAISightTargetInterface implementation */
+	virtual UAISense_Sight::EVisibilityResult CanBeSeenFrom(
+		const FCanBeSeenFromContext& Context,
+		FVector& OutSeenLocation,
+		int32& OutNumberOfLoSChecksPerformed,
+		int32& OutNumberOfAsyncLosCheckRequested,
+		float& OutSightStrength, int32* UserData,
+		const FOnPendingVisibilityQueryProcessedDelegate* Delegate) override;
 
 protected:
 
@@ -37,6 +49,10 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Data")
 	TObjectPtr<UAssassinationsData> AssassinationsData;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI Sight",
+	meta = (ToolTip = "Table of player visibility thresholds depending on the distance to the AI"))
+	TObjectPtr<UCurveTable> ThresholdOfVisibilityFromDistanceSquaredTable;
 	
 	virtual void InitAbilityActorInfo() override;
 private:
@@ -46,5 +62,8 @@ private:
 	
 	/** Наш виджет-класс полоски */
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	TSubclassOf<UUserWidget> LightWidgetClass;	
+	TSubclassOf<UUserWidget> LightWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Tag Name")
+	FName InvisibilityTagName = "Ability.Invisibility";
 };
