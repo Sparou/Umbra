@@ -26,6 +26,8 @@ public:
 
 	const AUmbraAlarmBell* NearestAlarmBell() const;
 
+	virtual void MulticastHandleDeath_Implementation() override;
+
 	/** Patrolling Interface */
 	virtual AActor* GetCurrentDestinationPoint() const override;
 	virtual void IncrementCurrentDestinationPoint() override;

@@ -42,7 +42,7 @@ void UBTTask_MeleeAttack::OnAbilityEnded(const FAbilityEndedData& AbilityEndedDa
 		return;
 	}
 
-	if(AbilityEndedData.AbilityThatEnded->AbilityTags.HasTag(MeleeAttackTag))
+	if(AbilityEndedData.AbilityThatEnded->GetAssetTags().HasTag(MeleeAttackTag))
 	{
 		CachedASC->OnAbilityEnded.RemoveAll(this);
 

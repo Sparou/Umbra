@@ -121,6 +121,9 @@ protected:
 #pragma region GameplayTag names
 	UPROPERTY(EditDefaultsOnly, Category = "GameplayTag")
 	FName InvisibleTag = "Ability.Invisibility";
+
+	UPROPERTY(EditDefaultsOnly, Category = "GameplayTag")
+	FName SilenceTag = "Ability.DomeSound";
 #pragma endregion
 
 #pragma region Event names

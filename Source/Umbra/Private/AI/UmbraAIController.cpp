@@ -170,6 +170,7 @@ void AUmbraAIController::BeginPlay()
 
 	AUmbraBaseCharacter* UmbraCharacter = Cast<AUmbraBaseCharacter>(GetCharacter());
 	UmbraCharacter->GetTagManager()->OnGameplayTagChanged.AddDynamic(this, &AUmbraAIController::OnGameplayTagChanged);
+	//UmbraCharacter->GetAbilitySystemComponent()->RegisterGameplayTagEvent()
 }
 
 void AUmbraAIController::OnPercepted(AActor* SourceActor, const FAIStimulus Stimulus)
@@ -249,14 +250,19 @@ void AUmbraAIController::OnPercepted(AActor* SourceActor, const FAIStimulus Stim
 	{
 		if(Stimulus.WasSuccessfullySensed())
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Sound emitted by %s"), *SourceActor->GetName());
-			Blackboard->SetValueAsVector(SoundLocation, Stimulus.StimulusLocation);
-			//DrawDebugSphere(GetWorld(), Stimulus.StimulusLocation, 5.f, 6, FColor::Red, false, 1.f, 0, 1.f);
-
-			//TODO: call event only if it's emitting not by known enemy
-			if(!KnownEnemies.Contains(SourceActor))
+			if(AUmbraPlayerCharacter* PlayerActor = Cast<AUmbraPlayerCharacter>(SourceActor))
 			{
-				ReactToEvent(HearNoise);
+				if(true/*!PlayerActor->GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(SilenceTag))*/)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Sound emitted by %s"), *SourceActor->GetName());
+					Blackboard->SetValueAsVector(SoundLocation, Stimulus.StimulusLocation);
+					//DrawDebugSphere(GetWorld(), Stimulus.StimulusLocation, 5.f, 6, FColor::Red, false, 1.f, 0, 1.f);
+
+					if(!KnownEnemies.Contains(SourceActor))
+					{
+						ReactToEvent(HearNoise);
+					}
+				}
 			}
 		}
 		else
@@ -268,6 +274,8 @@ void AUmbraAIController::OnPercepted(AActor* SourceActor, const FAIStimulus Stim
 
 void AUmbraAIController::OnGameplayTagChanged(const FGameplayTag& Tag, bool bAdded)
 {
+	//TODO Ability.TrapBlock
+	
 	if(!bAdded) return;
 	AUmbraBaseCharacter* UmbraCharacter = Cast<AUmbraBaseCharacter>(GetCharacter());
 	UmbraCharacter->GetCharacterMovement()->MaxWalkSpeed =

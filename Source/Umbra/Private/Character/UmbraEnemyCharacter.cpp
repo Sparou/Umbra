@@ -9,6 +9,9 @@
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Perception/AIPerceptionComponent.h"
+#include "Perception/AISense_Hearing.h"
+#include "Perception/AISense_Sight.h"
 
 AUmbraEnemyCharacter::AUmbraEnemyCharacter()
 {
@@ -41,6 +44,35 @@ const AUmbraAlarmBell* AUmbraEnemyCharacter::NearestAlarmBell() const
 		}		
 	}
 	return NearestAlarmBell;
+}
+
+void AUmbraEnemyCharacter::MulticastHandleDeath_Implementation()
+{
+	//UmbraAIController->BrainComponent->StopLogic("Death");
+	if(UBehaviorTreeComponent* BehaviorTreeComponent = Cast<UBehaviorTreeComponent>(UmbraAIController->BrainComponent))
+	{
+		BehaviorTreeComponent->StopTree(EBTStopMode::Forced);
+	}
+
+	UmbraAIController->StopMovement();
+
+	
+	if(UmbraAIController->PerceptionComponent)
+	{
+		UmbraAIController->PerceptionComponent->OnTargetPerceptionUpdated.Clear();
+		UmbraAIController->PerceptionComponent->SetSenseEnabled(UAISense_Sight::StaticClass(), false);
+		UmbraAIController->PerceptionComponent->SetSenseEnabled(UAISense_Hearing::StaticClass(), false);
+	}
+
+	UmbraAIController->UnPossess();
+	UmbraAIController->Destroy();
+
+	if(GetAbilitySystemComponent())
+	{
+		GetAbilitySystemComponent()->CancelAllAbilities();
+	}
+	
+	Super::MulticastHandleDeath_Implementation();
 }
 
 AActor* AUmbraEnemyCharacter::GetCurrentDestinationPoint() const
