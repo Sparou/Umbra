@@ -21,8 +21,6 @@ void UUmbraTelepHitGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHa
 	FHitResult HitResult;
 	FCollisionQueryParams TraceParams;
 	TraceParams.AddIgnoredActor(AvatarActor);
-
-	DrawDebugLine(GetWorld(), InitialLocation, End, FColor::Green, false, 2.f, 0, 1.f);
 	
 	if (GetWorld()->LineTraceSingleByChannel(HitResult,InitialLocation, End, TraceChannel, TraceParams))
 	{

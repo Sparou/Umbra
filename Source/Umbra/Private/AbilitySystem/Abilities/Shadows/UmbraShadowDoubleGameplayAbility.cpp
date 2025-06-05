@@ -18,8 +18,7 @@ void UUmbraShadowDoubleGameplayAbility::ActivateAbility(const FGameplayAbilitySp
                                                         const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
-	UE_LOG(LogTemp, Warning, TEXT("ActivateAbility called on %s"), *GetNameSafe(GetAvatarActorFromActorInfo()));
+	
 	
 	ACharacter* SourceCharacter = Cast<ACharacter>(GetAvatarActorFromActorInfo());
 

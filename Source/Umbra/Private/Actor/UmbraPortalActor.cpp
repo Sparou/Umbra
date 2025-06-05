@@ -27,6 +27,7 @@ void AUmbraPortalActor::Init(FVector TrgLocation)
 
 AUmbraPortalActor::AUmbraPortalActor()
 {
+	    bReplicates = true;
 	PrimaryActorTick.bCanEverTick = false;
 
 	// Привязываем компонент Capsule, который в Blueprint называется "Portal"

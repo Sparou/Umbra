@@ -26,8 +26,7 @@ void UUmbraTpFdCooldownGameplayAbility::ActivateAbility(
 	FHitResult HitResult;
 	FCollisionQueryParams TraceParams;
 	TraceParams.AddIgnoredActor(AvatarActor);
-
-	DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 2.f, 0, 1.f);
+	
 	
 	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult,Start, End, TraceChannel, TraceParams);
 	
@@ -36,15 +35,6 @@ void UUmbraTpFdCooldownGameplayAbility::ActivateAbility(
 		FVector TeleportTarget = End + Forward * MaxTeleportDistance;
 		UE_LOG(LogTemp, Warning, TEXT("Teleport target: %s"), *Forward.ToString());
 		
-		DrawDebugSphere(
-			GetWorld(),
-			HitResult.ImpactPoint, // центр сферы — точка попадания
-			30.f,                  // радиус сферы
-			12,                    // сегменты (чем больше, тем плавнее)
-			FColor::Red,           // цвет
-			false,                 // рисовать навсегда? (false — только на время)
-			5.0f                   // длительность (секунды)
-		);
 		
 		bool bSafe = !GetWorld()->OverlapBlockingTestByChannel(
 			TeleportTarget,
@@ -58,15 +48,6 @@ void UUmbraTpFdCooldownGameplayAbility::ActivateAbility(
 		{
 			TeleportTarget += Forward * WallOffset;
 			UE_LOG(LogTemp, Warning, TEXT("Teleport target: %s"), *Forward.ToString());
-			DrawDebugSphere(
-				GetWorld(),
-					TeleportTarget, // центр сферы — точка попадания
-					30.f,                  // радиус сферы
-					12,                    // сегменты (чем больше, тем плавнее)
-					FColor::Red,           // цвет
-					false,                 // рисовать навсегда? (false — только на время)
-					5.0f                   // длительность (секунды)
-				);
 			
 			bSafe = !GetWorld()->OverlapBlockingTestByChannel(TeleportTarget, FQuat::Identity, TraceChannel, FCollisionShape::MakeCapsule(34.f, 88.f), TraceParams);
 		}

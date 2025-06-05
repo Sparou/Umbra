@@ -39,6 +39,7 @@ void FUmbraGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Ability_Stealth_Kill = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Stealth.Kill"));
 	GameplayTags.Ability_Stealth_Victim = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Stealth.Victim"));
 	GameplayTags.Ability_Through = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Through"));
+	GameplayTags.Ability_DomeSound = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.DomeSound"));
 	GameplayTags.Ability_Invisibility = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Invisibility"));
 	GameplayTags.Ability_Invisibility = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Trap.Block"));
 	GameplayTags.Ability_Invisibility = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Trap.Kill"));

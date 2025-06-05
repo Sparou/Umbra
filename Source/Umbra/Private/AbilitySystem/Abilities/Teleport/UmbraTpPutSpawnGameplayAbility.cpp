@@ -18,26 +18,23 @@ void UUmbraTpPutSpawnGameplayAbility::ActivateAbility(const FGameplayAbilitySpec
                                                       const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
                                                       const FGameplayEventData* TriggerEventData)
 {
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-	
-	if (!ActorInfo || !ActorInfo->AvatarActor.IsValid())
+	if (!IsLocallyControlled() || !ActorInfo || !ActorInfo->AvatarActor.IsValid())
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 		return;
 	}
 
-	AActor* AvatarActor = ActorInfo->AvatarActor.Get();
+	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
+	AActor* AvatarActor = ActorInfo->AvatarActor.Get();
 	if (!bStartPlaced)
 	{
 		LocationPortalStart = AvatarActor->GetActorLocation();
 		bStartPlaced = true;
-		
-		DrawDebugSphere(GetWorld(), LocationPortalStart, 30.f, 12, FColor::Blue, false, 5.f);
 	}
 	else
 	{
-		// Второй клик: создаем портал
+		// Второй клик: создаем порталБ
 		FVector LocationPortalEnd = AvatarActor->GetActorLocation();
 		bStartPlaced = false;
 
@@ -51,14 +48,8 @@ void UUmbraTpPutSpawnGameplayAbility::ActivateAbility(const FGameplayAbilitySpec
 			{
 				PortalStart->Init(LocationPortalEnd);
 				PortalEnd->Init(LocationPortalStart);
-
-				// Визуализация
-				DrawDebugSphere(GetWorld(), LocationPortalEnd, 30.f, 12, FColor::Green, false, 5.f);
-				DrawDebugSphere(GetWorld(), LocationPortalStart, 30.f, 12, FColor::Green, false, 5.f);
-				DrawDebugLine(GetWorld(), LocationPortalStart, LocationPortalEnd, FColor::Cyan, false, 5.f, 0, 2.f);
-				
 			}
 		}
-	}
+	}	
 	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 }

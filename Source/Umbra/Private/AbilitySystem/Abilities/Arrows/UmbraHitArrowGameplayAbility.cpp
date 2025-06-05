@@ -13,13 +13,7 @@ void UUmbraHitArrowGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHa
                                                     const FGameplayAbilityActivationInfo ActivationInfo,
                                                     const FGameplayEventData* TriggerEventData)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green,
-		TEXT("Hit Arrow Ability Activated!"));
-		
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green,
-		TEXT("Hit Arrow Ability Activated!"));
 	
 	if (!ArrowClass || !ActorInfo->AvatarActor.IsValid())
 	{

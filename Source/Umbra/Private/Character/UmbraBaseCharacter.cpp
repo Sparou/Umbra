@@ -47,30 +47,87 @@ float AUmbraBaseCharacter::GetMoveSpeed(const FGameplayTag& Stance, const FGamep
 
 void AUmbraBaseCharacter::OnRep_InvisibilityChanged()
 {
-	if (!OriginalMaterial && GetMesh())
-	{
-		OriginalMaterial = GetMesh()->GetMaterial(0);
-		OriginalWeaponMaterials = GetMesh()->GetMaterial(2);
-	}
-	
-	if (IsLocallyControlled() || IsShadow)
-	{
-		if (bIsInvisible)
-		{
-			if (InvisibleMaterial)   GetMesh()->SetMaterial(0, InvisibleMaterial);
-			if (InvisibleMaterial)   WeaponMeshComponent->SetMaterial(0, InvisibleWeaponMaterials);
-		}
-		else
-		{
-			if (InvisibleMaterial)   GetMesh()->SetMaterial(0, OriginalMaterial);
-			if (InvisibleMaterial)   WeaponMeshComponent->SetMaterial(0, OriginalWeaponMaterials);
-		}
-	}
-	else
-	{
-		// Остальные игроки: делаем полностью невидимым
-		GetMesh()->SetVisibility(!bIsInvisible, true);
-	}
+    // Получаем все компоненты-меши (включая Skeletal и Static)
+    TArray<UMeshComponent*> MeshComponents;
+    GetComponents<UMeshComponent>(MeshComponents);
+
+    if (MeshComponents.Num() == 0)
+        return;
+
+    // Сохраняем оригинальные материалы, если ещё не сохранены
+    if (OriginalMaterialsMap.Num() == 0)
+    {
+        for (UMeshComponent* MeshComp : MeshComponents)
+        {
+            if (!MeshComp) continue;
+
+            FOriginalMaterialArray MaterialArray;
+            int32 MaterialCount = MeshComp->GetNumMaterials();
+
+            for (int32 i = 0; i < MaterialCount; ++i)
+            {
+                UMaterialInterface* Mat = MeshComp->GetMaterial(i);
+                MaterialArray.Materials.Add(Mat);
+            }
+
+            OriginalMaterialsMap.Add(MeshComp, MaterialArray);
+        }
+    }
+
+    if (IsLocallyControlled() || IsShadow)
+    {
+        if (bIsInvisible)
+        {
+            // Устанавливаем невидимые материалы
+            for (UMeshComponent* MeshComp : MeshComponents)
+            {
+                if (!MeshComp) continue;
+
+                int32 MaterialCount = MeshComp->GetNumMaterials();
+                for (int32 i = 0; i < MaterialCount; ++i)
+                {
+                    MeshComp->SetMaterial(i, InvisibleMaterial);
+                }
+            }
+
+            if (InvisibleWeaponMaterials && WeaponMeshComponent)
+            {
+                WeaponMeshComponent->SetMaterial(0, InvisibleWeaponMaterials);
+            }
+        }
+        else
+        {
+            // Восстанавливаем оригинальные материалы
+            for (TPair<UMeshComponent*, FOriginalMaterialArray>& Pair : OriginalMaterialsMap)
+            {
+                UMeshComponent* MeshComp = Pair.Key;
+                const TArray<UMaterialInterface*>& Materials = Pair.Value.Materials;
+
+                if (!MeshComp) continue;
+
+                for (int32 i = 0; i < Materials.Num(); ++i)
+                {
+                    MeshComp->SetMaterial(i, Materials[i]);
+                }
+            }
+
+            if (OriginalWeaponMaterials && WeaponMeshComponent)
+            {
+                WeaponMeshComponent->SetMaterial(0, OriginalWeaponMaterials);
+            }
+        }
+    }
+    else
+    {
+        // Для других игроков — просто скрываем/показываем меши
+        for (UMeshComponent* MeshComp : MeshComponents)
+        {
+            if (MeshComp)
+            {
+                MeshComp->SetVisibility(!bIsInvisible, true);
+            }
+        }
+    }
 }
 
 void AUmbraBaseCharacter::SetInvisibility(bool bInvisible)

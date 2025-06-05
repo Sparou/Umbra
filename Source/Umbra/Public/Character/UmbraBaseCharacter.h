@@ -10,6 +10,8 @@
 
 class ULightingDetection;
 class UTagManager;
+class UMeshComponent;
+class UMaterialInterface;
 class UTraversalComponent;
 class UCharacterTrajectoryComponent;
 class UAbilitySystemComponent;
@@ -17,6 +19,16 @@ class UMotionWarpingComponent;
 class UAttributeSet;
 class UGameplayEffect;
 struct FGameplayAbilityActivationInfo;
+
+USTRUCT()
+struct FOriginalMaterialArray
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	TArray<UMaterialInterface*> Materials;
+};
+
 
 UCLASS()
 class UMBRA_API AUmbraBaseCharacter : public ACharacter, public ICombatInterface, public IOutlineInterface
@@ -47,7 +59,7 @@ public:
 	UMaterialInterface* InvisibleMaterial;
 	
 	UPROPERTY(EditAnywhere, Category = "Invisibility")
-	UMaterialInterface* OriginalMaterial;
+	TMap<UMeshComponent*, FOriginalMaterialArray> OriginalMaterialsMap;
 
 	UPROPERTY(EditAnywhere, Category = "Invisibility")
 	UMaterialInterface* InvisibleWeaponMaterials;
