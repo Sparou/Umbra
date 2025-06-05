@@ -66,14 +66,14 @@ void UTraversalComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// if (GetOwnerRole() == ROLE_Authority && GEngine)
-	// {
-	// 	GEngine->AddOnScreenDebugMessage(1, 0.f, FColor::Green, *WallTopResult.ImpactPoint.ToString());
-	// 	GEngine->AddOnScreenDebugMessage(2, 0, FColor::Blue, *TraversalState.ToString());
-	// 	GEngine->AddOnScreenDebugMessage(3, 0, FColor::Red, *TraversalAction.ToString());
-	// 	GEngine->AddOnScreenDebugMessage(4, 0, FColor::Yellow, *ClimbStyle.ToString());
-	// 	GEngine->AddOnScreenDebugMessage(5, 0, FColor::Black, *ClimbDirection.ToString());
-	// }
+	if (bOnScreenDebug && GetOwnerRole() == ROLE_Authority && GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(1, 0.f, FColor::Green, *WallTopResult.ImpactPoint.ToString());
+		GEngine->AddOnScreenDebugMessage(2, 0, FColor::Blue, *TraversalState.ToString());
+		GEngine->AddOnScreenDebugMessage(3, 0, FColor::Red, *TraversalAction.ToString());
+		GEngine->AddOnScreenDebugMessage(4, 0, FColor::Yellow, *ClimbStyle.ToString());
+		GEngine->AddOnScreenDebugMessage(5, 0, FColor::Black, *ClimbDirection.ToString());
+	}
 	
 	ValidateIsInLand();
 	if (bInLand)
@@ -255,15 +255,15 @@ void UTraversalComponent::SetTraversalState(const FGameplayTag& NewTraversalStat
 	}
 	else if (NewTraversalState.MatchesTagExact(UGT.Traversal_State_ReadyToClimb))
 	{
-		SetTraversalStateSettings(ECollisionEnabled::Type::NoCollision, MOVE_Flying, false);
+		SetTraversalStateSettings(ECollisionEnabled::Type::QueryAndPhysics, MOVE_Flying, false);
 	}
 	else if (NewTraversalState.MatchesTagExact(UGT.Traversal_State_Climb))
 	{
-		SetTraversalStateSettings(ECollisionEnabled::Type::NoCollision, MOVE_Flying, true);
+		SetTraversalStateSettings(ECollisionEnabled::Type::QueryAndPhysics, MOVE_Flying, true);
 	}
 	else if (NewTraversalState.MatchesTagExact(UGT.Traversal_State_Mantle))
 	{
-		SetTraversalStateSettings(ECollisionEnabled::Type::NoCollision, MOVE_Flying, false);
+		SetTraversalStateSettings(ECollisionEnabled::Type::QueryAndPhysics, MOVE_Flying, false);
 	}
 	else if (NewTraversalState.MatchesTagExact(UGT.Traversal_State_Vault))
 	{
@@ -1249,8 +1249,6 @@ bool UTraversalComponent::ClimbCheckForSides(const FVector& ImpactPoint)
 			ClimbCheckForSidesDebugTraceColor,
 			ClimbCheckForSidesDebugHitColor,
 			ClimbCheckForSidesDebugTime);
-
-		UE_LOG(TraversalComponentLog, Log, TEXT("Iteration = [%d], Hit = [%s]"), i, *HitResult.ImpactPoint.ToString());
 		
 		if ((HitResult.bBlockingHit || HitResult.bStartPenetrating) && i == ClimbCheckForSidesIterations - 1)
 		{
