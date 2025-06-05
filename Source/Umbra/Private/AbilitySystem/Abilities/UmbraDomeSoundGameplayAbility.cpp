@@ -2,8 +2,7 @@
 
 
 #include "AbilitySystem/Abilities/UmbraDomeSoundGameplayAbility.h"
-
-#include "Actors/UmbraSoundDome.h"
+#include "Actor/UmbraSoundDome.h"
 
 
 void UUmbraDomeSoundGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,

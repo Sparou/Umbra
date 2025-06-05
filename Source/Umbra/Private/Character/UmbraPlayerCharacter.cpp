@@ -3,7 +3,7 @@
 
 #include "Character/UmbraPlayerCharacter.h"
 #include "Character/Component/InteractionComponent.h"
-#include "TraversalSystem/TraversalComponent.h"
+#include "Character/Component/TraversalComponent.h"
 #include "AbilitySystem/UmbraAttributeSet.h"
 #include "Stealth/LightingDetection.h"
 #include "Blueprint/UserWidget.h"

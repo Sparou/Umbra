@@ -8,14 +8,12 @@
 #include "Character/UmbraPlayerCharacter.h"
 #include "Character/Component/InteractionComponent.h"
 #include "Character/Component/TagManager.h"
-#include "TraversalSystem/TraversalComponent.h"
-#include "Character/Data/PlayerCharacterInfo.h"
+#include "Character/Component/TraversalComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Input/UmbraInputComponent.h"
 #include "Interface/InteractionInterface.h"
-#include "Kismet/GameplayStatics.h"
 
 void AUmbraPlayerController::SwitchToDefaultContext()
 {

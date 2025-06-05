@@ -5,7 +5,7 @@
 #include "AbilitySystem/UmbraAbilitySystemComponent.h"
 #include "AbilitySystem/Abilities/Projectile/UmbraProjectileGameplayAbility.h"
 #include "Character/Component/TagManager.h"
-#include "TraversalSystem/TraversalComponent.h"
+#include "Character/Component/TraversalComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameplayAbilitySpec.h"

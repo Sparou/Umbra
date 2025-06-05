@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "TraversalActionsData.h"
+#include "Character/Data/TraversalActionsData.h"
 #include "UmbraGameplayTags.h"
 #include "Components/ActorComponent.h"
 #include "Kismet/KismetSystemLibrary.h"

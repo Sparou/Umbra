@@ -1,7 +1,7 @@
 // Copyrighted by Vorona Games
 
 
-#include "Actors/Traps/UmbraTrap.h"
+#include "Actor/Traps/UmbraTrap.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "GameplayEffectTypes.h"
