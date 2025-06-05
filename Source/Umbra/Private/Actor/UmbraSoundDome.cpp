@@ -1,7 +1,7 @@
 // Copyrighted by Vorona Games
 
 
-#include "Actors/UmbraSoundDome.h"
+#include "Actor/UmbraSoundDome.h"
 
 #include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"

@@ -1,7 +1,7 @@
 // Copyrighted by Vorona Games
 
 
-#include "Actors/Traps/UmbraTeleportTrap.h"
+#include "Actor/Traps/UmbraTeleportTrap.h"
 
 #include "Character/UmbraPlayerCharacter.h"
 #include "GameFramework/Character.h"

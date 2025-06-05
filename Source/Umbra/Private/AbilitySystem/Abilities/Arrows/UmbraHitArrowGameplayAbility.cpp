@@ -2,7 +2,7 @@
 
 
 #include "AbilitySystem/Abilities/Arrows/UmbraHitArrowGameplayAbility.h"
-#include "Actors/UmbraArrowProjectile.h"
+#include "Actor/UmbraArrowProjectile.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Player/UmbraPlayerController.h"

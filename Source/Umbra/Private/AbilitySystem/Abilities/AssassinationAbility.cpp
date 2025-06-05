@@ -7,10 +7,9 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "AbilitySystem/Abilities/GameplayAbilitiesFunctionLibrary.h"
 #include "Character/Component/InteractionComponent.h"
-#include "TraversalSystem/TraversalComponent.h"
+#include "Character/Component/TraversalComponent.h"
 #include "Character/UmbraPlayerCharacter.h"
 #include "Components/CapsuleComponent.h"
-#include "Net/UnrealNetwork.h"
 #include "Player/UmbraPlayerController.h"
 
 DEFINE_LOG_CATEGORY(UmbraAbilitiesLog)
