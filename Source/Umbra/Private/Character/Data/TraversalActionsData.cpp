@@ -1,7 +1,7 @@
 // Copyrighted by Vorona Games
 
 
-#include "TraversalSystem/TraversalActionsData.h"
+#include "Character/Data/TraversalActionsData.h"
 
 FTraversalActionData UTraversalActionsData::FindActionDataByTag(FGameplayTag Action)
 {

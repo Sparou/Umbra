@@ -1,7 +1,7 @@
 // Copyrighted by Vorona Games
 
 
-#include "Actors/UmbraPortalActor.h"
+#include "Actor/UmbraPortalActor.h"
 
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"

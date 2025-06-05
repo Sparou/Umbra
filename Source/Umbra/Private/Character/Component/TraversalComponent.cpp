@@ -1,13 +1,12 @@
 // Copyrighted by Vorona Games
 
 
-#include "TraversalSystem/TraversalComponent.h"
+#include "Character/Component/TraversalComponent.h"
 #include "MotionWarpingComponent.h"
-#include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "TraversalSystem/TraversalInterface.h"
+#include "Interface/TraversalInterface.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Net/UnrealNetwork.h"

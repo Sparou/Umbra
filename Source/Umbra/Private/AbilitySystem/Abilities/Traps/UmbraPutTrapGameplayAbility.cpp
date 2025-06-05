@@ -2,8 +2,7 @@
 
 
 #include "AbilitySystem/Abilities/Traps/UmbraPutTrapGameplayAbility.h"
-
-#include "Actors/Traps/UmbraTrap.h"
+#include "Actor/Traps/UmbraTrap.h"
 #include "Character/UmbraPlayerCharacter.h"
 
 void UUmbraPutTrapGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
