@@ -26,7 +26,7 @@ public:
 								 const FGameplayAbilityActivationInfo ActivationInfo,
 								 bool bReplicateEndAbility, bool bWasCancelled) override;
 	
-	void SpawnArrow(const FGameplayAbilityActorInfo* ActorInfo);
+	void SpawnArrow(AUmbraPlayerController* PC, const FVector SpawnLocation, FRotator SpawnRotation, FVector Direction) const;
 
 
 
@@ -38,7 +38,13 @@ private:
 	FTimerHandle SpawnArrowTimerHandle;
 
 	UPROPERTY(EditAnywhere)
-	float DurationAnimMontage = 0.5f;
+	float DurationAnimMontage = 1.25f;
+
+	UPROPERTY(EditAnywhere)
+	float HeightOffset = 40.f;
+
+	UPROPERTY(EditAnywhere)
+	float ForwardOffset = 100.f;
 	
 	AActor* OriginalPawn = nullptr;
 	AUmbraPlayerController* CachedPlayerController = nullptr;

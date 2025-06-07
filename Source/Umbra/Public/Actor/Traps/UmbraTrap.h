@@ -21,6 +21,7 @@ public:
 
 	// Sets default values for this actor's properties
 	virtual void BeginPlay() override;
+	void Tick(float DeltaTime);
 
 	UPROPERTY(BlueprintReadWrite, Category = "Trap")
 	AUmbraPlayerCharacter* InitializedCharacter;
@@ -32,6 +33,9 @@ protected:
 	UPROPERTY(EditAnywhere)
 	USphereComponent* SphereCollision;
 
+	UPROPERTY(EditAnywhere)
+	UStaticMeshComponent* Plane;
+
 	UFUNCTION()
 	virtual void OnOverlapBegin(
 		UPrimitiveComponent* OverlappedComp,
@@ -41,6 +45,8 @@ protected:
 		bool bFromSweep,
 		const FHitResult& SweepResult);
 
+	void ActivateTrap();
+	
 	UPROPERTY(EditAnywhere, Category = "Trap")
 	TSubclassOf<UGameplayEffect> Effect;
 };

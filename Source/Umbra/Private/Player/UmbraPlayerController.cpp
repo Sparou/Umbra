@@ -5,6 +5,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "AbilitySystem/UmbraAbilitySystemComponent.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Character/UmbraPlayerCharacter.h"
 #include "Character/Component/InteractionComponent.h"
 #include "Character/Component/TagManager.h"
@@ -14,10 +15,13 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Input/UmbraInputComponent.h"
 #include "Interface/InteractionInterface.h"
+#include "Kismet/GameplayStatics.h"
+#include "UI/UmbraMainWidget.h"
 
 void AUmbraPlayerController::SwitchToDefaultContext()
 {
-	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
+	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
+		GetLocalPlayer());
 	if (Subsystem)
 	{
 		Subsystem->ClearAllMappings();
@@ -27,7 +31,8 @@ void AUmbraPlayerController::SwitchToDefaultContext()
 
 void AUmbraPlayerController::SwitchToCameraOnlyContext()
 {
-	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
+	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
+		GetLocalPlayer());
 	if (Subsystem)
 	{
 		Subsystem->ClearAllMappings();
@@ -37,7 +42,8 @@ void AUmbraPlayerController::SwitchToCameraOnlyContext()
 
 void AUmbraPlayerController::SwitchToArrowContext()
 {
-	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
+	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
+		GetLocalPlayer());
 	if (Subsystem)
 	{
 		Subsystem->ClearAllMappings();
@@ -49,7 +55,7 @@ void AUmbraPlayerController::SwitchToArrowContext()
 void AUmbraPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	check(InputContext); 
+	check(InputContext);
 	check(CameraOnlyInputContext);
 	SwitchToDefaultContext();
 }
@@ -59,7 +65,7 @@ void AUmbraPlayerController::SetupInputComponent()
 	Super::SetupInputComponent();
 
 	UUmbraInputComponent* UmbraInputComponent = CastChecked<UUmbraInputComponent>(InputComponent);
-	
+
 	UmbraInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AUmbraPlayerController::OnInteract);
 	UmbraInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::Move);
 	UmbraInputComponent->BindAction(MoveAction, ETriggerEvent::Started, this, &AUmbraPlayerController::OnStartMoving);
@@ -70,24 +76,31 @@ void AUmbraPlayerController::SetupInputComponent()
 	UmbraInputComponent->BindAction(WalkAction, ETriggerEvent::Started, this, &AUmbraPlayerController::OnStartWalking);
 	UmbraInputComponent->BindAction(WalkAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::OnStopWalking);
 	UmbraInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &AUmbraPlayerController::OnStartCrouch);
-	UmbraInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::OnStopCrouch);
-	UmbraInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &AUmbraPlayerController::OnStartThrough);
-	UmbraInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::OnStopThrough);
-	UmbraInputComponent->BindAction(CameraZoomAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::CameraZoom);
+	UmbraInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this,
+	                                &AUmbraPlayerController::OnStopCrouch);
+	UmbraInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this,
+	                                &AUmbraPlayerController::OnStartThrough);
+	UmbraInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this,
+	                                &AUmbraPlayerController::OnStopThrough);
+	UmbraInputComponent->BindAction(CameraZoomAction, ETriggerEvent::Triggered, this,
+	                                &AUmbraPlayerController::CameraZoom);
+	UmbraInputComponent->BindAction(PauseAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::Pause);
 
 	// For arrow movement
 	UmbraInputComponent->BindAction(ArrowAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::DirectArrow);
 	UmbraInputComponent->BindAction(DropAction, ETriggerEvent::Started, this, &AUmbraPlayerController::OnStartDrop);
-	
+
 	UmbraInputComponent->BindAbilityActions(InputConfig, this, &AUmbraPlayerController::AbilityInputTagPressed,
-	                                        &AUmbraPlayerController::AbilityInputTagReleased, &AUmbraPlayerController::AbilityInputTagHeld);
+	                                        &AUmbraPlayerController::AbilityInputTagReleased,
+	                                        &AUmbraPlayerController::AbilityInputTagHeld);
 }
 
 UUmbraAbilitySystemComponent* AUmbraPlayerController::GetAbilitySystemComponent()
 {
 	if (AbilitySystemComponent == nullptr)
 	{
-		AbilitySystemComponent = Cast<UUmbraAbilitySystemComponent>(UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn<APawn>()));
+		AbilitySystemComponent = Cast<UUmbraAbilitySystemComponent>(
+			UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn<APawn>()));
 	}
 
 	return AbilitySystemComponent;
@@ -159,7 +172,7 @@ void AUmbraPlayerController::OnInteract()
 	{
 		return;
 	}
-	
+
 	if (IsLocalController())
 	{
 		ServerInteract(InteractionComponent->GetInteractionActor());
@@ -189,7 +202,8 @@ void AUmbraPlayerController::DirectArrow(const FInputActionValue& InputActionVal
 
 	if (APawn* ControlledPawn = GetPawn<APawn>())
 	{
-		if (UProjectileMovementComponent* MoveComp = ControlledPawn->FindComponentByClass<UProjectileMovementComponent>())
+		if (UProjectileMovementComponent* MoveComp = ControlledPawn->FindComponentByClass<
+			UProjectileMovementComponent>())
 		{
 			const FVector CurrentForward = MoveComp->Velocity.GetSafeNormal();
 			if (CurrentForward.IsZero())
@@ -199,17 +213,17 @@ void AUmbraPlayerController::DirectArrow(const FInputActionValue& InputActionVal
 
 			const FVector ArrowUp = ControlledPawn->GetActorUpVector();
 			const FVector RightVector = FVector::CrossProduct(ArrowUp, CurrentForward).GetSafeNormal();
-			
 
-			FVector DesiredDirection = CurrentForward 
-							+ RightVector * InputAxisVector.X 
-							+ InputAxisVector.Y;
+
+			FVector DesiredDirection = CurrentForward
+				+ RightVector * InputAxisVector.X
+				+ InputAxisVector.Y;
 
 
 			DesiredDirection = DesiredDirection.GetSafeNormal();
 
 			const float RotationSpeed = 2.0f;
-        
+
 			if (!DesiredDirection.IsZero())
 			{
 				// Поворот по локальной оси Y (Pitch)
@@ -228,7 +242,6 @@ void AUmbraPlayerController::DirectArrow(const FInputActionValue& InputActionVal
 				FVector NewForward = ControlledPawn->GetActorForwardVector();
 				MoveComp->Velocity = NewForward * MoveComp->InitialSpeed;
 			}
-
 		}
 	}
 }
@@ -246,7 +259,8 @@ void AUmbraPlayerController::Move(const FInputActionValue& InputActionValue)
 		TraversalComponent->AddMovementInput(InputAxisVector.Y, true);
 		TraversalComponent->AddMovementInput(InputAxisVector.X, false);
 	}
-	else if (APawn* ControlledPawn = GetPawn<APawn>()) {
+	else if (APawn* ControlledPawn = GetPawn<APawn>())
+	{
 		ControlledPawn->AddMovementInput(ForwardDirection, InputAxisVector.Y);
 		ControlledPawn->AddMovementInput(RightDirection, InputAxisVector.X);
 	}
@@ -365,12 +379,51 @@ void AUmbraPlayerController::OnStartDrop()
 
 void AUmbraPlayerController::OnStartThrough()
 {
-	
 }
 
 void AUmbraPlayerController::OnStopThrough()
 {
-	
+}
+
+void AUmbraPlayerController::Pause()
+{
+	TArray<UUserWidget*> FoundWidgets;
+	UWidgetBlueprintLibrary::GetAllWidgetsOfClass(this, FoundWidgets, UUmbraMainWidget::StaticClass(), false);
+
+	if (FoundWidgets.Num() > 0)
+	{
+		if (UUmbraMainWidget* MainUI = Cast<UUmbraMainWidget>(FoundWidgets[0]))
+		{
+			MainUI->SwitchPauseMode();
+
+			// Управление вводом
+			OnPause(MainUI->bIsPause);
+		}
+	}
+}
+
+void AUmbraPlayerController::OnPause(bool bIsPaused)
+{
+	if (bIsPaused)
+	{
+		// Отключить управление
+		SetIgnoreMoveInput(true);
+		SetIgnoreLookInput(true);
+
+		// Показать курсор
+		bShowMouseCursor = true;
+		SetInputMode(FInputModeUIOnly());
+	}
+	else
+	{
+		// Включить управление
+		SetIgnoreMoveInput(false);
+		SetIgnoreLookInput(false);
+
+		// Скрыть курсор
+		bShowMouseCursor = false;
+		SetInputMode(FInputModeGameOnly());
+	}
 }
 
 void AUmbraPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
@@ -393,7 +446,7 @@ void AUmbraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 void AUmbraPlayerController::SetWalking(bool bWalking)
 {
 	if (!GetControlledCharacter()) return;
-	
+
 	if (bWalking)
 	{
 		if (ControlledCharacter->GetCharacterMovement()->IsCrouching())
@@ -432,6 +485,3 @@ void AUmbraPlayerController::ServerSetWalking_Implementation(bool bWalking)
 {
 	SetWalking(bWalking);
 }
-
-
-
