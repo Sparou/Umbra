@@ -6,6 +6,9 @@
 #include "MotionWarpingComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "AbilitySystem/Abilities/GameplayAbilitiesFunctionLibrary.h"
+#include "AI/UmbraAIController.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "Character/UmbraEnemyCharacter.h"
 #include "Character/Component/InteractionComponent.h"
 #include "Character/Component/TraversalComponent.h"
 #include "Character/UmbraPlayerCharacter.h"
@@ -105,7 +108,7 @@ bool UAssassinationAbility::InitializeSourceCharacter()
 	
 	if (!SourceCharacter)
 	{
-		UE_LOG(UmbraAbilitiesLog, Warning, TEXT("[Assasination Ability]: Invalid Initiator!"))
+		UE_LOG(UmbraAbilitiesLog, Warning, TEXT("[Assassination Ability]: Invalid Initiator!"))
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 		return false;
 	}
@@ -118,7 +121,7 @@ bool UAssassinationAbility::InitializeTargetCharacter()
 
 	if (!InteractionComponent)
 	{
-		UE_LOG(UmbraAbilitiesLog, Warning, TEXT("[Assasination Ability]: Invalid Interaction Component!"))
+		UE_LOG(UmbraAbilitiesLog, Warning, TEXT("[Assassination Ability]: Invalid Interaction Component!"))
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 		return false;
 	}
@@ -127,10 +130,27 @@ bool UAssassinationAbility::InitializeTargetCharacter()
 
 	if (!TargetCharacter)
 	{
-		UE_LOG(UmbraAbilitiesLog, Warning, TEXT("[Assasination Ability]: Invalid Target!"))
+		UE_LOG(UmbraAbilitiesLog, Warning, TEXT("[Assassination Ability]: Invalid Target!"))
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 		return false;
 	}
+
+	AUmbraAIController* AIController = Cast<AUmbraAIController>(Cast<ACharacter>(TargetCharacter)->GetController());
+	
+	if (!AIController)
+	{
+		UE_LOG(UmbraAbilitiesLog, Warning, TEXT("[Assassination Ability]: Invalid Target"))
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+		return false;
+	}
+	
+	if (AIController->GetBlackboardComponent()->GetValueAsObject("CurrentEnemy") == SourceCharacter)
+	{
+		UE_LOG(UmbraAbilitiesLog, Log, TEXT("[%s]: Target see source!"), *GetNameSafe(this));
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+		return false;
+	}
+	
 	return true;
 }
 
