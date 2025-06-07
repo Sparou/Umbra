@@ -91,6 +91,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Input|Basic")
 	TObjectPtr<UInputAction> DropAction;
 
+	UPROPERTY(EditAnywhere, Category = "Input|Basic")
+	TObjectPtr<UInputAction> PauseAction;
+	
 	UPROPERTY(EditAnywhere, Category = "Input|Camera")
 	TObjectPtr<UInputAction> CameraZoomAction;
 
@@ -162,6 +165,11 @@ private:
 	void OnStartThrough();
 	void OnStopThrough();
 	
+	virtual void Pause() override;
+
+	UFUNCTION(BlueprintCallable)
+	void OnPause(bool bIsPaused);
+
 	void AbilityInputTagPressed(FGameplayTag InputTag);
 	void AbilityInputTagReleased(FGameplayTag InputTag);
 	void AbilityInputTagHeld(FGameplayTag InputTag);

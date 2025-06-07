@@ -13,6 +13,8 @@ UCLASS()
 class UMBRA_API AUmbraTeleportTrap : public AUmbraTrap
 {
 	GENERATED_BODY()
+
+	// void Tick(float DeltaTime);
 	
 protected:
 
