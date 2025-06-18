@@ -8,6 +8,7 @@
 #include "AI/UmbraAIPerceptionComponent.h"
 #include "AI/Data/DA_EnemyChoicePriority.h"
 #include "AI/Data/FEmotionReactionRow.h"
+#include "AI/InteractingObject/UmbraAlarmBell.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Character/UmbraEnemyCharacter.h"
@@ -44,6 +45,7 @@ bool AUmbraAIController::InitializeBlackboardDefaultValues(const UUmbraEnemyAttr
 	Blackboard->SetValueAsFloat(Belligerence, AttributeSet->GetAggressiveness());
 	Blackboard->SetValueAsFloat(Fear, AttributeSet->GetFearfulness());
 	Blackboard->SetValueAsFloat(EstimatedWinChance, AttributeSet->GetVisualAnalysis());
+	Blackboard->SetValueAsBool(IsActiveName, Cast<AUmbraEnemyCharacter>(GetCharacter())->bIsActive);
 
 	return true;
 }
@@ -117,13 +119,13 @@ bool AUmbraAIController::ChooseEnemy()
 								TimeSinceSeenWeight * NormalizedLastSeenTimeInterval +
 								IsCurrentTargetBonus * CurrentEnemyBonus;
 
-		UE_LOG(LogTemp, Display, TEXT("Player %s have priority %f: threat = %f, distance = %f, time = %f, curTargetBon = %f"),
-			*EnemyData.Key->GetName(),
-			Priority,
-			ThreatWeight * NormalizedThreat,
-			DistanceWeight * NormalizedDistance,
-			TimeSinceSeenWeight * NormalizedLastSeenTimeInterval,
-			IsCurrentTargetBonus * CurrentEnemyBonus);
+		//UE_LOG(LogTemp, Display, TEXT("Player %s have priority %f: threat = %f, distance = %f, time = %f, curTargetBon = %f"),
+		//	*EnemyData.Key->GetName(),
+		//	Priority,
+		//	ThreatWeight * NormalizedThreat,
+		//	DistanceWeight * NormalizedDistance,
+		//	TimeSinceSeenWeight * NormalizedLastSeenTimeInterval,
+		//	IsCurrentTargetBonus * CurrentEnemyBonus);
 		FString Message = "Player" + EnemyData.Key->GetName() + "have priority" + FString::SanitizeFloat(Priority) +
 			": threat = " + FString::SanitizeFloat(ThreatWeight * NormalizedThreat) + ", distance = " +
 				FString::SanitizeFloat(DistanceWeight * NormalizedDistance) + ", time = " +
@@ -186,7 +188,7 @@ void AUmbraAIController::OnPercepted(AActor* SourceActor, const FAIStimulus Stim
 			if(AUmbraPlayerCharacter* PlayerActor = Cast<AUmbraPlayerCharacter>(SourceActor))
 			{
 				const float light = PlayerActor->GetLightingDetector()->LightPercentage;
-				UE_LOG(LogTemp, Warning, TEXT("Light = %s"), *FString::SanitizeFloat(light))
+				//UE_LOG(LogTemp, Warning, TEXT("Light = %s"), *FString::SanitizeFloat(light))
 				//TODO: check if bot sees player after ending invisibility when stimulus was already received 
 				if(true/*!PlayerActor->GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(InvisibleTag))*/)
 				{
@@ -254,7 +256,7 @@ void AUmbraAIController::OnPercepted(AActor* SourceActor, const FAIStimulus Stim
 			{
 				if(true/*!PlayerActor->GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(SilenceTag))*/)
 				{
-					UE_LOG(LogTemp, Warning, TEXT("Sound emitted by %s"), *SourceActor->GetName());
+					//UE_LOG(LogTemp, Warning, TEXT("Sound emitted by %s"), *SourceActor->GetName());
 					Blackboard->SetValueAsVector(SoundLocation, Stimulus.StimulusLocation);
 					//DrawDebugSphere(GetWorld(), Stimulus.StimulusLocation, 5.f, 6, FColor::Red, false, 1.f, 0, 1.f);
 

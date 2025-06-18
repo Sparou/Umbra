@@ -70,6 +70,7 @@ void UInteractionComponent::InteractionTrace()
 			Sphere,
 			Params);
 	
+	
 	if (!InteractionResult.bBlockingHit ||
 		!InteractionResult.GetActor()->GetClass()->ImplementsInterface(UInteractionInterface::StaticClass()))
 	{

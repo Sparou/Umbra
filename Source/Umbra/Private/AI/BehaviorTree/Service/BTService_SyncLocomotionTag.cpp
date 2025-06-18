@@ -28,23 +28,23 @@ void UBTService_SyncLocomotionTag::TickNode(UBehaviorTreeComponent& OwnerComp, u
 		UTagManager* TagManager = AIPawn->FindComponentByClass<UTagManager>();
 		if(!TagManager)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Tag manager isn't found"));
+			//UE_LOG(LogTemp, Warning, TEXT("Tag manager isn't found"));
 			return;
 		}
-		UE_LOG(LogTemp, Warning, TEXT("Log after TagManager check"));
+		//UE_LOG(LogTemp, Warning, TEXT("Log after TagManager check"));
 		if(bIsRunning)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Log bIsRunning"));
+			//UE_LOG(LogTemp, Warning, TEXT("Log bIsRunning"));
 			TagManager->AddTag(RunningTag);
 			TagManager->RemoveTag(WalkingTag);
 		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Log !bIsRunning"));
+			//UE_LOG(LogTemp, Warning, TEXT("Log !bIsRunning"));
 			TagManager->AddTag(WalkingTag);
 			TagManager->RemoveTag(RunningTag);
 		}
-		UE_LOG(LogTemp, Warning, TEXT("Log after bIsRunning check"));
+		//UE_LOG(LogTemp, Warning, TEXT("Log after bIsRunning check"));
  		Memory->bIsRunning = bIsRunning;
 	}
 }

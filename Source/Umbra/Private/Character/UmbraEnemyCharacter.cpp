@@ -8,6 +8,7 @@
 #include "AI/InteractingObject/UmbraAlarmBell.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISense_Hearing.h"
@@ -16,7 +17,7 @@
 AUmbraEnemyCharacter::AUmbraEnemyCharacter()
 {
 	AttributeSet = CreateDefaultSubobject<UUmbraEnemyAttributeSet>("Attribute Set");
-	GetMesh()->SetCollisionResponseToChannel(ECC_Interaction, ECR_Block);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Interaction, ECR_Block);
 }
 
 void AUmbraEnemyCharacter::PossessedBy(AController* NewController)
@@ -27,7 +28,7 @@ void AUmbraEnemyCharacter::PossessedBy(AController* NewController)
 
 	UmbraAIController = Cast<AUmbraAIController>(NewController);
 	UmbraAIController->GetBlackboardComponent()->InitializeBlackboard(*BehaviorTree->BlackboardAsset);
-	if(bIsActive) UmbraAIController->RunBehaviorTree(BehaviorTree);
+	UmbraAIController->RunBehaviorTree(BehaviorTree);
 	
 }
 
@@ -109,13 +110,18 @@ void AUmbraEnemyCharacter::ChoosePath()
 void AUmbraEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (AlarmBells.Num() == 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s has no bells"), *GetName());
+	}
 	
 	for (AUmbraAlarmBell* AlarmBell : AlarmBells)
 	{
 		if(AlarmBell && !AlarmBell->OnBellRang.IsAlreadyBound(this, &AUmbraEnemyCharacter::OnAlarm))
 		{
 			AlarmBell->OnBellRang.AddDynamic(this, &AUmbraEnemyCharacter::OnAlarm);
-			UE_LOG(LogTemp, Warning, TEXT("%s"), *AlarmBell->GetName());
+			//UE_LOG(LogTemp, Warning, TEXT("%s"), *AlarmBell->GetName());
 		}
 	}
 	
@@ -162,6 +168,5 @@ void AUmbraEnemyCharacter::OnAlarm(FVector BellLocation)
 	UBlackboardComponent* BlackboardComponent = AIController->GetBlackboardComponent();
 	if(!BlackboardComponent) return;
 
-	if(!bIsActive) UmbraAIController->RunBehaviorTree(BehaviorTree);
 	BlackboardComponent->SetValueAsVector(TriggeredAlarmLocation, BellLocation);
 }

@@ -73,14 +73,14 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<UUmbraAIPerceptionComponent> UmbraAIPerceptionComponent;
-
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Emotion")
 	TObjectPtr<UDataTable> EmotionReactionTable;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Emotion")
 	TObjectPtr<UCurveTable> EmotionModifierTable;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI target selection")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|Target selection")
 	UDA_EnemyChoicePriority* PriorityWeightsData;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AI", meta = (ToolTip = "the time it takes for the AI to forget the enemy's location"))
@@ -116,6 +116,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Blackboard|Hear")
 	FName SoundLocation = "SoundLocation";
+
+	UPROPERTY(EditDefaultsOnly, Category = "Blackboard|AI State")
+	FName IsActiveName = "IsActive";
 #pragma endregion
 
 #pragma region GameplayTag names

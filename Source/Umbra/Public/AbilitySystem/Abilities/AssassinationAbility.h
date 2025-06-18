@@ -31,7 +31,7 @@ protected:
 
 private:
 	AUmbraPlayerCharacter* SourceCharacter;
-	AActor* TargetCharacter;
+	ACharacter* TargetCharacter;
 	FAssassinationData AssassinationData;
 	
 	void StartAssassination();

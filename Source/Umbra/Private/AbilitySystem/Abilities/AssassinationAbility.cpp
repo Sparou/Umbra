@@ -126,7 +126,7 @@ bool UAssassinationAbility::InitializeTargetCharacter()
 		return false;
 	}
 	
-	TargetCharacter = InteractionComponent->GetInteractionActor();
+	TargetCharacter = Cast<ACharacter>(InteractionComponent->GetInteractionActor());
 
 	if (!TargetCharacter)
 	{
@@ -135,7 +135,7 @@ bool UAssassinationAbility::InitializeTargetCharacter()
 		return false;
 	}
 
-	AUmbraAIController* AIController = Cast<AUmbraAIController>(Cast<ACharacter>(TargetCharacter)->GetController());
+	AUmbraAIController* AIController = Cast<AUmbraAIController>(TargetCharacter->GetController());
 	
 	if (!AIController)
 	{

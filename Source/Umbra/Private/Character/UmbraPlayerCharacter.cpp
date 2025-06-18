@@ -60,17 +60,17 @@ UAISense_Sight::EVisibilityResult AUmbraPlayerCharacter::CanBeSeenFrom(const FCa
 		CollisionParams
 	);
 
-	if (bHit)
-	{
-		DrawDebugLine(GetWorld(),
-			Context.ObserverLocation,
-			HitResult.ImpactPoint,
-			FColor::Green,
-			false,
-			5.f,
-			0,
-			1.0f);
-	}
+	// if (bHit)
+	// {
+	// 	DrawDebugLine(GetWorld(),
+	// 		Context.ObserverLocation,
+	// 		HitResult.ImpactPoint,
+	// 		FColor::Green,
+	// 		false,
+	// 		5.f,
+	// 		0,
+	// 		1.0f);
+	// }
 
 	AActor* HitActor = Cast<AActor>(HitResult.GetActor());
 
