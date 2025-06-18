@@ -5,5 +5,5 @@
 
 float UMMC_Fearfulness::CalculateBaseMagnitude_Implementation(const FGameplayEffectSpec& Spec) const
 {
-	return FMath::RandRange(0.f, 100.f);
+	return FMath::RandRange(0.f, 60.f);
 }
