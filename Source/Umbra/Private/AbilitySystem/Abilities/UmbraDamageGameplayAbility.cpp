@@ -5,6 +5,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "UmbraGameplayTags.h"
+#include "AI/UmbraAIController.h"
 
 void UUmbraDamageGameplayAbility::CauseDamage(AActor* TargetActor)
 {
@@ -12,6 +13,13 @@ void UUmbraDamageGameplayAbility::CauseDamage(AActor* TargetActor)
 	const float ScaledDamage = Damage.GetValueAtLevel(GetAbilityLevel());
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(DamageSpecHandle, FUmbraGameplayTags::Get().Combat_Damage, ScaledDamage);
 	GetAbilitySystemComponentFromActorInfo()->ApplyGameplayEffectSpecToTarget(*DamageSpecHandle.Data.Get(), UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor));
+
+	//AI react to damage logic
+	AController* Controller = TargetActor->GetInstigatorController();
+	if(Controller && Controller->IsA<AUmbraAIController>())
+	{
+		Cast<AUmbraAIController>(Controller)->ReactToEvent("TakeDamage");
+	}
 }
 
 void UUmbraDamageGameplayAbility::WeaponTrace(TArray<AActor*>& OutHitActors,
