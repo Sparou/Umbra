@@ -4,9 +4,11 @@
 #include "Character/UmbraPlayerCharacter.h"
 #include "Character/Component/InteractionComponent.h"
 #include "Character/Component/TraversalComponent.h"
+#include "AbilitySystem/UmbraAbilitySystemComponent.h"
 #include "AbilitySystem/UmbraAttributeSet.h"
 #include "Stealth/LightingDetection.h"
 #include "Blueprint/UserWidget.h"
+#include "Player/UmbraPlayerState.h"
 #include "Stealth/LightLevelIndicator.h"
 #include "Umbra/Umbra.h"
 
@@ -122,5 +124,11 @@ UAISense_Sight::EVisibilityResult AUmbraPlayerCharacter::CanBeSeenFrom(const FCa
 
 void AUmbraPlayerCharacter::InitAbilityActorInfo()
 {
+	AUmbraPlayerState* UmbraPlayerState = GetPlayerState<AUmbraPlayerState>();
+	checkf(UmbraPlayerState, TEXT("Player State is invalid in [%s]"), *GetNameSafe(this));
+
+	AbilitySystemComponent = UmbraPlayerState->GetAbilitySystemComponent();
+	AttributeSet = UmbraPlayerState->GetAttributeSet();
+
 	Super::InitAbilityActorInfo();
 }

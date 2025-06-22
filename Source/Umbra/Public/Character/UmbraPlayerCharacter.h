@@ -55,6 +55,7 @@ protected:
 	TObjectPtr<UCurveTable> ThresholdOfVisibilityFromDistanceSquaredTable;
 	
 	virtual void InitAbilityActorInfo() override;
+	
 private:
 	/** Компонент определения освещённости */
 	UPROPERTY(VisibleAnywhere, Category = "Lighting")

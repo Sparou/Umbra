@@ -8,6 +8,8 @@
 #include "Interface/OutlineInterface.h"
 #include "UmbraBaseCharacter.generated.h"
 
+class UUmbraAbilitySystemComponent;
+class UUmbraAttributeSet;
 class ULightingDetection;
 class UTagManager;
 class UMeshComponent;
@@ -45,7 +47,7 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Movement")
 	float GetMoveSpeed(const FGameplayTag& Stance, const FGameplayTag& Locomotion);
 
-	TObjectPtr<UAbilitySystemComponent> GetAbilitySystemComponent() { return AbilitySystemComponent; }
+	UUmbraAbilitySystemComponent* GetAbilitySystemComponent() { return AbilitySystemComponent; }
 
 
 	/* For invisibility */
@@ -126,13 +128,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
 	TArray<UAnimMontage*> HitReactMontages;
 	
-	UPROPERTY()
-	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
-
-	UPROPERTY()
-	TObjectPtr<UAttributeSet> AttributeSet;
-
-	UPROPERTY()
+	TObjectPtr<UUmbraAbilitySystemComponent> AbilitySystemComponent;
+	TObjectPtr<UUmbraAttributeSet> AttributeSet;
+	
 	TObjectPtr<UTagManager> TagManager;
 	
 	UPROPERTY(EditAnywhere, Category = "Attributes")
