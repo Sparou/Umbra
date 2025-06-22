@@ -1,7 +1,7 @@
 // Copyrighted by Vorona Games
 
 #include "Game/UmbraGameModeBase.h"
-#include "UmbraGameInstance.h"
+#include "Game/UmbraGameInstance.h"
 
 
 APawn* AUmbraGameModeBase::SpawnDefaultPawnFor_Implementation(AController* NewPlayer, AActor* StartSpot)
