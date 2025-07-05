@@ -8,6 +8,11 @@ AUmbraInteractableActor::AUmbraInteractableActor()
 	PrimaryActorTick.bCanEverTick = false;
 }
 
+FInteractionOption AUmbraInteractableActor::GetInteractionOption_Implementation() const
+{
+	return InteractionOption;
+}
+
 void AUmbraInteractableActor::BeginPlay()
 {
 	Super::BeginPlay();

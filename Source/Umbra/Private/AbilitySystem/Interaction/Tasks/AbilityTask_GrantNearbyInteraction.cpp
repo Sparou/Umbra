@@ -2,11 +2,14 @@
 
 
 #include "AbilitySystem/Interaction/Tasks/AbilityTask_GrantNearbyInteraction.h"
-#include "UmbraCollisionChannels.h"
+
+#include "AbilitySystemComponent.h"
 #include "AbilitySystem/Interaction/InteractionStatics.h"
 #include "Interface/InteractionInterface.h"
-#include "Engine/EngineTypes.h"
+#include "UmbraCollisionChannels.h"
+#include "Actor/UmbraInteractableActor.h"
 #include "Engine/OverlapResult.h"
+#include "Engine/EngineTypes.h"
 #include "Engine/World.h"
 
 UAbilityTask_GrantNearbyInteraction::UAbilityTask_GrantNearbyInteraction(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -53,6 +56,12 @@ void UAbilityTask_GrantNearbyInteraction::QueryInteractables()
 		{
 			TArray<TScriptInterface<IInteractionInterface>> InteractableActors;
 			UInteractionStatics::AppendInteractablesFromOverlapResult(OverlapResults, OUT InteractableActors);
+
+			for (TScriptInterface<IInteractionInterface> InteractableActor : InteractableActors)
+			{
+				FGameplayAbilitySpec Spec(InteractableActor->GetInteractionOption().InteractionAbility, 1, INDEX_NONE, this);
+				FGameplayAbilitySpecHandle Handle = AbilitySystemComponent->GiveAbility(Spec);
+			}
 		}
 	}
 }

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "AbilitySystem/Interaction/InteractionOption.h"
 #include "InteractionInterface.generated.h"
 
 // This class does not need to be modified.
@@ -21,6 +22,9 @@ class UMBRA_API IInteractionInterface
 	GENERATED_BODY()
 
 public:
+
+	UFUNCTION(BlueprintNativeEvent, Category = "Interaction")
+	FInteractionOption GetInteractionOption() const;
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Interaction")
 	void Interact(const AActor* InitiatorActor, bool bServerInteraction);
