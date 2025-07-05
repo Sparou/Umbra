@@ -93,11 +93,10 @@ UAISense_Sight::EVisibilityResult AUmbraPlayerCharacter::CanBeSeenFrom(const FCa
 	return UAISense_Sight::EVisibilityResult::NotVisible;
 }
 
-	void AUmbraPlayerCharacter::BeginPlay()
+void AUmbraPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-		
+	
 	GetMesh()->SetRenderCustomDepth(true);	
 	if (IsLocallyControlled())
 	{
@@ -126,9 +125,8 @@ void AUmbraPlayerCharacter::InitAbilityActorInfo()
 {
 	AUmbraPlayerState* UmbraPlayerState = GetPlayerState<AUmbraPlayerState>();
 	checkf(UmbraPlayerState, TEXT("Player State is invalid in [%s]"), *GetNameSafe(this));
-
+	UmbraPlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(UmbraPlayerState, this);
 	AbilitySystemComponent = UmbraPlayerState->GetAbilitySystemComponent();
 	AttributeSet = UmbraPlayerState->GetAttributeSet();
-
 	Super::InitAbilityActorInfo();
 }

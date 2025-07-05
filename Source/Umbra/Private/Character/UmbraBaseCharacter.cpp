@@ -269,6 +269,11 @@ void AUmbraBaseCharacter::InitializeDefaultAttributes() const
 
 void AUmbraBaseCharacter::InitAbilityActorInfo()
 {
+	if (!HasAuthority())
+	{
+		return;
+	}
+	
 	if (UUmbraAbilitySystemComponent* UmbraASC = Cast<UUmbraAbilitySystemComponent>(AbilitySystemComponent))
 	{
 		UmbraASC->AddCharacterAbilities(StartingAbilities);

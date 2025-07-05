@@ -127,8 +127,11 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
 	TArray<UAnimMontage*> HitReactMontages;
-	
+
+	UPROPERTY()
 	TObjectPtr<UUmbraAbilitySystemComponent> AbilitySystemComponent;
+
+	UPROPERTY()
 	TObjectPtr<UUmbraAttributeSet> AttributeSet;
 	
 	TObjectPtr<UTagManager> TagManager;
