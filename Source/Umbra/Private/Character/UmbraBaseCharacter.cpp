@@ -262,22 +262,21 @@ void AUmbraBaseCharacter::ApplyEffectToSelf(TSubclassOf<UGameplayEffect> Gamepla
 
 void AUmbraBaseCharacter::InitializeDefaultAttributes() const
 {
-	//TODO: Make Level variable
 	ApplyEffectToSelf(DefaultPrimaryAttributes, 1.f);
 	ApplyEffectToSelf(DefaultVitalAttributes, 1.f);
 }
 
 void AUmbraBaseCharacter::InitAbilityActorInfo()
 {
+}
+
+void AUmbraBaseCharacter::AddCharacterAbilities()
+{
 	if (!HasAuthority())
 	{
 		return;
 	}
-	
-	if (UUmbraAbilitySystemComponent* UmbraASC = Cast<UUmbraAbilitySystemComponent>(AbilitySystemComponent))
-	{
-		UmbraASC->AddCharacterAbilities(StartingAbilities);
-	}
+	AbilitySystemComponent->AddCharacterAbilities(StartingAbilities);
 }
 
 void AUmbraBaseCharacter::Dissolve()

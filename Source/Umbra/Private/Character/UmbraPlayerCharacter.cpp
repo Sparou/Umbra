@@ -27,7 +27,7 @@ UAssassinationsData* AUmbraPlayerCharacter::GetAssassinationsData()
 
 const ULightingDetection* AUmbraPlayerCharacter::GetLightingDetector() const
 {
-return LightingDetector;
+	return LightingDetector;
 }
 
 UAISense_Sight::EVisibilityResult AUmbraPlayerCharacter::CanBeSeenFrom(const FCanBeSeenFromContext& Context,
@@ -121,6 +121,19 @@ void AUmbraPlayerCharacter::BeginPlay()
 	}
 }
 
+void AUmbraPlayerCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+	InitAbilityActorInfo();
+}
+
+void AUmbraPlayerCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	InitAbilityActorInfo();
+	AddCharacterAbilities();
+}
+
 void AUmbraPlayerCharacter::InitAbilityActorInfo()
 {
 	AUmbraPlayerState* UmbraPlayerState = GetPlayerState<AUmbraPlayerState>();
@@ -128,5 +141,5 @@ void AUmbraPlayerCharacter::InitAbilityActorInfo()
 	UmbraPlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(UmbraPlayerState, this);
 	AbilitySystemComponent = UmbraPlayerState->GetAbilitySystemComponent();
 	AttributeSet = UmbraPlayerState->GetAttributeSet();
-	Super::InitAbilityActorInfo();
+	InitializeDefaultAttributes();
 }

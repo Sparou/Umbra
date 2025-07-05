@@ -3,6 +3,7 @@
 
 #include "Character/UmbraEnemyCharacter.h"
 #include "UmbraCollisionChannels.h"
+#include "AbilitySystem/UmbraAbilitySystemComponent.h"
 #include "AbilitySystem/UmbraEnemyAttributeSet.h"
 #include "AI/UmbraAIController.h"
 #include "AI/InteractingObject/UmbraAlarmBell.h"
@@ -68,9 +69,9 @@ void AUmbraEnemyCharacter::MulticastHandleDeath_Implementation()
 	UmbraAIController->UnPossess();
 	UmbraAIController->Destroy();
 
-	if(GetAbilitySystemComponent())
+	if(AbilitySystemComponent)
 	{
-		GetAbilitySystemComponent()->CancelAllAbilities();
+		AbilitySystemComponent->CancelAllAbilities();
 	}
 	
 	Super::MulticastHandleDeath_Implementation();
@@ -126,17 +127,18 @@ void AUmbraEnemyCharacter::BeginPlay()
 	}
 	
 	ChoosePath();
+
+	InitAbilityActorInfo();
 }
 
 void AUmbraEnemyCharacter::InitAbilityActorInfo()
 {
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
-	//Cast<UmbraAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
 
 	if(HasAuthority())
 	{
 		InitializeDefaultAttributes();
-		Super::InitAbilityActorInfo();
+		AddCharacterAbilities();
 	}
 }
 

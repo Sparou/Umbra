@@ -162,6 +162,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
 	float CrouchRunSpeed = 300.f;
 
+	void AddCharacterAbilities();
+	
 	/* Dissolve Effects */
 
 	UPROPERTY(EditDefaultsOnly)
