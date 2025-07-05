@@ -18,7 +18,7 @@ class UMBRA_API UAbilityTask_GrantNearbyInteraction : public UAbilityTask
 
 	virtual void Activate() override;
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	static UAbilityTask_GrantNearbyInteraction* GrantNearbyInteraction(UGameplayAbility* OwningAbility, float InteractionScanRange, float InteractionScanRate);
 
 private:
