@@ -24,7 +24,7 @@ class UMBRA_API UAbilityTask_GrantNearbyInteraction : public UAbilityTask
 private:
 
 	virtual void OnDestroy(bool bInOwnerFinished) override;
-
+	
 	void QueryInteractables();
 
 	float InteractionScanRange = 100.f;

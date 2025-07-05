@@ -4,9 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "Interface/InteractionInterface.h"
 #include "InteractionStatics.generated.h"
 
-class IInteractionInterface;
+template <typename InterfaceType> class TScriptInterface;
+
 /**
  * 
  */
@@ -15,8 +17,7 @@ class UMBRA_API UInteractionStatics : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 
-
 public:
 
-	//static void AppendInteractablesFromOverlapResult(const TArray<FOverlapResult>& OverlapResults, TArray<TScriptInterface<IInteractionInterface>>& OutInteractables);
+	static void AppendInteractablesFromOverlapResult(const TArray<FOverlapResult>& OverlapResults, TArray<TScriptInterface<IInteractionInterface>>& OutInteractables);
 };
