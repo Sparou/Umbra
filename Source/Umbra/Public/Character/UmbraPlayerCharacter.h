@@ -20,8 +20,17 @@ UCLASS()
 class UMBRA_API AUmbraPlayerCharacter : public AUmbraBaseCharacter, public IAISightTargetInterface 
 {
 	GENERATED_BODY()
+	
 public:
 	AUmbraPlayerCharacter(const FObjectInitializer& ObjInit);
+
+protected:
+
+	virtual void BeginPlay() override;
+	virtual void PossessedBy(AController* NewController) override;
+	virtual void OnRep_PlayerState() override;
+	
+public:
 	
 	UFUNCTION(BlueprintCallable)
 	UAssassinationsData* GetAssassinationsData();
@@ -38,11 +47,6 @@ public:
 		const FOnPendingVisibilityQueryProcessedDelegate* Delegate) override;
 
 protected:
-
-	void BeginPlay() override;
-
-	virtual void OnRep_PlayerState() override;
-	virtual void PossessedBy(AController* NewController) override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UInteractionComponent> InteractionComponent;

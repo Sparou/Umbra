@@ -221,14 +221,19 @@ void AUmbraBaseCharacter::DisableOutline_Implementation()
 	}
 }
 
+UAbilitySystemComponent* AUmbraBaseCharacter::GetAbilitySystemComponent() const
+{
+	return AbilitySystemComponent;
+}
+
 void AUmbraBaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	if (HasAuthority())
-	{
-		InitAbilityActorInfo();
-		InitializeDefaultAttributes();
-	}
+	// if (HasAuthority())
+	// {
+	// 	InitAbilityActorInfo();
+	// 	InitializeDefaultAttributes();
+	// }
 }
 
 void AUmbraBaseCharacter::Tick(float DeltaSeconds)

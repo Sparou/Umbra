@@ -37,3 +37,4 @@ void AUmbraPlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimePropert
 {
 	DOREPLIFETIME(AUmbraPlayerState, Level);
 }
+

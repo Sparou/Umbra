@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AbilitySystemInterface.h"
 #include "GameFramework/Character.h"
 #include "Interface/CombatInterface.h"
 #include "Interface/OutlineInterface.h"
@@ -33,10 +34,16 @@ struct FOriginalMaterialArray
 
 
 UCLASS()
-class UMBRA_API AUmbraBaseCharacter : public ACharacter, public ICombatInterface, public IOutlineInterface
+class UMBRA_API AUmbraBaseCharacter : public ACharacter, public ICombatInterface, public IOutlineInterface, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
+protected:
+	
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	
 public:
   
 	AUmbraBaseCharacter();
@@ -46,38 +53,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Movement")
 	float GetMoveSpeed(const FGameplayTag& Stance, const FGameplayTag& Locomotion);
-
-	UUmbraAbilitySystemComponent* GetAbilitySystemComponent() { return AbilitySystemComponent; }
-
-
-	/* For invisibility */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Invisibility")
-	bool IsShadow = false;
-	
-	UPROPERTY(ReplicatedUsing = OnRep_InvisibilityChanged)
-	bool bIsInvisible;
-
-	UPROPERTY(EditAnywhere, Category = "Invisibility")
-	UMaterialInterface* InvisibleMaterial;
-	
-	UPROPERTY(EditAnywhere, Category = "Invisibility")
-	TMap<UMeshComponent*, FOriginalMaterialArray> OriginalMaterialsMap;
-
-	UPROPERTY(EditAnywhere, Category = "Invisibility")
-	UMaterialInterface* InvisibleWeaponMaterials;
-	
-	UPROPERTY(EditAnywhere, Category = "Invisibility")
-	UMaterialInterface* OriginalWeaponMaterials;
-	
-	UFUNCTION()
-	void OnRep_InvisibilityChanged();
-
-	UFUNCTION()
-	void SetInvisibility(bool bInvisible);
-
-	UFUNCTION(Server, Reliable)
-	void ServerSetInvisibility(bool bInvisible);
-	
 
 	/** ICombatInterface implementation */
 	virtual FWeaponSocketLocations GetWeaponSocketLocations_Implementation() const override;
@@ -94,6 +69,9 @@ public:
 	/** IOutline Interface **/
 	virtual void EnableOutline_Implementation(int32 StencilValue) override;
 	virtual void DisableOutline_Implementation() override;
+
+	/** AbilitySystem Interface */
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	UTagManager* GetTagManager();
@@ -102,10 +80,6 @@ public:
 	void StartDissolve();
 	
 protected:
-  
-	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaSeconds) override;
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<USkeletalMeshComponent> PolygonMesh;
@@ -144,7 +118,6 @@ protected:
 	
 	void ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, const float Level) const;
 	virtual void InitializeDefaultAttributes() const;
-	
 	virtual void InitAbilityActorInfo();
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Abilities")
@@ -180,4 +153,35 @@ protected:
 	
 private:
 	bool bIsDead = false;
+
+public:
+
+	/* For invisibility */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Invisibility")
+	bool IsShadow = false;
+	
+	UPROPERTY(ReplicatedUsing = OnRep_InvisibilityChanged)
+	bool bIsInvisible;
+
+	UPROPERTY(EditAnywhere, Category = "Invisibility")
+	UMaterialInterface* InvisibleMaterial;
+	
+	UPROPERTY(EditAnywhere, Category = "Invisibility")
+	TMap<UMeshComponent*, FOriginalMaterialArray> OriginalMaterialsMap;
+
+	UPROPERTY(EditAnywhere, Category = "Invisibility")
+	UMaterialInterface* InvisibleWeaponMaterials;
+	
+	UPROPERTY(EditAnywhere, Category = "Invisibility")
+	UMaterialInterface* OriginalWeaponMaterials;
+	
+	UFUNCTION()
+	void OnRep_InvisibilityChanged();
+
+	UFUNCTION()
+	void SetInvisibility(bool bInvisible);
+
+	UFUNCTION(Server, Reliable)
+	void ServerSetInvisibility(bool bInvisible);
+	
 };

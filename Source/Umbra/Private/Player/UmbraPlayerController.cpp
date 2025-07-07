@@ -15,7 +15,6 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Input/UmbraInputComponent.h"
 #include "Interface/InteractionInterface.h"
-#include "Kismet/GameplayStatics.h"
 #include "UI/UmbraMainWidget.h"
 
 void AUmbraPlayerController::SwitchToDefaultContext()
@@ -100,7 +99,7 @@ UUmbraAbilitySystemComponent* AUmbraPlayerController::GetAbilitySystemComponent(
 	if (AbilitySystemComponent == nullptr)
 	{
 		AbilitySystemComponent = Cast<UUmbraAbilitySystemComponent>(
-			UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn<APawn>()));
+			UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn()));
 	}
 
 	return AbilitySystemComponent;

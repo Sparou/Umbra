@@ -119,6 +119,10 @@ void AUmbraPlayerCharacter::BeginPlay()
 			UE_LOG(LogTemp, Error, TEXT("Failed to create LightLevelIndicator widget"));
 		}
 	}
+
+	FGameplayTagContainer TC;
+	TC.AddTag(FUmbraGameplayTags::Get().Ability_Interact);
+	AbilitySystemComponent->TryActivateAbilitiesByTag(TC);
 }
 
 void AUmbraPlayerCharacter::OnRep_PlayerState()
