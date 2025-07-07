@@ -52,6 +52,7 @@ public:
 	FGameplayTag Ability_TrapBlock;
 	FGameplayTag Ability_TrapTeleport;
 	FGameplayTag Ability_TrapKill;
+	FGameplayTag Ability_Interact;
 
 	/** Position Tags */ 
 	FGameplayTag Position_Front;

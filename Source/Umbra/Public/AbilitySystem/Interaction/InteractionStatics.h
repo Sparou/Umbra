@@ -20,4 +20,5 @@ class UMBRA_API UInteractionStatics : public UBlueprintFunctionLibrary
 public:
 
 	static void AppendInteractablesFromOverlapResult(const TArray<FOverlapResult>& OverlapResults, TArray<TScriptInterface<IInteractionInterface>>& OutInteractables);
+	static void AppendInteractablesFromHitResult(const FHitResult& HitResult, TArray<TScriptInterface<IInteractionInterface>>& OutInteractables);
 };

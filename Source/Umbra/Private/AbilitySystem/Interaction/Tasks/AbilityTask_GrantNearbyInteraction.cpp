@@ -12,6 +12,14 @@
 #include "Engine/EngineTypes.h"
 #include "Engine/World.h"
 
+static int32 GCVarDrawDebugAbilityInteractionSphere = 0;
+static FAutoConsoleVariableRef CVarDrawDebugInteractionSphereRef(
+	TEXT("Umbra.DrawDebug.Ability.Interaction.Sphere"),
+	GCVarDrawDebugAbilityInteractionSphere,
+	TEXT("[0] - Disable Interaction Sphere visualization | [1] = Enable Interaction Sphere visualization"),
+	ECVF_Cheat
+);
+
 UAbilityTask_GrantNearbyInteraction::UAbilityTask_GrantNearbyInteraction(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	
@@ -51,6 +59,23 @@ void UAbilityTask_GrantNearbyInteraction::QueryInteractables()
 			ECC_Interaction,
 			FCollisionShape::MakeSphere(InteractionScanRange),
 			Params);
+
+#if ENABLE_DRAW_DEBUG
+
+		if (GCVarDrawDebugAbilityInteractionSphere)
+		{
+			DrawDebugSphere(
+				World,
+				ActorOwner->GetActorLocation(),
+				InteractionScanRange,
+				32,
+				FColor::Yellow,
+				false,     
+				InteractionScanRate       
+			);
+		}
+		
+#endif
 	
 		if (OverlapResults.Num() > 0)
 		{
@@ -59,8 +84,14 @@ void UAbilityTask_GrantNearbyInteraction::QueryInteractables()
 
 			for (TScriptInterface<IInteractionInterface> InteractableActor : InteractableActors)
 			{
-				FGameplayAbilitySpec Spec(InteractableActor->GetInteractionOption().InteractionAbility, 1, INDEX_NONE, this);
-				FGameplayAbilitySpecHandle Handle = AbilitySystemComponent->GiveAbility(Spec);
+				UClass* AbilityClass = IInteractionInterface::Execute_GetInteractionOption(InteractableActor.GetObject()).InteractionAbility;
+				if (!AbilityClass)
+				{
+					return;
+				}
+				if (AbilitySystemComponent->FindAbilitySpecFromClass(AbilityClass)) return;
+				FGameplayAbilitySpec Spec(IInteractionInterface::Execute_GetInteractionOption(InteractableActor.GetObject()).InteractionAbility, 1, INDEX_NONE, this);
+				AbilitySystemComponent->GiveAbility(Spec);
 			}
 		}
 	}

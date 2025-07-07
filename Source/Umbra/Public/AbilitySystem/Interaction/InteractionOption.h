@@ -8,8 +8,10 @@ USTRUCT(BlueprintType)
 struct FInteractionOption
 {
 	GENERATED_BODY()
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString Tooltip = FString("Interact");
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<UGameplayAbility> InteractionAbility;
 };

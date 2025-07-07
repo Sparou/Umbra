@@ -3,8 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Interface/InteractionInterface.h"
 #include "Abilities/Tasks/AbilityTask.h"
 #include "AbilityTask_UpdateInteractionTarget.generated.h"
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FUpdateInteractionTargetDelegate, AActor*);
 
 /**
  * 
@@ -18,11 +21,11 @@ class UMBRA_API UAbilityTask_UpdateInteractionTarget : public UAbilityTask
 
 public:
 
-	UFUNCTION(BlueprintCallable)
-
+	UFUNCTION(BlueprintCallable, Category="Ability|Tasks", meta = (HidePin = "OwningAbility", DefaultToSelf = "OwningAbility", BlueprintInternalUseOnly = "TRUE"))
 	static UAbilityTask_UpdateInteractionTarget* UpdateInteractionTarget(UGameplayAbility* OwningAbility, float InteractionScanRange, float InteractionScanRate, FVector StartLocation);
 
 	virtual void Activate() override;
+	FUpdateInteractionTargetDelegate UpdateInteractionTargetDelegate;
 
 private:
 		
@@ -35,4 +38,14 @@ private:
 	FTimerHandle TraceTimerHandle;
 	
 	virtual void OnDestroy(bool bInOwnerFinished) override;
+
+	void PerformTrace();
+	void LineTrace(FHitResult& OutHitResult, const UWorld* World, const FVector& Start, const FVector& End, ECollisionChannel Channel, FCollisionQueryParams Params);
+	void AimWithPlayerController(const AActor* InSourceActor, FCollisionQueryParams Params, const FVector& TraceStart, float MaxRange, FVector& OutTraceEnd, bool bIgnoredPitch) const;
+	static bool ClipCameraRayToAbilityRange(FVector CameraLocation, FVector CameraDirection, FVector AbilityCenter, float AbilityRange, FVector& ClippedPosition);
+
+	TWeakObjectPtr<AActor> CurrentInteractionTarget;
+	
+	void HandleSuccessfulHit(const FHitResult& HitResult);
+	void HandleUnsuccessfulHit(const FHitResult& HitResult);
 };

@@ -17,6 +17,26 @@ void UUmbraAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassO
 	}
 }
 
+void UUmbraAbilitySystemComponent::AbilitySpecInputPressed(FGameplayAbilitySpec& Spec)
+{
+	Super::AbilitySpecInputPressed(Spec);
+	if (!Spec.IsActive()) return;
+	
+	const UGameplayAbility* Instance = Spec.GetPrimaryInstance();
+	FPredictionKey OriginalPredictionKey = Instance ? Instance->GetCurrentActivationInfo().GetActivationPredictionKey() : Spec.ActivationInfo.GetActivationPredictionKey();
+	InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputPressed, Spec.Handle, OriginalPredictionKey);
+}
+
+void UUmbraAbilitySystemComponent::AbilitySpecInputReleased(FGameplayAbilitySpec& Spec)
+{
+	Super::AbilitySpecInputReleased(Spec);
+	if (!Spec.IsActive()) return;
+
+	const UGameplayAbility* Instance = Spec.GetPrimaryInstance();
+	FPredictionKey OriginalPredictionKey = Instance ? Instance->GetCurrentActivationInfo().GetActivationPredictionKey() : Spec.ActivationInfo.GetActivationPredictionKey();
+	InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputReleased, Spec.Handle, OriginalPredictionKey);
+}
+
 void UUmbraAbilitySystemComponent::AbilityInputTagHeld(FGameplayTag InputTag)
 {
 	if (!InputTag.IsValid()) return;
@@ -25,8 +45,8 @@ void UUmbraAbilitySystemComponent::AbilityInputTagHeld(FGameplayTag InputTag)
 	{
 		if (AbilitySpec.GetDynamicSpecSourceTags().HasTagExact(InputTag))
 		{
-			AbilitySpecInputPressed(AbilitySpec);
 			if (!AbilitySpec.IsActive()) TryActivateAbility(AbilitySpec.Handle);
+			AbilitySpecInputPressed(AbilitySpec);
 		}
 	}
 }
