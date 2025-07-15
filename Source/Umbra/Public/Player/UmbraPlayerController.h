@@ -56,6 +56,7 @@ public:
 protected:
 
 	virtual void BeginPlay() override;
+	virtual void PostProcessInput(const float DeltaTime, const bool bGamePaused) override;
 	virtual void SetupInputComponent() override;
 
 	UPROPERTY(EditAnywhere, Category = "Input")

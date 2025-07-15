@@ -19,13 +19,14 @@ public:
 	
 	AUmbraInteractableActor();
 
-	FInteractionOption GetInteractionOption_Implementation() const;
+	virtual void GatherInteractionOption(const FInteractionQuery& Query, FInteractionOptionBuilder& Builder) override;
+	virtual void CustomizeInteractionEventData(const FGameplayTag& EventTag, FGameplayEventData& InOutEventData) override;
 
 protected:
 	
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Interaction")
 	FInteractionOption InteractionOption;
 
 private:

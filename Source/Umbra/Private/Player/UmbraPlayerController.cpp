@@ -59,6 +59,16 @@ void AUmbraPlayerController::BeginPlay()
 	SwitchToDefaultContext();
 }
 
+void AUmbraPlayerController::PostProcessInput(const float DeltaTime, const bool bGamePaused)
+{
+	if (AbilitySystemComponent != nullptr)
+	{
+		AbilitySystemComponent->ProcessAbilityInput(DeltaTime, bGamePaused);
+	}
+	
+	Super::PostProcessInput(DeltaTime, bGamePaused);
+}
+
 void AUmbraPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
@@ -89,7 +99,8 @@ void AUmbraPlayerController::SetupInputComponent()
 	UmbraInputComponent->BindAction(ArrowAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::DirectArrow);
 	UmbraInputComponent->BindAction(DropAction, ETriggerEvent::Started, this, &AUmbraPlayerController::OnStartDrop);
 
-	UmbraInputComponent->BindAbilityActions(InputConfig, this, &AUmbraPlayerController::AbilityInputTagPressed,
+	UmbraInputComponent->BindAbilityActions(InputConfig, this,
+											&AUmbraPlayerController::AbilityInputTagPressed,
 	                                        &AUmbraPlayerController::AbilityInputTagReleased,
 	                                        &AUmbraPlayerController::AbilityInputTagHeld);
 }
@@ -99,7 +110,7 @@ UUmbraAbilitySystemComponent* AUmbraPlayerController::GetAbilitySystemComponent(
 	if (AbilitySystemComponent == nullptr)
 	{
 		AbilitySystemComponent = Cast<UUmbraAbilitySystemComponent>(
-			UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn()));
+			UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn<APawn>()));
 	}
 
 	return AbilitySystemComponent;
@@ -184,10 +195,10 @@ void AUmbraPlayerController::OnInteract()
 
 void AUmbraPlayerController::Interact(AActor* InteractionTarget)
 {
-	if (InteractionTarget && InteractionTarget->GetClass()->ImplementsInterface(UInteractionInterface::StaticClass()))
-	{
-		IInteractionInterface::Execute_Interact(InteractionTarget, GetCharacter(), true);
-	}
+	// if (InteractionTarget && InteractionTarget->GetClass()->ImplementsInterface(UInteractionInterface::StaticClass()))
+	// {
+	// 	IInteractionInterface::Execute_Interact(InteractionTarget, GetCharacter(), true);
+	// }
 }
 
 void AUmbraPlayerController::ServerInteract_Implementation(AActor* InteractionTarget)
@@ -439,7 +450,7 @@ void AUmbraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 void AUmbraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 {
 	if (GetAbilitySystemComponent() == nullptr) return;
-	GetAbilitySystemComponent()->AbilityInputTagHeld(InputTag);
+	GetAbilitySystemComponent()->AbilityInputTagPressed(InputTag);
 }
 
 void AUmbraPlayerController::SetWalking(bool bWalking)

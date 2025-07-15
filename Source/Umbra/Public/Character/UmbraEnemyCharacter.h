@@ -16,7 +16,7 @@ class UBehaviorTree;
  * 
  */
 UCLASS()
-class UMBRA_API AUmbraEnemyCharacter : public AUmbraBaseCharacter, public IInteractionInterface, public IPatrollingInterface
+class UMBRA_API AUmbraEnemyCharacter : public AUmbraBaseCharacter, public IPatrollingInterface
 {
 	GENERATED_BODY()
 

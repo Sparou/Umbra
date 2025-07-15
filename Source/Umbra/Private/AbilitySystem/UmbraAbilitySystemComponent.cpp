@@ -1,8 +1,9 @@
 // Copyrighted by Vorona Games
 
-
 #include "AbilitySystem/UmbraAbilitySystemComponent.h"
 #include "AbilitySystem/Abilities/UmbraBaseGameplayAbility.h"
+
+DEFINE_LOG_CATEGORY(UmbraAbilitySystemLog)
 
 void UUmbraAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& Abilities)
 {
@@ -37,16 +38,18 @@ void UUmbraAbilitySystemComponent::AbilitySpecInputReleased(FGameplayAbilitySpec
 	InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputReleased, Spec.Handle, OriginalPredictionKey);
 }
 
-void UUmbraAbilitySystemComponent::AbilityInputTagHeld(FGameplayTag InputTag)
+void UUmbraAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag InputTag)
 {
 	if (!InputTag.IsValid()) return;
 
-	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	UE_LOG(UmbraAbilitySystemLog, Log, TEXT("Number of Abilities = [%d]"), GetActivatableAbilities().Num());
+	for (const FGameplayAbilitySpec& Spec : GetActivatableAbilities())
 	{
-		if (AbilitySpec.GetDynamicSpecSourceTags().HasTagExact(InputTag))
+		if (Spec.Ability && (Spec.GetDynamicSpecSourceTags().HasTag(InputTag)))
 		{
-			if (!AbilitySpec.IsActive()) TryActivateAbility(AbilitySpec.Handle);
-			AbilitySpecInputPressed(AbilitySpec);
+			UE_LOG(UmbraAbilitySystemLog, Log, TEXT("[%s] was proccesed"), *GetNameSafe(Spec.Ability));
+			InputPressedHandles.AddUnique(Spec.Handle);
+			InputHeldHandles.AddUnique(Spec.Handle);
 		}
 	}
 }
@@ -55,11 +58,75 @@ void UUmbraAbilitySystemComponent::AbilityInputTagReleased(FGameplayTag InputTag
 {
 	if (!InputTag.IsValid()) return;
 
-	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	for (const FGameplayAbilitySpec& Spec : ActivatableAbilities.Items)
 	{
-		if (AbilitySpec.GetDynamicSpecSourceTags().HasTagExact(InputTag))
+		if (Spec.Ability && (Spec.GetDynamicSpecSourceTags().HasTag(InputTag)))
 		{
-			AbilitySpecInputReleased(AbilitySpec);
+			InputReleasedHandles.AddUnique(Spec.Handle);
+			InputHeldHandles.Remove(Spec.Handle);
 		}
 	}
+}
+
+
+void UUmbraAbilitySystemComponent::ProcessAbilityInput(float DeltaTime, bool bGamePause)
+{
+	static TArray<FGameplayAbilitySpecHandle> AbilitiesToActivate;
+	AbilitiesToActivate.Reset();
+  
+	for (const FGameplayAbilitySpecHandle& SpecHandle : InputHeldHandles)
+	{
+		if (const FGameplayAbilitySpec* Spec = FindAbilitySpecFromHandle(SpecHandle))
+		{
+			if (Spec->Ability && !Spec->IsActive())
+			{
+				AbilitiesToActivate.AddUnique(Spec->Handle);
+			}
+		}
+	}
+
+	for (const FGameplayAbilitySpecHandle& SpecHandle : InputPressedHandles)
+	{
+		if (FGameplayAbilitySpec* Spec = FindAbilitySpecFromHandle(SpecHandle))
+		{
+			if (Spec->Ability)
+			{
+				Spec->InputPressed = true;
+
+				if (Spec->IsActive())
+				{
+					AbilitySpecInputPressed(*Spec);
+				}
+				else
+				{
+					AbilitiesToActivate.AddUnique(Spec->Handle);
+				}
+			}
+		}
+	}
+
+
+	for (const FGameplayAbilitySpecHandle& SpecHandle : InputReleasedHandles)
+	{
+		TryActivateAbility(SpecHandle);
+	}
+
+	for (const FGameplayAbilitySpecHandle& SpecHandle : InputReleasedHandles)
+	{
+		if (FGameplayAbilitySpec* Spec = FindAbilitySpecFromHandle(SpecHandle))
+		{
+			if (Spec->Ability)
+			{
+				Spec->InputPressed = false;
+
+				if (Spec->IsActive())
+				{
+					AbilitySpecInputReleased(*Spec);
+				}
+			}
+		}
+	}
+
+	InputPressedHandles.Reset();
+	InputReleasedHandles.Reset();
 }

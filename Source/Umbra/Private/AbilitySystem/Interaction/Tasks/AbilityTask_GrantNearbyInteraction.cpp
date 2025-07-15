@@ -7,6 +7,7 @@
 #include "AbilitySystem/Interaction/InteractionStatics.h"
 #include "Interface/InteractionInterface.h"
 #include "UmbraCollisionChannels.h"
+#include "AbilitySystem/Interaction/InteractionQuery.h"
 #include "Actor/UmbraInteractableActor.h"
 #include "Engine/OverlapResult.h"
 #include "Engine/EngineTypes.h"
@@ -82,16 +83,29 @@ void UAbilityTask_GrantNearbyInteraction::QueryInteractables()
 			TArray<TScriptInterface<IInteractionInterface>> InteractableActors;
 			UInteractionStatics::AppendInteractablesFromOverlapResult(OverlapResults, OUT InteractableActors);
 
-			for (TScriptInterface<IInteractionInterface> InteractableActor : InteractableActors)
+			FInteractionQuery InteractionQuery;
+			InteractionQuery.RequestingActor = ActorOwner;
+			InteractionQuery.RequestingActor = Cast<AController>(ActorOwner->GetOwner());
+
+			TArray<FInteractionOption> Options;
+			for (TScriptInterface<IInteractionInterface>& Interactable : InteractableActors)
 			{
-				UClass* AbilityClass = IInteractionInterface::Execute_GetInteractionOption(InteractableActor.GetObject()).InteractionAbility;
-				if (!AbilityClass)
+				FInteractionOptionBuilder InteractionOptionBuilder(Interactable, Options);
+				Interactable->GatherInteractionOption(InteractionQuery, InteractionOptionBuilder);
+			}
+
+			for (FInteractionOption& Option : Options)
+			{
+				if (Option.InteractionAbility)
 				{
-					return;
+					FObjectKey ObjectKey(Option.InteractionAbility);
+					if (!InteractionAbilityCache.Find(ObjectKey))
+					{
+						FGameplayAbilitySpec Spec(Option.InteractionAbility, 1, INDEX_NONE, this);
+						FGameplayAbilitySpecHandle Handle = AbilitySystemComponent->GiveAbility(Spec);
+						InteractionAbilityCache.Add(ObjectKey, Handle);
+					}
 				}
-				if (AbilitySystemComponent->FindAbilitySpecFromClass(AbilityClass)) return;
-				FGameplayAbilitySpec Spec(IInteractionInterface::Execute_GetInteractionOption(InteractableActor.GetObject()).InteractionAbility, 1, INDEX_NONE, this);
-				AbilitySystemComponent->GiveAbility(Spec);
 			}
 		}
 	}

@@ -8,9 +8,16 @@ AUmbraInteractableActor::AUmbraInteractableActor()
 	PrimaryActorTick.bCanEverTick = false;
 }
 
-FInteractionOption AUmbraInteractableActor::GetInteractionOption_Implementation() const
+void AUmbraInteractableActor::GatherInteractionOption(const FInteractionQuery& Query,
+	FInteractionOptionBuilder& Builder)
 {
-	return InteractionOption;
+	Builder.AddInteractionOption(InteractionOption);
+}
+
+void AUmbraInteractableActor::CustomizeInteractionEventData(const FGameplayTag& EventTag,
+	FGameplayEventData& InOutEventData)
+{
+	IInteractionInterface::CustomizeInteractionEventData(EventTag, InOutEventData);
 }
 
 void AUmbraInteractableActor::BeginPlay()

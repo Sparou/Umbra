@@ -116,5 +116,5 @@ void AUmbraShadowController::AbilityInputTagReleased(FGameplayTag InputTag)
 void AUmbraShadowController::AbilityInputTagHeld(FGameplayTag InputTag)
 {
 	if (GetAbilitySystemComponent() == nullptr) return;
-	GetAbilitySystemComponent()->AbilityInputTagHeld(InputTag);
+	GetAbilitySystemComponent()->AbilityInputTagPressed(InputTag);
 }

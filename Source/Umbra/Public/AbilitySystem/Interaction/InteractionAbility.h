@@ -17,10 +17,14 @@ class UMBRA_API UInteractionAbility : public UUmbraBaseGameplayAbility
 protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
+	UFUNCTION()
+	void OnInteractableObjectChanged(const TArray<FInteractionOption>& InteractableOptions);
+
+	UFUNCTION(BlueprintCallable)
+	void TriggerInteraction();
+	
 private:
 
 	TWeakObjectPtr<AActor> CurrentInteractionTarget;
-
-	UFUNCTION()
-	void PrintString(float number);
+	TArray<FInteractionOption> InteractionOptions;
 };

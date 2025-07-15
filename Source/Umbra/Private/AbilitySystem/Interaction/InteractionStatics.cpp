@@ -2,7 +2,30 @@
 
 
 #include "AbilitySystem/Interaction/InteractionStatics.h"
+
+#include "AbilitySystemBlueprintLibrary.h"
+#include "Actor/UmbraInteractableActor.h"
 #include "Engine/OverlapResult.h"
+
+AActor* UInteractionStatics::GetActorFromInteractableInterface(TScriptInterface<IInteractionInterface> Interactable)
+{
+	if (UObject* Object = Interactable.GetObject())
+	{
+		if (AActor* Actor = Cast<AActor>(Object))
+		{
+			return Actor;
+		}
+		else if (UActorComponent* Component = Cast<UActorComponent>(Object))
+		{
+			return Component->GetOwner();
+		}
+		else
+		{
+			unimplemented();
+		}
+	}
+	return nullptr;
+}
 
 void UInteractionStatics::AppendInteractablesFromOverlapResult(const TArray<FOverlapResult>& OverlapResults, TArray<TScriptInterface<IInteractionInterface>>& OutInteractables)
 {

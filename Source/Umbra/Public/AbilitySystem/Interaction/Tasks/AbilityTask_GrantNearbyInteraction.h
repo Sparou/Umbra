@@ -32,4 +32,6 @@ private:
 	float InteractionScanRate = 0.1f;
 
 	FTimerHandle QueryTimerHandle;
+
+	TMap<FObjectKey, FGameplayAbilitySpecHandle> InteractionAbilityCache;
 };

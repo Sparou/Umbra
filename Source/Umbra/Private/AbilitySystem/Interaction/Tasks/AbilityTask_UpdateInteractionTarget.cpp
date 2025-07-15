@@ -3,6 +3,7 @@
 
 #include "AbilitySystem/Interaction/Tasks/AbilityTask_UpdateInteractionTarget.h"
 
+#include "AbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
 #include "UmbraCollisionChannels.h"
 #include "AbilitySystem/Abilities/UmbraBaseGameplayAbility.h"
@@ -21,9 +22,10 @@ static FAutoConsoleVariableRef CVarUmbraDrawDebugInteractionTraceRef(
 UAbilityTask_UpdateInteractionTarget::UAbilityTask_UpdateInteractionTarget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) {}
 
 UAbilityTask_UpdateInteractionTarget* UAbilityTask_UpdateInteractionTarget::UpdateInteractionTarget(
-	UGameplayAbility* OwningAbility, float InteractionScanRange, float InteractionScanRate, FVector StartLocation)
+	UGameplayAbility* OwningAbility, FInteractionQuery InteractionQuery, float InteractionScanRange, float InteractionScanRate, FVector StartLocation)
 {
 	UAbilityTask_UpdateInteractionTarget* MyObj = NewAbilityTask<UAbilityTask_UpdateInteractionTarget>(OwningAbility);
+	MyObj->InteractionQuery = InteractionQuery;
 	MyObj->InteractionScanRange = InteractionScanRange;
 	MyObj->InteractionScanRate = InteractionScanRate;
 	MyObj->StartLocation = StartLocation;
@@ -97,6 +99,10 @@ void UAbilityTask_UpdateInteractionTarget::PerformTrace()
 	{
 		HandleSuccessfulHit(OutHitResult);
 	}
+
+	TArray<TScriptInterface<IInteractionInterface>> Interactables;
+	UInteractionStatics::AppendInteractablesFromHitResult(OutHitResult, Interactables);
+	UpdateInteractableOptions(Interactables);
 }
 
 void UAbilityTask_UpdateInteractionTarget::LineTrace(FHitResult& OutHitResult, const UWorld* World, const FVector& Start, const FVector& End, ECollisionChannel Channel, FCollisionQueryParams Params)
@@ -135,7 +141,6 @@ void UAbilityTask_UpdateInteractionTarget::AimWithPlayerController(const AActor*
 	ClipCameraRayToAbilityRange(ViewStart, ViewDir, TraceStart, MaxRange, ViewEnd);
 
 	FHitResult HitResult;
-	//LineTrace()
 
 	const bool bUseTraceResult = HitResult.bBlockingHit && (FVector::DistSquared(TraceStart, HitResult.Location) <= (MaxRange * MaxRange));
 	const FVector AdjustedEnd = bUseTraceResult ? HitResult.Location : ViewEnd;
@@ -197,6 +202,77 @@ bool UAbilityTask_UpdateInteractionTarget::ClipCameraRayToAbilityRange(FVector C
 	return false;
 }
 
+void UAbilityTask_UpdateInteractionTarget::UpdateInteractableOptions(const TArray<TScriptInterface<IInteractionInterface>>& Interactables)
+{
+	TArray<FInteractionOption> NewOptions;
+
+	for (const TScriptInterface<IInteractionInterface>& Interactable : Interactables)
+	{
+		TArray<FInteractionOption> TempOptions;
+		FInteractionOptionBuilder InteractionBuilder(Interactable, TempOptions);
+		Interactable->GatherInteractionOption(InteractionQuery, InteractionBuilder);
+
+		for (FInteractionOption Option : TempOptions)
+		{
+			FGameplayAbilitySpec* InteractionAbilitySpec = nullptr;
+
+			if (Option.TargetAbilitySystemComponent && Option.TargetInteractionAbilitySpecHandle.IsValid())
+			{
+				InteractionAbilitySpec = Option.TargetAbilitySystemComponent->FindAbilitySpecFromHandle(Option.TargetInteractionAbilitySpecHandle);
+			}
+			else if (Option.InteractionAbility)
+			{
+				InteractionAbilitySpec = AbilitySystemComponent->FindAbilitySpecFromClass(Option.InteractionAbility);
+
+				if (InteractionAbilitySpec)
+				{
+					Option.TargetAbilitySystemComponent = AbilitySystemComponent.Get();
+					Option.TargetInteractionAbilitySpecHandle = InteractionAbilitySpec->Handle;
+				}
+			}
+			
+			if (InteractionAbilitySpec)
+			{
+				const FGameplayAbilityActorInfo* ActorInfo = Option.TargetAbilitySystemComponent ?
+					Option.TargetAbilitySystemComponent->AbilityActorInfo.Get() :
+					AbilitySystemComponent->AbilityActorInfo.Get();
+				
+				if (InteractionAbilitySpec->Ability->CanActivateAbility(InteractionAbilitySpec->Handle, ActorInfo))
+				{
+					NewOptions.Add(Option);	
+				}
+			}
+		}
+	}
+
+	bool bOptionsChanged = false;
+	if (NewOptions.Num() == CurrentOptions.Num())
+	{
+		NewOptions.Sort();
+
+		for (int OptionIndex = 0; OptionIndex < NewOptions.Num(); OptionIndex++)
+		{
+			const FInteractionOption& NewOption = NewOptions[OptionIndex];
+			const FInteractionOption& CurrentOption = CurrentOptions[OptionIndex];
+
+			if (NewOption != CurrentOption)
+			{
+				bOptionsChanged = true;
+				break;
+			}
+		}
+	}
+	else
+	{
+		bOptionsChanged = true;
+	}
+	if (bOptionsChanged)
+	{
+		CurrentOptions = NewOptions;
+		InteractableObjectsChanged.Broadcast(CurrentOptions);
+	}
+}
+
 void UAbilityTask_UpdateInteractionTarget::HandleSuccessfulHit(const FHitResult& HitResult)
 {
 	if (CurrentInteractionTarget != HitResult.GetActor())
@@ -214,7 +290,6 @@ void UAbilityTask_UpdateInteractionTarget::HandleSuccessfulHit(const FHitResult&
 		}
 
 		CurrentInteractionTarget = HitResult.GetActor();
-		UpdateInteractionTargetDelegate.Broadcast(CurrentInteractionTarget.Get());
 	}
 }
 
