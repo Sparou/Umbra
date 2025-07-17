@@ -18,10 +18,8 @@ AUmbraBaseCharacter::AUmbraBaseCharacter()
 	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>("Motion Warping");
 	AbilitySystemComponent = CreateDefaultSubobject<UUmbraAbilitySystemComponent>("Ability System");
 	TagManager = CreateDefaultSubobject<UTagManager>("Tag Manager");
-	PolygonMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Polygon Mesh"));
-	PolygonMesh->SetupAttachment(GetMesh());
 	WeaponMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("Weapon Mesh");
-	WeaponMeshComponent->SetupAttachment(PolygonMesh, "RWeaponSocket");
+	WeaponMeshComponent->SetupAttachment(GetMesh(), "RWeaponSocket");
 
 	GetCharacterMovement()->MaxWalkSpeed = StandRunSpeed;
 	GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchRunSpeed;
@@ -45,116 +43,6 @@ float AUmbraBaseCharacter::GetMoveSpeed(const FGameplayTag& Stance, const FGamep
 	return StandRunSpeed;
 }
 
-void AUmbraBaseCharacter::OnRep_InvisibilityChanged()
-{
-    // Получаем все компоненты-меши (включая Skeletal и Static)
-    TArray<UMeshComponent*> MeshComponents;
-    GetComponents<UMeshComponent>(MeshComponents);
-
-    if (MeshComponents.Num() == 0)
-        return;
-
-    // Сохраняем оригинальные материалы, если ещё не сохранены
-    if (OriginalMaterialsMap.Num() == 0)
-    {
-        for (UMeshComponent* MeshComp : MeshComponents)
-        {
-            if (!MeshComp) continue;
-
-            FOriginalMaterialArray MaterialArray;
-            int32 MaterialCount = MeshComp->GetNumMaterials();
-
-            for (int32 i = 0; i < MaterialCount; ++i)
-            {
-                UMaterialInterface* Mat = MeshComp->GetMaterial(i);
-                MaterialArray.Materials.Add(Mat);
-            }
-
-            OriginalMaterialsMap.Add(MeshComp, MaterialArray);
-        }
-    }
-
-    if (IsLocallyControlled() || IsShadow)
-    {
-        if (bIsInvisible)
-        {
-            // Устанавливаем невидимые материалы
-            for (UMeshComponent* MeshComp : MeshComponents)
-            {
-                if (!MeshComp) continue;
-
-                int32 MaterialCount = MeshComp->GetNumMaterials();
-                for (int32 i = 0; i < MaterialCount; ++i)
-                {
-                    MeshComp->SetMaterial(i, InvisibleMaterial);
-                }
-            }
-
-            if (InvisibleWeaponMaterials && WeaponMeshComponent)
-            {
-                WeaponMeshComponent->SetMaterial(0, InvisibleWeaponMaterials);
-            }
-        }
-        else
-        {
-            // Восстанавливаем оригинальные материалы
-            for (TPair<UMeshComponent*, FOriginalMaterialArray>& Pair : OriginalMaterialsMap)
-            {
-                UMeshComponent* MeshComp = Pair.Key;
-                const TArray<UMaterialInterface*>& Materials = Pair.Value.Materials;
-
-                if (!MeshComp) continue;
-
-                for (int32 i = 0; i < Materials.Num(); ++i)
-                {
-                    MeshComp->SetMaterial(i, Materials[i]);
-                }
-            }
-
-            if (OriginalWeaponMaterials && WeaponMeshComponent)
-            {
-                WeaponMeshComponent->SetMaterial(0, OriginalWeaponMaterials);
-            }
-        }
-    }
-    else
-    {
-        // Для других игроков — просто скрываем/показываем меши
-        for (UMeshComponent* MeshComp : MeshComponents)
-        {
-            if (MeshComp)
-            {
-                MeshComp->SetVisibility(!bIsInvisible, true);
-            }
-        }
-    }
-}
-
-void AUmbraBaseCharacter::SetInvisibility(bool bInvisible)
-{
-	if (HasAuthority())
-	{
-		bIsInvisible = bInvisible;
-		OnRep_InvisibilityChanged();
-	}
-	else
-	{
-		ServerSetInvisibility(bInvisible);
-	}
-}
-
-void AUmbraBaseCharacter::ServerSetInvisibility_Implementation(bool bInvisible)
-{
-	SetInvisibility(bInvisible);
-}
-
-void AUmbraBaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	
-	DOREPLIFETIME(AUmbraBaseCharacter, bIsInvisible);
-}
-
 FWeaponSocketLocations AUmbraBaseCharacter::GetWeaponSocketLocations_Implementation() const
 {
 	if (WeaponMeshComponent && WeaponMeshComponent->DoesSocketExist(WeaponBaseSocketName) && WeaponMeshComponent->DoesSocketExist(WeaponTipSocketName))
@@ -170,7 +58,7 @@ FWeaponSocketLocations AUmbraBaseCharacter::GetWeaponSocketLocations_Implementat
 
 FVector AUmbraBaseCharacter::GetProjectileSpawnLocation_Implementation() const
 {
-	return PolygonMesh->GetSocketLocation("ProjectileSpawnSocket");
+	return GetMesh()->GetSocketLocation("ProjectileSpawnSocket");
 }
 
 void AUmbraBaseCharacter::SetWarp_Implementation(FName WarpName, FVector TargetLocation, FRotator TargetRotation)
@@ -204,20 +92,20 @@ void AUmbraBaseCharacter::Die()
 
 void AUmbraBaseCharacter::EnableOutline_Implementation(int32 StencilValue)
 {
-	if (PolygonMesh->bRenderCustomDepth == true && GetMesh()->CustomDepthStencilValue == XRAY_STENCIL_VALUE)
+	if (GetMesh()->bRenderCustomDepth == true && GetMesh()->CustomDepthStencilValue == XRAY_STENCIL_VALUE)
 	{
 		return;
 	}
 	
-	PolygonMesh->SetRenderCustomDepth(true);
-	PolygonMesh->SetCustomDepthStencilValue(ENEMY_OUTLINE_STENCIL_VALUE);
+	GetMesh()->SetRenderCustomDepth(true);
+	GetMesh()->SetCustomDepthStencilValue(ENEMY_OUTLINE_STENCIL_VALUE);
 }
 
 void AUmbraBaseCharacter::DisableOutline_Implementation()
 {
-	if (PolygonMesh->CustomDepthStencilValue != XRAY_STENCIL_VALUE)
+	if (GetMesh()->CustomDepthStencilValue != XRAY_STENCIL_VALUE)
 	{
-		PolygonMesh->SetRenderCustomDepth(false);
+		GetMesh()->SetRenderCustomDepth(false);
 	}
 }
 
@@ -229,11 +117,6 @@ UAbilitySystemComponent* AUmbraBaseCharacter::GetAbilitySystemComponent() const
 void AUmbraBaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	// if (HasAuthority())
-	// {
-	// 	InitAbilityActorInfo();
-	// 	InitializeDefaultAttributes();
-	// }
 }
 
 void AUmbraBaseCharacter::Tick(float DeltaSeconds)
@@ -290,7 +173,7 @@ void AUmbraBaseCharacter::Dissolve()
 	if (IsValid(DissolveMaterial))
 	{
 		UMaterialInstanceDynamic* DM = UMaterialInstanceDynamic::Create(DissolveMaterial, this);
-		PolygonMesh->SetMaterial(0, DM);
+		GetMesh()->SetMaterial(0, DM);
 		StartDissolveTimeline(DM);
 	}
 }

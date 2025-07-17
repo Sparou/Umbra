@@ -4,11 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Character/UmbraBaseCharacter.h"
-#include "Stealth/LightingDetection.h"
-#include "Blueprint/UserWidget.h"
 #include "Perception/AISightTargetInterface.h"
 #include "UmbraPlayerCharacter.generated.h"
 
+class UStealthComponent;
 class UAssassinationsData;
 class UInteractionComponent;
 class UTraversalComponent;
@@ -29,14 +28,13 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_PlayerState() override;
+	virtual void InitAbilityActorInfo() override;
 	
 public:
 	
 	UFUNCTION(BlueprintCallable)
 	UAssassinationsData* GetAssassinationsData();
 	
-	const ULightingDetection* GetLightingDetector() const;
-
 	/** IAISightTargetInterface implementation */
 	virtual UAISense_Sight::EVisibilityResult CanBeSeenFrom(
 		const FCanBeSeenFromContext& Context,
@@ -48,30 +46,13 @@ public:
 
 protected:
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	TObjectPtr<UInteractionComponent> InteractionComponent;
+	// UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	// TObjectPtr<UTraversalComponent> TraversalComponent;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TObjectPtr<UTraversalComponent> TraversalComponent;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UStealthComponent> StealthComponent;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Data")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Abilities|Data")
 	TObjectPtr<UAssassinationsData> AssassinationsData;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI Sight",
-	meta = (ToolTip = "Table of player visibility thresholds depending on the distance to the AI"))
-	TObjectPtr<UCurveTable> ThresholdOfVisibilityFromDistanceSquaredTable;
 	
-	virtual void InitAbilityActorInfo() override;
-	
-private:
-	/** Компонент определения освещённости */
-	UPROPERTY(VisibleAnywhere, Category = "Lighting")
-	ULightingDetection* LightingDetector;
-	
-	/** Наш виджет-класс полоски */
-	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	TSubclassOf<UUserWidget> LightWidgetClass;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Tag Name")
-	FName InvisibilityTagName = "Ability.Invisibility";
 };

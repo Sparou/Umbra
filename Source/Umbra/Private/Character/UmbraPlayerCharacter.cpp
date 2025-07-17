@@ -6,17 +6,14 @@
 #include "Character/Component/TraversalComponent.h"
 #include "AbilitySystem/UmbraAbilitySystemComponent.h"
 #include "AbilitySystem/UmbraAttributeSet.h"
-#include "Stealth/LightingDetection.h"
-#include "Blueprint/UserWidget.h"
+#include "Character/Component/StealthComponent.h"
 #include "Player/UmbraPlayerState.h"
-#include "Stealth/LightLevelIndicator.h"
 #include "Umbra/Umbra.h"
 
 AUmbraPlayerCharacter::AUmbraPlayerCharacter(const FObjectInitializer& ObjInit)
 {
-	InteractionComponent = CreateDefaultSubobject<UInteractionComponent>("Interaction Component");
-	TraversalComponent = CreateDefaultSubobject<UTraversalComponent>("Traversal Component");
-	LightingDetector = CreateDefaultSubobject<ULightingDetection>("Lighting Detector");
+	//TraversalComponent = CreateDefaultSubobject<UTraversalComponent>("Traversal Component");
+	StealthComponent = CreateDefaultSubobject<UStealthComponent>("Stealth Component");
 }
 
 UAssassinationsData* AUmbraPlayerCharacter::GetAssassinationsData()
@@ -24,32 +21,11 @@ UAssassinationsData* AUmbraPlayerCharacter::GetAssassinationsData()
 	return AssassinationsData;
 }
 
-const ULightingDetection* AUmbraPlayerCharacter::GetLightingDetector() const
-{
-	return LightingDetector;
-}
 
 UAISense_Sight::EVisibilityResult AUmbraPlayerCharacter::CanBeSeenFrom(const FCanBeSeenFromContext& Context,
 	FVector& OutSeenLocation, int32& OutNumberOfLoSChecksPerformed, int32& OutNumberOfAsyncLosCheckRequested,
 	float& OutSightStrength, int32* UserData, const FOnPendingVisibilityQueryProcessedDelegate* Delegate)
 {
-	if(!ThresholdOfVisibilityFromDistanceSquaredTable) return UAISense_Sight::EVisibilityResult::NotVisible;
-	const FRealCurve* VisibilityFromDistanceSquaredCurve = ThresholdOfVisibilityFromDistanceSquaredTable->FindCurve(FName("VisibilityFromDistanceSquared"), TEXT("VisibilityFromDistanceTable"));
-	if(!VisibilityFromDistanceSquaredCurve) return UAISense_Sight::EVisibilityResult::NotVisible;
-
-	const float Distance = (Context.ObserverLocation - GetActorLocation()).SizeSquared();
-	const float LightPercentageThreshold = VisibilityFromDistanceSquaredCurve->Eval(Distance);
-	
-	//UE_LOG(LogTemp, Warning, TEXT("Threshold = %f; CurLight = %f"), LightPercentageThreshold, LightingDetector->LightPercentage);
-	// UE_LOG(LogTemp, Warning, TEXT("CurEnemy %s has invisibility tag: %hs"), *this->GetName(),
-	//	GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(InvisibilityTagName)) ? "true" : "false");
-	
-	if(LightingDetector->LightPercentage <= LightPercentageThreshold ||
-		GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(InvisibilityTagName)))
-	{
-		return UAISense_Sight::EVisibilityResult::NotVisible;
-	}
-	
 	FHitResult HitResult;
 	FCollisionQueryParams CollisionParams;
 	CollisionParams.AddIgnoredActor(Context.IgnoreActor);
@@ -104,19 +80,6 @@ void AUmbraPlayerCharacter::BeginPlay()
 	else
 	{
 		GetMesh()->SetCustomDepthStencilValue(XRAY_STENCIL_VALUE);
-	}
-	if (LightWidgetClass)
-	{
-		// Создаём и показываем наш C++-виджет
-		ULightLevelIndicator* Widget = CreateWidget<ULightLevelIndicator>(GetWorld(), LightWidgetClass);
-		if (Widget)
-		{
-			Widget->AddToViewport();
-		}
-		else
-		{
-			UE_LOG(LogTemp, Error, TEXT("Failed to create LightLevelIndicator widget"));
-		}
 	}
 
 	FGameplayTagContainer TC;

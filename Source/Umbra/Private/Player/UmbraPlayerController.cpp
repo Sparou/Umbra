@@ -14,8 +14,6 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Input/UmbraInputComponent.h"
-#include "Interface/InteractionInterface.h"
-#include "UI/UmbraMainWidget.h"
 
 void AUmbraPlayerController::SwitchToDefaultContext()
 {
@@ -38,18 +36,6 @@ void AUmbraPlayerController::SwitchToCameraOnlyContext()
 		Subsystem->AddMappingContext(CameraOnlyInputContext, 0);
 	}
 }
-
-void AUmbraPlayerController::SwitchToArrowContext()
-{
-	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
-		GetLocalPlayer());
-	if (Subsystem)
-	{
-		Subsystem->ClearAllMappings();
-		Subsystem->AddMappingContext(ArrowContext, 0);
-	}
-}
-
 
 void AUmbraPlayerController::BeginPlay()
 {
@@ -85,19 +71,9 @@ void AUmbraPlayerController::SetupInputComponent()
 	UmbraInputComponent->BindAction(WalkAction, ETriggerEvent::Started, this, &AUmbraPlayerController::OnStartWalking);
 	UmbraInputComponent->BindAction(WalkAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::OnStopWalking);
 	UmbraInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &AUmbraPlayerController::OnStartCrouch);
-	UmbraInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this,
-	                                &AUmbraPlayerController::OnStopCrouch);
-	UmbraInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this,
-	                                &AUmbraPlayerController::OnStartThrough);
-	UmbraInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this,
-	                                &AUmbraPlayerController::OnStopThrough);
-	UmbraInputComponent->BindAction(CameraZoomAction, ETriggerEvent::Triggered, this,
-	                                &AUmbraPlayerController::CameraZoom);
+	UmbraInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::OnStopCrouch);
+	UmbraInputComponent->BindAction(CameraZoomAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::CameraZoom);
 	UmbraInputComponent->BindAction(PauseAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::Pause);
-
-	// For arrow movement
-	UmbraInputComponent->BindAction(ArrowAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::DirectArrow);
-	UmbraInputComponent->BindAction(DropAction, ETriggerEvent::Started, this, &AUmbraPlayerController::OnStartDrop);
 
 	UmbraInputComponent->BindAbilityActions(InputConfig, this,
 											&AUmbraPlayerController::AbilityInputTagPressed,
@@ -204,56 +180,6 @@ void AUmbraPlayerController::Interact(AActor* InteractionTarget)
 void AUmbraPlayerController::ServerInteract_Implementation(AActor* InteractionTarget)
 {
 	Interact(InteractionTarget);
-}
-
-void AUmbraPlayerController::DirectArrow(const FInputActionValue& InputActionValue)
-{
-	const FVector2D InputAxisVector = InputActionValue.Get<FVector2D>();
-
-	if (APawn* ControlledPawn = GetPawn<APawn>())
-	{
-		if (UProjectileMovementComponent* MoveComp = ControlledPawn->FindComponentByClass<
-			UProjectileMovementComponent>())
-		{
-			const FVector CurrentForward = MoveComp->Velocity.GetSafeNormal();
-			if (CurrentForward.IsZero())
-			{
-				return;
-			}
-
-			const FVector ArrowUp = ControlledPawn->GetActorUpVector();
-			const FVector RightVector = FVector::CrossProduct(ArrowUp, CurrentForward).GetSafeNormal();
-
-
-			FVector DesiredDirection = CurrentForward
-				+ RightVector * InputAxisVector.X
-				+ InputAxisVector.Y;
-
-
-			DesiredDirection = DesiredDirection.GetSafeNormal();
-
-			const float RotationSpeed = 2.0f;
-
-			if (!DesiredDirection.IsZero())
-			{
-				// Поворот по локальной оси Y (Pitch)
-				const FVector LocalRight = ControlledPawn->GetActorRightVector();
-				FQuat PitchQuat = FQuat(LocalRight, FMath::DegreesToRadians(InputAxisVector.Y * RotationSpeed));
-
-				// Поворот по локальной оси Z (Yaw) — ИСПРАВЛЕНО: локальная ось "вверх", а не мировая!
-				const FVector LocalUp = ControlledPawn->GetActorUpVector();
-				FQuat YawQuat = FQuat(LocalUp, FMath::DegreesToRadians(InputAxisVector.X * RotationSpeed));
-
-				// Применяем вращения в нужном порядке
-				FQuat NewQuat = PitchQuat * YawQuat * ControlledPawn->GetActorQuat();
-				ControlledPawn->SetActorRotation(NewQuat);
-
-				// Обновляем направление движения
-				FVector NewForward = ControlledPawn->GetActorForwardVector();
-				MoveComp->Velocity = NewForward * MoveComp->InitialSpeed;
-			}
-		}
-	}
 }
 
 void AUmbraPlayerController::Move(const FInputActionValue& InputActionValue)
@@ -384,55 +310,6 @@ void AUmbraPlayerController::OnStartDrop()
 	if (GetTraversalComponent())
 	{
 		HasAuthority() ? TraversalComponent->DropFromClimb() : TraversalComponent->ServerDropFromClimb();
-	}
-}
-
-void AUmbraPlayerController::OnStartThrough()
-{
-}
-
-void AUmbraPlayerController::OnStopThrough()
-{
-}
-
-void AUmbraPlayerController::Pause()
-{
-	TArray<UUserWidget*> FoundWidgets;
-	UWidgetBlueprintLibrary::GetAllWidgetsOfClass(this, FoundWidgets, UUmbraMainWidget::StaticClass(), false);
-
-	if (FoundWidgets.Num() > 0)
-	{
-		if (UUmbraMainWidget* MainUI = Cast<UUmbraMainWidget>(FoundWidgets[0]))
-		{
-			MainUI->SwitchPauseMode();
-
-			// Управление вводом
-			OnPause(MainUI->bIsPause);
-		}
-	}
-}
-
-void AUmbraPlayerController::OnPause(bool bIsPaused)
-{
-	if (bIsPaused)
-	{
-		// Отключить управление
-		SetIgnoreMoveInput(true);
-		SetIgnoreLookInput(true);
-
-		// Показать курсор
-		bShowMouseCursor = true;
-		SetInputMode(FInputModeUIOnly());
-	}
-	else
-	{
-		// Включить управление
-		SetIgnoreMoveInput(false);
-		SetIgnoreLookInput(false);
-
-		// Скрыть курсор
-		bShowMouseCursor = false;
-		SetInputMode(FInputModeGameOnly());
 	}
 }
 

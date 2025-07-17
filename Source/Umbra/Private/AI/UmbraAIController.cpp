@@ -2,13 +2,11 @@
 
 
 #include "AI/UmbraAIController.h"
-
 #include "UmbraGameplayTags.h"
 #include "AbilitySystem/UmbraEnemyAttributeSet.h"
 #include "AI/UmbraAIPerceptionComponent.h"
 #include "AI/Data/DA_EnemyChoicePriority.h"
 #include "AI/Data/FEmotionReactionRow.h"
-#include "AI/InteractingObject/UmbraAlarmBell.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Character/UmbraEnemyCharacter.h"
@@ -17,7 +15,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Perception/AISense_Hearing.h"
 #include "Perception/AISense_Sight.h"
-#include "Stealth/LightingDetection.h"
 
 AUmbraAIController::AUmbraAIController()
 {
@@ -187,9 +184,6 @@ void AUmbraAIController::OnPercepted(AActor* SourceActor, const FAIStimulus Stim
 		{
 			if(AUmbraPlayerCharacter* PlayerActor = Cast<AUmbraPlayerCharacter>(SourceActor))
 			{
-				const float light = PlayerActor->GetLightingDetector()->LightPercentage;
-				//UE_LOG(LogTemp, Warning, TEXT("Light = %s"), *FString::SanitizeFloat(light))
-				//TODO: check if bot sees player after ending invisibility when stimulus was already received 
 				if(true/*!PlayerActor->GetAbilitySystemComponent()->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(InvisibleTag))*/)
 				{
 					if(!Blackboard->GetValueAsBool(EverSeenEnemy))

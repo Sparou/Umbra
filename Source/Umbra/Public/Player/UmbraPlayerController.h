@@ -49,9 +49,6 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void SwitchToCameraOnlyContext();
-
-	UFUNCTION(BlueprintCallable)
-	void SwitchToArrowContext();
 	
 protected:
 
@@ -135,11 +132,6 @@ private:
 	UInteractionComponent* GetInteractionComponent();
 	USpringArmComponent* GetSpingArmComponent();
 	
-	void SwitchCharacter(FGameplayTag CharacterTag);
-	void Interact();
-
-	void DirectArrow(const FInputActionValue& InputActionValue);
-	
 	void OnInteract();
 	void Interact(AActor* InteractionTarget);
 	UFUNCTION(Server, Reliable)
@@ -162,15 +154,7 @@ private:
 	void OnStopCrouch();
 
 	void OnStartDrop();
-
-	void OnStartThrough();
-	void OnStopThrough();
 	
-	virtual void Pause() override;
-
-	UFUNCTION(BlueprintCallable)
-	void OnPause(bool bIsPaused);
-
 	void AbilityInputTagPressed(FGameplayTag InputTag);
 	void AbilityInputTagReleased(FGameplayTag InputTag);
 	void AbilityInputTagHeld(FGameplayTag InputTag);
