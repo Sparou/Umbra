@@ -115,6 +115,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Attributes")
 	TSubclassOf<UGameplayEffect> DefaultVitalAttributes;
+
+	UPROPERTY(EditAnywhere, Category = "Attributes")
+	TSubclassOf<UGameplayEffect> DefaultStealthAttributes;
 	
 	void ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, const float Level) const;
 	virtual void InitializeDefaultAttributes() const;

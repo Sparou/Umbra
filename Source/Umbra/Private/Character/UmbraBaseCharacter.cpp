@@ -269,6 +269,7 @@ void AUmbraBaseCharacter::InitializeDefaultAttributes() const
 {
 	ApplyEffectToSelf(DefaultPrimaryAttributes, 1.f);
 	ApplyEffectToSelf(DefaultVitalAttributes, 1.f);
+	ApplyEffectToSelf(DefaultStealthAttributes, 1.f);
 }
 
 void AUmbraBaseCharacter::InitAbilityActorInfo()

@@ -46,6 +46,9 @@ void FUmbraGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Ability_Invisibility = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Trap.Teleport"));
 	GameplayTags.Ability_Interact = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Interact"));
 
+	/** Effects Tags */
+	GameplayTags.Effect_Attribute_Visibility = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Effect.Attribute.Visibility"));
+	
 	GameplayTags.State_Locomotion_Walking = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.Locomotion.Walking"));
 	GameplayTags.State_Locomotion_Running = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.Locomotion.Running"));
 	GameplayTags.State_Locomotion_Carrying = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.Locomotion.Carrying"));

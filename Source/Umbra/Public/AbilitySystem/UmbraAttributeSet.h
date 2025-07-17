@@ -76,6 +76,10 @@ public:
 	FGameplayAttributeData MaxHealth;
 	ATTRIBUTE_ACCESSORS(UUmbraAttributeSet, MaxHealth)
 
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Visibility, Category = "Stealth Attributes")
+	FGameplayAttributeData Visibility;
+	ATTRIBUTE_ACCESSORS(UUmbraAttributeSet, Visibility)
+	
 	UPROPERTY(BlueprintReadOnly, Category = "Meta Attributes")
 	FGameplayAttributeData IncomingDamage;
 	ATTRIBUTE_ACCESSORS(UUmbraAttributeSet, IncomingDamage)
@@ -86,6 +90,9 @@ public:
 	
 	UFUNCTION()
 	void OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth) const { GAMEPLAYATTRIBUTE_REPNOTIFY(UUmbraAttributeSet, MaxHealth, OldMaxHealth); }
+
+	UFUNCTION()
+	void OnRep_Visibility(const FGameplayAttributeData& OldVisibility) const { GAMEPLAYATTRIBUTE_REPNOTIFY(UUmbraAttributeSet, Visibility, OldVisibility); }
 
 private:
 

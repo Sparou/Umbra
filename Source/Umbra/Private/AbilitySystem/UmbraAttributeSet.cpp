@@ -12,8 +12,10 @@
 
 void UUmbraAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME_CONDITION_NOTIFY(UUmbraAttributeSet, Health, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UUmbraAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UUmbraAttributeSet, Visibility, COND_None, REPNOTIFY_Always);
 }
 
 void UUmbraAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)

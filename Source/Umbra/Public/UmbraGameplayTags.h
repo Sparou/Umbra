@@ -54,6 +54,10 @@ public:
 	FGameplayTag Ability_TrapKill;
 	FGameplayTag Ability_Interact;
 
+	/** Effects Tags */
+
+	FGameplayTag Effect_Attribute_Visibility;
+	
 	/** Position Tags */ 
 	FGameplayTag Position_Front;
 	FGameplayTag Position_FrontRight;
