@@ -63,15 +63,14 @@ void AUmbraPlayerController::SetupInputComponent()
 
 	UmbraInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AUmbraPlayerController::OnInteract);
 	UmbraInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::Move);
-	UmbraInputComponent->BindAction(MoveAction, ETriggerEvent::Started, this, &AUmbraPlayerController::OnStartMoving);
 	UmbraInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::OnStopMoving);
 	UmbraInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::Look);
-	UmbraInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AUmbraPlayerController::OnStartJumping);
-	UmbraInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::OnStopJumping);
+	// UmbraInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AUmbraPlayerController::OnStartJumping);
+	// UmbraInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::OnStopJumping);
 	UmbraInputComponent->BindAction(WalkAction, ETriggerEvent::Started, this, &AUmbraPlayerController::OnStartWalking);
 	UmbraInputComponent->BindAction(WalkAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::OnStopWalking);
-	UmbraInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &AUmbraPlayerController::OnStartCrouch);
-	UmbraInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::OnStopCrouch);
+	// UmbraInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &AUmbraPlayerController::OnStartCrouch);
+	// UmbraInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::OnStopCrouch);
 	UmbraInputComponent->BindAction(CameraZoomAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::CameraZoom);
 	UmbraInputComponent->BindAction(PauseAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::Pause);
 
@@ -221,14 +220,8 @@ void AUmbraPlayerController::CameraZoom(const FInputActionValue& InputActionValu
 	}
 }
 
-void AUmbraPlayerController::OnStartMoving()
-{
-	GetTagManager()->AddTag(FUmbraGameplayTags::Get().State_Movement_Moving);
-}
-
 void AUmbraPlayerController::OnStopMoving()
 {
-	GetTagManager()->RemoveTag(FUmbraGameplayTags::Get().State_Movement_Moving);
 
 	if (GetTraversalComponent())
 	{
@@ -263,47 +256,47 @@ void AUmbraPlayerController::OnStopWalking()
 	}
 }
 
-void AUmbraPlayerController::OnStartJumping()
-{
-	if (GetControlledCharacter() && GetTraversalComponent())
-	{
-		if (HasAuthority())
-		{
-			TraversalComponent->TriggerTraversalAction(true);
-		}
-		else
-		{
-			TraversalComponent->ServerTriggerTraversalAction(true);
-		}
-	}
-}
-
-void AUmbraPlayerController::OnStopJumping()
-{
-	bWantsToJump = false;
-}
-
-void AUmbraPlayerController::OnStartCrouch()
-{
-	if (GetControlledCharacter())
-	{
-		if (ControlledCharacter->GetCharacterMovement()->IsFalling())
-		{
-			return;
-		}
-		ControlledCharacter->Crouch();
-		GetTagManager()->AddTag(FUmbraGameplayTags::Get().State_Stance_Crouching);
-	}
-}
-
-void AUmbraPlayerController::OnStopCrouch()
-{
-	if (GetControlledCharacter())
-	{
-		ControlledCharacter->UnCrouch();
-		GetTagManager()->RemoveTag(FUmbraGameplayTags::Get().State_Stance_Crouching);
-	}
-}
+// void AUmbraPlayerController::OnStartJumping()
+// {
+// 	if (GetControlledCharacter() && GetTraversalComponent())
+// 	{
+// 		if (HasAuthority())
+// 		{
+// 			TraversalComponent->TriggerTraversalAction(true);
+// 		}
+// 		else
+// 		{
+// 			TraversalComponent->ServerTriggerTraversalAction(true);
+// 		}
+// 	}
+// }
+//
+// void AUmbraPlayerController::OnStopJumping()
+// {
+// 	bWantsToJump = false;
+// }
+//
+// void AUmbraPlayerController::OnStartCrouch()
+// {
+// 	if (GetControlledCharacter())
+// 	{
+// 		if (ControlledCharacter->GetCharacterMovement()->IsFalling())
+// 		{
+// 			return;
+// 		}
+// 		ControlledCharacter->Crouch();
+// 		GetTagManager()->AddTag(FUmbraGameplayTags::Get().State_Stance_Crouching);
+// 	}
+// }
+//
+// void AUmbraPlayerController::OnStopCrouch()
+// {
+// 	if (GetControlledCharacter())
+// 	{
+// 		ControlledCharacter->UnCrouch();
+// 		GetTagManager()->RemoveTag(FUmbraGameplayTags::Get().State_Stance_Crouching);
+// 	}
+// }
 
 void AUmbraPlayerController::OnStartDrop()
 {
@@ -315,7 +308,8 @@ void AUmbraPlayerController::OnStartDrop()
 
 void AUmbraPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 {
-	//GEngine->AddOnScreenDebugMessage(1, 2.f, FColor::Green, InputTag.ToString());
+	if (GetAbilitySystemComponent() == nullptr) return;
+	GetAbilitySystemComponent()->AbilityInputTagPressed(InputTag);
 }
 
 void AUmbraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
@@ -326,8 +320,7 @@ void AUmbraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 
 void AUmbraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 {
-	if (GetAbilitySystemComponent() == nullptr) return;
-	GetAbilitySystemComponent()->AbilityInputTagPressed(InputTag);
+	
 }
 
 void AUmbraPlayerController::SetWalking(bool bWalking)

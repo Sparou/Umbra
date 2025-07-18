@@ -4,7 +4,7 @@
 #include "Character/UmbraEnemyCharacter.h"
 #include "UmbraCollisionChannels.h"
 #include "AbilitySystem/UmbraAbilitySystemComponent.h"
-#include "AbilitySystem/UmbraEnemyAttributeSet.h"
+#include "AbilitySystem/AttributeSet/UmbraEnemyAttributeSet.h"
 #include "AI/UmbraAIController.h"
 #include "AI/InteractingObject/UmbraAlarmBell.h"
 #include "BehaviorTree/BehaviorTree.h"

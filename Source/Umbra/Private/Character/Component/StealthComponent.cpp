@@ -29,18 +29,6 @@ void UStealthComponent::BeginPlay()
 		return;
 	}
 
-	if (OwnerASC)
-	{
-		OwnerASC->OnGameplayEffectAppliedDelegateToSelf.AddLambda(
-			[](UAbilitySystemComponent* ASC, const FGameplayEffectSpec& Spec, FActiveGameplayEffectHandle Handle)
-			{
-				// Этот код выполнится каждый раз, когда на персонажа применяется ЛЮБОЙ эффект
-				FString EffectName = Spec.Def->GetName();
-				UE_LOG(LogTemp, Warning, TEXT("Effect Applied to self: %s"), *EffectName);
-			}
-		);
-	}
-
 	GetWorld()->GetTimerManager().SetTimer(
 		VisibilityCheckTimerHandle,
 		this, &UStealthComponent::TriggerVisibilityCheck,
@@ -81,7 +69,7 @@ void UStealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 		{
 			SpecHandle.Data->SetSetByCallerMagnitude(FUmbraGameplayTags::Get().Effect_Attribute_Visibility, CalculatedVisibility);
 			OwnerASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-			UE_LOG(UmbraStealthComponentLog, Log, TEXT("Calculated Visibility = [%f]"), CalculatedVisibility);
+			//UE_LOG(UmbraStealthComponentLog, Log, TEXT("Calculated Visibility = [%f]"), CalculatedVisibility);
 		}
 	}
 

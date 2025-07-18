@@ -23,6 +23,8 @@ void FUmbraGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Input_4 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.4"));
 	GameplayTags.Input_T = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.T"));
 	GameplayTags.Input_F = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.F"));
+	GameplayTags.Input_Space = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.Space"));
+	GameplayTags.Input_Ctrl = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.Ctrl"));
 
 	/** Combat Tags */
 	GameplayTags.WeaponTrace_Start = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("WeaponTrace.Start"));
@@ -46,17 +48,22 @@ void FUmbraGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Ability_Invisibility = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Trap.Teleport"));
 	GameplayTags.Ability_Interact = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Interact"));
 
+	GameplayTags.Ability_Movement_Jump = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Movement.Jump"));
+	GameplayTags.Ability_Movement_Crouch = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Movement.Crouch"));
+
 	/** Effects Tags */
 	GameplayTags.Effect_Attribute_Visibility = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Effect.Attribute.Visibility"));
 	
 	GameplayTags.State_Locomotion_Walking = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.Locomotion.Walking"));
 	GameplayTags.State_Locomotion_Running = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.Locomotion.Running"));
 	GameplayTags.State_Locomotion_Carrying = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.Locomotion.Carrying"));
-	GameplayTags.State_Movement_Moving = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.Movement.Moving"));
-	GameplayTags.State_Movement_Falling = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.Movement.Falling"));
+	GameplayTags.State_Moving = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.Moving"));
+	GameplayTags.State_Falling = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.Falling"));
 	GameplayTags.State_Stance_Standing = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.Stance.Standing"));
 	GameplayTags.State_Stance_Crouching = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.Stance.Crouching"));
 
+	GameplayTags.Event_OnCharacterLanded = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.OnCharacterLanded"));
+	
 	/** Position Tags */
 	GameplayTags.Position_Front = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Position.Front"));
 	GameplayTags.Position_FrontRight = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Position.FrontRight"));

@@ -2,10 +2,9 @@
 
 
 #include "Character/UmbraPlayerCharacter.h"
-#include "Character/Component/InteractionComponent.h"
 #include "Character/Component/TraversalComponent.h"
 #include "AbilitySystem/UmbraAbilitySystemComponent.h"
-#include "AbilitySystem/UmbraAttributeSet.h"
+#include "AbilitySystem/AttributeSet/UmbraAttributeSet.h"
 #include "Character/Component/StealthComponent.h"
 #include "Player/UmbraPlayerState.h"
 #include "Umbra/Umbra.h"

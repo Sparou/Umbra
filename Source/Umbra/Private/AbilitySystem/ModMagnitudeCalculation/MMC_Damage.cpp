@@ -4,11 +4,12 @@
 #include "AbilitySystem/ModMagnitudeCalculation/MMC_Damage.h"
 
 #include "UmbraGameplayTags.h"
-#include "AbilitySystem/UmbraAttributeSet.h"
+#include "AbilitySystem/AttributeSet/UmbraAttributeSet.h"
+#include "AbilitySystem/AttributeSet/VitalAttributeSet.h"
 
 UMMC_Damage::UMMC_Damage()
 {
-	IncomingDamageDef.AttributeToCapture = UUmbraAttributeSet::GetIncomingDamageAttribute();
+	IncomingDamageDef.AttributeToCapture = UVitalAttributeSet::GetIncomingDamageAttribute();
 	IncomingDamageDef.AttributeSource = EGameplayEffectAttributeCaptureSource::Source;
 	IncomingDamageDef.bSnapshot = false;
 	RelevantAttributesToCapture.Add(IncomingDamageDef);

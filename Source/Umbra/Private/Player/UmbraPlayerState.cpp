@@ -4,7 +4,7 @@
 #include "Player/UmbraPlayerState.h"
 
 #include "AbilitySystem/UmbraAbilitySystemComponent.h"
-#include "AbilitySystem/UmbraAttributeSet.h"
+#include "AbilitySystem/AttributeSet/UmbraAttributeSet.h"
 #include "Net/UnrealNetwork.h"
 
 AUmbraPlayerState::AUmbraPlayerState()

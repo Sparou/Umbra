@@ -23,7 +23,6 @@ class UAttributeSet;
 class UGameplayEffect;
 struct FGameplayAbilityActivationInfo;
 
-
 UCLASS()
 class UMBRA_API AUmbraBaseCharacter : public ACharacter, public ICombatInterface, public IOutlineInterface, public IAbilitySystemInterface
 {

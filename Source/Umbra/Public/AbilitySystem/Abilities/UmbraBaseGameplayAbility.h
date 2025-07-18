@@ -11,12 +11,36 @@ DECLARE_LOG_CATEGORY_EXTERN(UmbraAbilitiesLog, Log, All);
 /**
  * 
  */
+UENUM(BlueprintType)
+enum class EAbilityActivationPolicy : uint8
+{
+	OnInputTriggered,
+	WhileInputActive,
+	OnSpawn
+};
+
+/**
+ * 
+ */
 UCLASS()
 class UMBRA_API UUmbraBaseGameplayAbility : public UGameplayAbility
 {
 	GENERATED_BODY()
 	
 public:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
-	FGameplayTag StartupInputTag;
+
+	UFUNCTION(BlueprintCallable)
+	EAbilityActivationPolicy GetActivationPolicy() const { return ActivationPolicy; }
+
+	UFUNCTION(BlueprintCallable)
+	FGameplayTag GetInputTag() const { return InputTag;}
+	
+
+protected:
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Activation")
+	EAbilityActivationPolicy ActivationPolicy = EAbilityActivationPolicy::OnInputTriggered;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Activation")
+	FGameplayTag InputTag;
 };

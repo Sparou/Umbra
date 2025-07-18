@@ -144,7 +144,6 @@ float FVisibilityCalculationTask::CalculateLightContribution(const ULightCompone
 
 	else if (Cast<UDirectionalLightComponent>(LightComponent))
 	{
-		UE_LOG(LogTemp, Log, TEXT("It is GeneralLight"));
 		Contribution = BaseFactor;
 	}
 	

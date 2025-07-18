@@ -1,6 +1,8 @@
 // Copyrighted by Vorona Games
 
 #include "Character/UmbraBaseCharacter.h"
+
+#include "AbilitySystemBlueprintLibrary.h"
 #include "MotionWarpingComponent.h"
 #include "AbilitySystem/UmbraAbilitySystemComponent.h"
 #include "AbilitySystem/Abilities/Projectile/UmbraProjectileGameplayAbility.h"

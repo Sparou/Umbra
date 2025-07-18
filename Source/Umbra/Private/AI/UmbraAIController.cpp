@@ -3,7 +3,7 @@
 
 #include "AI/UmbraAIController.h"
 #include "UmbraGameplayTags.h"
-#include "AbilitySystem/UmbraEnemyAttributeSet.h"
+#include "AbilitySystem/AttributeSet/UmbraEnemyAttributeSet.h"
 #include "AI/UmbraAIPerceptionComponent.h"
 #include "AI/Data/DA_EnemyChoicePriority.h"
 #include "AI/Data/FEmotionReactionRow.h"

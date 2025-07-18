@@ -41,9 +41,6 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	bool bWantsToCrouch;
 
-	UPROPERTY(BlueprintReadOnly)
-	bool bWantsToThough;
-
 	UFUNCTION(BlueprintCallable)
 	void SwitchToDefaultContext();
 	
@@ -61,9 +58,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<UInputMappingContext> CameraOnlyInputContext;
-
-	UPROPERTY(EditAnywhere, Category = "Input")
-	TObjectPtr<UInputMappingContext> ArrowContext;
 	
 	UPROPERTY(EditAnywhere, Category = "Input|Basic")
 	TObjectPtr<UInputAction> InteractAction;
@@ -72,19 +66,16 @@ protected:
 	TObjectPtr<UInputAction> MoveAction;
 
 	UPROPERTY(EditAnywhere, Category = "Input|Basic")
-	TObjectPtr<UInputAction> ArrowAction;
-
-	UPROPERTY(EditAnywhere, Category = "Input|Basic")
 	TObjectPtr<UInputAction> LookAction;
 
-	UPROPERTY(EditAnywhere, Category = "Input|Basic")
-	TObjectPtr<UInputAction> JumpAction;
+	// UPROPERTY(EditAnywhere, Category = "Input|Basic")
+	// TObjectPtr<UInputAction> JumpAction;
 
 	UPROPERTY(EditAnywhere, Category = "Input|Basic")
 	TObjectPtr<UInputAction> WalkAction;
 
-	UPROPERTY(EditAnywhere, Category = "Input|Basic")
-	TObjectPtr<UInputAction> CrouchAction;
+	// UPROPERTY(EditAnywhere, Category = "Input|Basic")
+	// TObjectPtr<UInputAction> CrouchAction;
 
 	UPROPERTY(EditAnywhere, Category = "Input|Basic")
 	TObjectPtr<UInputAction> DropAction;
@@ -140,18 +131,17 @@ private:
 	void Move(const FInputActionValue& InputActionValue);
 	void Look(const FInputActionValue& InputActionValue);
 	void CameraZoom(const FInputActionValue& InputActionValue);
-
-	void OnStartMoving();
+	
 	void OnStopMoving();
 	
 	void OnStartWalking();
 	void OnStopWalking();
 
-	void OnStartJumping();
-	void OnStopJumping();
-
-	void OnStartCrouch();
-	void OnStopCrouch();
+	// void OnStartJumping();
+	// void OnStopJumping();
+	//
+	// void OnStartCrouch();
+	// void OnStopCrouch();
 
 	void OnStartDrop();
 	

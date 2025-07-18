@@ -30,6 +30,8 @@ public:
 	FGameplayTag Input_4;
 	FGameplayTag Input_T;
 	FGameplayTag Input_F;
+	FGameplayTag Input_Space;
+	FGameplayTag Input_Ctrl;
 
 	
 	/** Combat Tags */
@@ -54,9 +56,15 @@ public:
 	FGameplayTag Ability_TrapKill;
 	FGameplayTag Ability_Interact;
 
+	FGameplayTag Ability_Movement_Jump;
+	FGameplayTag Ability_Movement_Crouch;
+
 	/** Effects Tags */
 
 	FGameplayTag Effect_Attribute_Visibility;
+
+	/** Event Tags */
+	FGameplayTag Event_OnCharacterLanded;
 	
 	/** Position Tags */ 
 	FGameplayTag Position_Front;
@@ -72,8 +80,8 @@ public:
 	FGameplayTag State_Locomotion_Walking;
 	FGameplayTag State_Locomotion_Running;
 	FGameplayTag State_Locomotion_Carrying; 
-	FGameplayTag State_Movement_Moving;
-	FGameplayTag State_Movement_Falling;
+	FGameplayTag State_Moving;
+	FGameplayTag State_Falling;
 	FGameplayTag State_Stance_Crouching;
 	FGameplayTag State_Stance_Standing;
 
