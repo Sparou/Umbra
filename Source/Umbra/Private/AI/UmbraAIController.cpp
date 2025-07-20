@@ -168,7 +168,7 @@ void AUmbraAIController::BeginPlay()
 	Super::BeginPlay();
 
 	AUmbraBaseCharacter* UmbraCharacter = Cast<AUmbraBaseCharacter>(GetCharacter());
-	UmbraCharacter->GetTagManager()->OnGameplayTagChanged.AddDynamic(this, &AUmbraAIController::OnGameplayTagChanged);
+	//UmbraCharacter->GetTagManager()->OnGameplayTagChanged.AddDynamic(this, &AUmbraAIController::OnGameplayTagChanged);
 	//UmbraCharacter->GetAbilitySystemComponent()->RegisterGameplayTagEvent()
 }
 
@@ -274,6 +274,6 @@ void AUmbraAIController::OnGameplayTagChanged(const FGameplayTag& Tag, bool bAdd
 	
 	if(!bAdded) return;
 	AUmbraBaseCharacter* UmbraCharacter = Cast<AUmbraBaseCharacter>(GetCharacter());
-	UmbraCharacter->GetCharacterMovement()->MaxWalkSpeed =
-		UmbraCharacter->GetMoveSpeed(FUmbraGameplayTags::Get().State_Stance_Standing, Tag);
+	UmbraCharacter->GetCharacterMovement()->MaxWalkSpeed = 300.f;
+		//UmbraCharacter->GetMoveSpeed(FUmbraGameplayTags::Get().State_Stance_Standing, Tag);
 }

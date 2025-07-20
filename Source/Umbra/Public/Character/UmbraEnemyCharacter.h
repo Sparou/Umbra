@@ -8,6 +8,9 @@
 #include "Interface/PatrollingInterface.h"
 #include "UmbraEnemyCharacter.generated.h"
 
+class UUmbraEnemyAttributeSet;
+class UMovementAttributeSet;
+class UVitalAttributeSet;
 class AUmbraAlarmBell;
 class AUmbraAIController;
 class UBehaviorTree;
@@ -40,7 +43,6 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void InitAbilityActorInfo() override;
-	virtual void InitializeDefaultAttributes() const override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	UPROPERTY(EditAnywhere, Category = "Attributes")
@@ -62,7 +64,9 @@ protected:
 	/*Blackboard value names*/
 	UPROPERTY(EditDefaultsOnly, Category = "Blackboard|Alarm")
 	FName TriggeredAlarmLocation = "TriggeredAlarmLocation";
-
+	
+	TObjectPtr<UUmbraEnemyAttributeSet> EnemyAttributeSet;
+	
 private:
 	int32 CurrentPathIndex = 0;
 	int32 CurrentDestinationPointIndex = 0;

@@ -10,17 +10,17 @@
 #include "UmbraBaseCharacter.generated.h"
 
 class UUmbraAbilitySystemComponent;
-class UUmbraAttributeSet;
-class ULightingDetection;
+class UCombatData;
+class UWeaponComponent;
 class UTagManager;
 class UMeshComponent;
 class UMaterialInterface;
 class UTraversalComponent;
 class UCharacterTrajectoryComponent;
-class UAbilitySystemComponent;
 class UMotionWarpingComponent;
-class UAttributeSet;
 class UGameplayEffect;
+class UVitalAttributeSet;
+class UMovementAttributeSet;
 struct FGameplayAbilityActivationInfo;
 
 UCLASS()
@@ -41,9 +41,6 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastHandleDeath();
 
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Movement")
-	float GetMoveSpeed(const FGameplayTag& Stance, const FGameplayTag& Locomotion);
-
 	/** ICombatInterface implementation */
 	virtual FWeaponSocketLocations GetWeaponSocketLocations_Implementation() const override;
 	virtual UAnimMontage* GetRandomHitReactMontage_Implementation(FGameplayAbilityActivationInfo AbilityActivationInfo, float SeedMultiplier = 100.f) override;
@@ -53,77 +50,47 @@ public:
 	virtual bool IsDead_Implementation() const override;
 	virtual void Die() override;
 	
-	UPROPERTY(BlueprintAssignable)
-	FOnCharacterDeath CharacterDeathDelegate;
-
 	/** IOutline Interface **/
 	virtual void EnableOutline_Implementation(int32 StencilValue) override;
 	virtual void DisableOutline_Implementation() override;
 
 	/** AbilitySystem Interface */
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-	
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	UTagManager* GetTagManager();
+
+	UFUNCTION(BlueprintCallable, Category = "Ability System")
+	UVitalAttributeSet* GetVitalAttributeSet() { return VitalAttributeSet; }
+	UFUNCTION(BlueprintCallable, Category = "Ability System")
+	UMovementAttributeSet* GetMovementAttributeSet() { return MovementAttributeSet; }
 
 	UFUNCTION(BlueprintCallable)
 	void StartDissolve();
 	
 protected:
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	TObjectPtr<UWeaponComponent> WeaponComponent;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TObjectPtr<UMotionWarpingComponent> MotionWarpingComponent;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Weapon")
-	TObjectPtr<UStaticMeshComponent> WeaponMeshComponent;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Weapon")
-	FName WeaponBaseSocketName;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Weapon")
-	FName WeaponTipSocketName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
-	TArray<UAnimMontage*> MeleeAttackMontages;
+	TObjectPtr<UCombatData> CombatData;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
-	TArray<UAnimMontage*> HitReactMontages;
-
-	UPROPERTY()
 	TObjectPtr<UUmbraAbilitySystemComponent> AbilitySystemComponent;
-
-	UPROPERTY()
-	TObjectPtr<UUmbraAttributeSet> AttributeSet;
-	
-	TObjectPtr<UTagManager> TagManager;
-	
-	UPROPERTY(EditAnywhere, Category = "Attributes")
-	TSubclassOf<UGameplayEffect> DefaultPrimaryAttributes;
-
-	UPROPERTY(EditAnywhere, Category = "Attributes")
-	TSubclassOf<UGameplayEffect> DefaultVitalAttributes;
-
-	UPROPERTY(EditAnywhere, Category = "Attributes")
-	TSubclassOf<UGameplayEffect> DefaultStealthAttributes;
 	
 	void ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, const float Level) const;
-	virtual void InitializeDefaultAttributes() const;
+	
+	virtual void ApplyStartingEffects();
 	virtual void InitAbilityActorInfo();
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Abilities")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability System")
 	TArray<TSubclassOf<class UGameplayAbility>> StartingAbilities;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
-	float StandWalkSpeed = 100.f;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
-	float StandRunSpeed = 600.f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability System")
+	TArray<TSubclassOf<class UGameplayEffect>> StartingEffects;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
-	float CrouchWalkSpeed = 100.f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
-	float CrouchRunSpeed = 300.f;
+	TObjectPtr<UVitalAttributeSet> VitalAttributeSet;
+	TObjectPtr<UMovementAttributeSet> MovementAttributeSet;
 
 	void AddCharacterAbilities();
 	

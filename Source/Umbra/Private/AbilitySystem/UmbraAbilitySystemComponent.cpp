@@ -71,16 +71,20 @@ void UUmbraAbilitySystemComponent::ProcessAbilityInput(float DeltaTime, bool bGa
 	static TArray<FGameplayAbilitySpecHandle> AbilitiesToActivate;
 	AbilitiesToActivate.Reset();
   
-	// for (const FGameplayAbilitySpecHandle& SpecHandle : InputHeldHandles)
-	// {
-	// 	if (const FGameplayAbilitySpec* Spec = FindAbilitySpecFromHandle(SpecHandle))
-	// 	{
-	// 		if (Spec->Ability && !Spec->IsActive())
-	// 		{
-	// 			AbilitiesToActivate.AddUnique(Spec->Handle);
-	// 		}
-	// 	}
-	// }
+	for (const FGameplayAbilitySpecHandle& SpecHandle : InputHeldHandles)
+	{
+		if (const FGameplayAbilitySpec* Spec = FindAbilitySpecFromHandle(SpecHandle))
+		{
+			if (Spec->Ability && !Spec->IsActive())
+			{
+				const UUmbraBaseGameplayAbility* UmbraBaseGameplayAbilityCDO = Cast<UUmbraBaseGameplayAbility>(Spec->Ability);
+				if (UmbraBaseGameplayAbilityCDO->GetActivationPolicy() == EAbilityActivationPolicy::WhileInputActive)
+				{
+					AbilitiesToActivate.AddUnique(Spec->Handle);
+				}
+			}
+		}
+	}
 
 	for (const FGameplayAbilitySpecHandle& SpecHandle : InputPressedHandles)
 	{
@@ -88,7 +92,6 @@ void UUmbraAbilitySystemComponent::ProcessAbilityInput(float DeltaTime, bool bGa
 		{
 			if (Spec->Ability)
 			{
-				UE_LOG(LogTemp, Log, TEXT("InputTag pressed"));
 				Spec->InputPressed = true;
 
 				if (Spec->IsActive())
@@ -97,7 +100,11 @@ void UUmbraAbilitySystemComponent::ProcessAbilityInput(float DeltaTime, bool bGa
 				}
 				else
 				{
-					AbilitiesToActivate.AddUnique(Spec->Handle);
+					const UUmbraBaseGameplayAbility* UmbraBaseGameplayAbilityCDO = Cast<UUmbraBaseGameplayAbility>(Spec->Ability);
+					if (UmbraBaseGameplayAbilityCDO->GetActivationPolicy() == EAbilityActivationPolicy::OnInputTriggered)
+					{
+						AbilitiesToActivate.AddUnique(Spec->Handle);
+					}
 				}
 			}
 		}

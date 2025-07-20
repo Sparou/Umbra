@@ -1,5 +1,4 @@
-	// Copyrighted by Vorona Games
-
+// Copyrighted by Vorona Games
 
 #include "Character/UmbraPlayerCharacter.h"
 #include "Character/Component/TraversalComponent.h"
@@ -81,9 +80,9 @@ void AUmbraPlayerCharacter::BeginPlay()
 		GetMesh()->SetCustomDepthStencilValue(XRAY_STENCIL_VALUE);
 	}
 
-	FGameplayTagContainer TC;
-	TC.AddTag(FUmbraGameplayTags::Get().Ability_Interact);
-	AbilitySystemComponent->TryActivateAbilitiesByTag(TC);
+	// FGameplayTagContainer TC;
+	// TC.AddTag(FUmbraGameplayTags::Get().Ability_Interact);
+	// AbilitySystemComponent->TryActivateAbilitiesByTag(TC);
 }
 
 void AUmbraPlayerCharacter::OnRep_PlayerState()
@@ -104,7 +103,11 @@ void AUmbraPlayerCharacter::InitAbilityActorInfo()
 	AUmbraPlayerState* UmbraPlayerState = GetPlayerState<AUmbraPlayerState>();
 	checkf(UmbraPlayerState, TEXT("Player State is invalid in [%s]"), *GetNameSafe(this));
 	UmbraPlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(UmbraPlayerState, this);
-	AbilitySystemComponent = UmbraPlayerState->GetAbilitySystemComponent();
-	AttributeSet = UmbraPlayerState->GetAttributeSet();
-	InitializeDefaultAttributes();
+	AbilitySystemComponent = Cast<UUmbraAbilitySystemComponent>(UmbraPlayerState->GetAbilitySystemComponent());
+
+	VitalAttributeSet = UmbraPlayerState->GetVitalAttributeSet();
+	MovementAttributeSet = UmbraPlayerState->GetMovementAttributeSet();
+	StealthAttributeSet = UmbraPlayerState->GetStealthAttributeSet();
+	
+	ApplyStartingEffects();
 }

@@ -4,20 +4,24 @@
 #include "Character/UmbraEnemyCharacter.h"
 #include "UmbraCollisionChannels.h"
 #include "AbilitySystem/UmbraAbilitySystemComponent.h"
+#include "AbilitySystem/AttributeSet/MovementAttributeSet.h"
 #include "AbilitySystem/AttributeSet/UmbraEnemyAttributeSet.h"
+#include "AbilitySystem/AttributeSet/VitalAttributeSet.h"
 #include "AI/UmbraAIController.h"
 #include "AI/InteractingObject/UmbraAlarmBell.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "Kismet/GameplayStatics.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISense_Hearing.h"
 #include "Perception/AISense_Sight.h"
 
 AUmbraEnemyCharacter::AUmbraEnemyCharacter()
 {
-	AttributeSet = CreateDefaultSubobject<UUmbraEnemyAttributeSet>("Attribute Set");
+	AbilitySystemComponent = CreateDefaultSubobject<UUmbraAbilitySystemComponent>("Ability System Component");
+	VitalAttributeSet = CreateDefaultSubobject<UVitalAttributeSet>("Vital Attribute Set");
+	MovementAttributeSet = CreateDefaultSubobject<UMovementAttributeSet>("Movement Attribute Set");
+	EnemyAttributeSet = CreateDefaultSubobject<UUmbraEnemyAttributeSet>("Enemy Attribute Set");
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Interaction, ECR_Block);
 }
 
@@ -137,16 +141,10 @@ void AUmbraEnemyCharacter::InitAbilityActorInfo()
 
 	if(HasAuthority())
 	{
-		InitializeDefaultAttributes();
+		ApplyStartingEffects();
+		UmbraAIController->InitializeBlackboardDefaultValues(Cast<UUmbraEnemyAttributeSet>(EnemyAttributeSet));
 		AddCharacterAbilities();
 	}
-}
-
-void AUmbraEnemyCharacter::InitializeDefaultAttributes() const
-{
-	Super::InitializeDefaultAttributes();
-	ApplyEffectToSelf(DefaultTemperamentalAttributes, 1.f);
-	UmbraAIController->InitializeBlackboardDefaultValues(Cast<UUmbraEnemyAttributeSet>(AttributeSet));
 }
 
 void AUmbraEnemyCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)

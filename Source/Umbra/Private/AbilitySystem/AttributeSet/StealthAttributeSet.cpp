@@ -1,7 +1,7 @@
 // Copyrighted by Vorona Games
 
 
-#include "StealthAttributeSet.h"
+#include "AbilitySystem/AttributeSet/StealthAttributeSet.h"
 
 #include "Net/UnrealNetwork.h"
 

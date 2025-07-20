@@ -60,19 +60,11 @@ void AUmbraPlayerController::SetupInputComponent()
 	Super::SetupInputComponent();
 
 	UUmbraInputComponent* UmbraInputComponent = CastChecked<UUmbraInputComponent>(InputComponent);
-
-	UmbraInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AUmbraPlayerController::OnInteract);
+	
 	UmbraInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::Move);
 	UmbraInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::OnStopMoving);
 	UmbraInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::Look);
-	// UmbraInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AUmbraPlayerController::OnStartJumping);
-	// UmbraInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::OnStopJumping);
-	UmbraInputComponent->BindAction(WalkAction, ETriggerEvent::Started, this, &AUmbraPlayerController::OnStartWalking);
-	UmbraInputComponent->BindAction(WalkAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::OnStopWalking);
-	// UmbraInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &AUmbraPlayerController::OnStartCrouch);
-	// UmbraInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::OnStopCrouch);
 	UmbraInputComponent->BindAction(CameraZoomAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::CameraZoom);
-	UmbraInputComponent->BindAction(PauseAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::Pause);
 
 	UmbraInputComponent->BindAbilityActions(InputConfig, this,
 											&AUmbraPlayerController::AbilityInputTagPressed,
@@ -111,16 +103,6 @@ UAnimInstance* AUmbraPlayerController::GetAnimInstance()
 	return AnimInstance;
 }
 
-UTagManager* AUmbraPlayerController::GetTagManager()
-{
-	if (TagManager == nullptr)
-	{
-		TagManager = GetCharacter()->GetComponentByClass<UTagManager>();
-	}
-
-	return TagManager;
-}
-
 AUmbraBaseCharacter* AUmbraPlayerController::GetControlledCharacter()
 {
 	if (!ControlledCharacter)
@@ -149,36 +131,6 @@ USpringArmComponent* AUmbraPlayerController::GetSpingArmComponent()
 	}
 
 	return SpringArmComponent;
-}
-
-void AUmbraPlayerController::OnInteract()
-{
-	if (!GetInteractionComponent())
-	{
-		return;
-	}
-
-	if (IsLocalController())
-	{
-		ServerInteract(InteractionComponent->GetInteractionActor());
-	}
-	else
-	{
-		Interact(InteractionComponent->GetInteractionActor());
-	}
-}
-
-void AUmbraPlayerController::Interact(AActor* InteractionTarget)
-{
-	// if (InteractionTarget && InteractionTarget->GetClass()->ImplementsInterface(UInteractionInterface::StaticClass()))
-	// {
-	// 	IInteractionInterface::Execute_Interact(InteractionTarget, GetCharacter(), true);
-	// }
-}
-
-void AUmbraPlayerController::ServerInteract_Implementation(AActor* InteractionTarget)
-{
-	Interact(InteractionTarget);
 }
 
 void AUmbraPlayerController::Move(const FInputActionValue& InputActionValue)
@@ -222,7 +174,6 @@ void AUmbraPlayerController::CameraZoom(const FInputActionValue& InputActionValu
 
 void AUmbraPlayerController::OnStopMoving()
 {
-
 	if (GetTraversalComponent())
 	{
 		if (HasAuthority())
@@ -235,68 +186,6 @@ void AUmbraPlayerController::OnStopMoving()
 		}
 	}
 }
-
-void AUmbraPlayerController::OnStartWalking()
-{
-	SetWalking(true);
-
-	if (!HasAuthority())
-	{
-		ServerSetWalking(true);
-	}
-}
-
-void AUmbraPlayerController::OnStopWalking()
-{
-	SetWalking(false);
-
-	if (!HasAuthority())
-	{
-		ServerSetWalking(false);
-	}
-}
-
-// void AUmbraPlayerController::OnStartJumping()
-// {
-// 	if (GetControlledCharacter() && GetTraversalComponent())
-// 	{
-// 		if (HasAuthority())
-// 		{
-// 			TraversalComponent->TriggerTraversalAction(true);
-// 		}
-// 		else
-// 		{
-// 			TraversalComponent->ServerTriggerTraversalAction(true);
-// 		}
-// 	}
-// }
-//
-// void AUmbraPlayerController::OnStopJumping()
-// {
-// 	bWantsToJump = false;
-// }
-//
-// void AUmbraPlayerController::OnStartCrouch()
-// {
-// 	if (GetControlledCharacter())
-// 	{
-// 		if (ControlledCharacter->GetCharacterMovement()->IsFalling())
-// 		{
-// 			return;
-// 		}
-// 		ControlledCharacter->Crouch();
-// 		GetTagManager()->AddTag(FUmbraGameplayTags::Get().State_Stance_Crouching);
-// 	}
-// }
-//
-// void AUmbraPlayerController::OnStopCrouch()
-// {
-// 	if (GetControlledCharacter())
-// 	{
-// 		ControlledCharacter->UnCrouch();
-// 		GetTagManager()->RemoveTag(FUmbraGameplayTags::Get().State_Stance_Crouching);
-// 	}
-// }
 
 void AUmbraPlayerController::OnStartDrop()
 {
@@ -321,47 +210,4 @@ void AUmbraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 void AUmbraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 {
 	
-}
-
-void AUmbraPlayerController::SetWalking(bool bWalking)
-{
-	if (!GetControlledCharacter()) return;
-
-	if (bWalking)
-	{
-		if (ControlledCharacter->GetCharacterMovement()->IsCrouching())
-		{
-			ControlledCharacter->GetCharacterMovement()->MaxWalkSpeedCrouched = ControlledCharacter->GetMoveSpeed(
-				FUmbraGameplayTags::Get().State_Stance_Crouching,
-				FUmbraGameplayTags::Get().State_Locomotion_Walking);
-		}
-		else
-		{
-			ControlledCharacter->GetCharacterMovement()->MaxWalkSpeed = ControlledCharacter->GetMoveSpeed(
-				FUmbraGameplayTags::Get().State_Stance_Standing,
-				FUmbraGameplayTags::Get().State_Locomotion_Walking);
-		}
-		GetTagManager()->AddTag(FUmbraGameplayTags::Get().State_Locomotion_Walking);
-	}
-	else
-	{
-		if (ControlledCharacter->GetCharacterMovement()->IsCrouching())
-		{
-			ControlledCharacter->GetCharacterMovement()->MaxWalkSpeedCrouched = ControlledCharacter->GetMoveSpeed(
-				FUmbraGameplayTags::Get().State_Stance_Crouching,
-				FUmbraGameplayTags::Get().State_Locomotion_Running);
-		}
-		else
-		{
-			ControlledCharacter->GetCharacterMovement()->MaxWalkSpeed = ControlledCharacter->GetMoveSpeed(
-				FUmbraGameplayTags::Get().State_Stance_Standing,
-				FUmbraGameplayTags::Get().State_Locomotion_Running);
-		}
-		GetTagManager()->RemoveTag(FUmbraGameplayTags::Get().State_Locomotion_Walking);
-	}
-}
-
-void AUmbraPlayerController::ServerSetWalking_Implementation(bool bWalking)
-{
-	SetWalking(bWalking);
 }

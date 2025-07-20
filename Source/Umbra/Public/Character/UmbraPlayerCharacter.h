@@ -7,6 +7,7 @@
 #include "Perception/AISightTargetInterface.h"
 #include "UmbraPlayerCharacter.generated.h"
 
+class UStealthAttributeSet;
 class UStealthComponent;
 class UAssassinationsData;
 class UInteractionComponent;
@@ -54,5 +55,7 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Abilities|Data")
 	TObjectPtr<UAssassinationsData> AssassinationsData;
+
+	TObjectPtr<UStealthAttributeSet> StealthAttributeSet;
 	
 };

@@ -4,7 +4,9 @@
 #include "Player/UmbraPlayerState.h"
 
 #include "AbilitySystem/UmbraAbilitySystemComponent.h"
-#include "AbilitySystem/AttributeSet/UmbraAttributeSet.h"
+#include "AbilitySystem/AttributeSet/MovementAttributeSet.h"
+#include "AbilitySystem/AttributeSet/StealthAttributeSet.h"
+#include "AbilitySystem/AttributeSet/VitalAttributeSet.h"
 #include "Net/UnrealNetwork.h"
 
 AUmbraPlayerState::AUmbraPlayerState()
@@ -13,28 +15,16 @@ AUmbraPlayerState::AUmbraPlayerState()
 	AbilitySystemComponent->SetIsReplicated(true);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 
-	AttributeSet = CreateDefaultSubobject<UUmbraAttributeSet>("Attribute Set");
+	VitalAttributeSet = CreateDefaultSubobject<UVitalAttributeSet>("Vital Attributes");
+	MovementAttributeSet = CreateDefaultSubobject<UMovementAttributeSet>("Movement Attributes");
+	StealthAttributeSet = CreateDefaultSubobject<UStealthAttributeSet>("Stealth Attributes");
 	
 	SetNetUpdateFrequency(100.f);
 }
 
-UUmbraAbilitySystemComponent* AUmbraPlayerState::GetAbilitySystemComponent() const
-{
-	return AbilitySystemComponent;
-}
-
-UUmbraAttributeSet* AUmbraPlayerState::GetAttributeSet() const
-{
-	return AttributeSet;
-}
-
-int16 AUmbraPlayerState::GetPlayerLevel() const
-{
-	return Level;
-}
-
 void AUmbraPlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AUmbraPlayerState, Level);
 }
 

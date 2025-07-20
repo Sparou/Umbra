@@ -57,7 +57,9 @@ private:
 	FAsyncTask<FVisibilityCalculationTask>* CurrentVisibilityTask;
 
 	FTimerHandle VisibilityCheckTimerHandle;
-
+	
 	UPROPERTY()
-	TObjectPtr<UAbilitySystemComponent> OwnerASC;
+	TWeakObjectPtr<UAbilitySystemComponent> OwnerASC;
+
+	UAbilitySystemComponent* GetOwnerASC();
 };

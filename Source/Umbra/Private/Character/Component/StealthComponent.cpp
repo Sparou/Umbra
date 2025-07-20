@@ -21,14 +21,6 @@ void UStealthComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	OwnerASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetOwner());
-	if (!OwnerASC)
-	{
-		UE_LOG(UmbraStealthComponentLog, Error, TEXT("Stealth Component Owner [%s] does not have ASC"), *GetNameSafe(GetOwner()));
-		SetComponentTickEnabled(false);
-		return;
-	}
-
 	GetWorld()->GetTimerManager().SetTimer(
 		VisibilityCheckTimerHandle,
 		this, &UStealthComponent::TriggerVisibilityCheck,
@@ -60,7 +52,7 @@ void UStealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 		return;
 	}
 
-	if (OwnerASC && VisibilityUpdateEffect)
+	if (GetOwnerASC() && VisibilityUpdateEffect)
 	{
 		const float CalculatedVisibility = CurrentVisibilityTask->GetTask().ResultVisibility;
 		FGameplayEffectSpecHandle SpecHandle = OwnerASC->MakeOutgoingSpec(VisibilityUpdateEffect, 1.f, OwnerASC->MakeEffectContext());
@@ -69,7 +61,6 @@ void UStealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 		{
 			SpecHandle.Data->SetSetByCallerMagnitude(FUmbraGameplayTags::Get().Effect_Attribute_Visibility, CalculatedVisibility);
 			OwnerASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-			//UE_LOG(UmbraStealthComponentLog, Log, TEXT("Calculated Visibility = [%f]"), CalculatedVisibility);
 		}
 	}
 
@@ -120,5 +111,28 @@ void UStealthComponent::TriggerVisibilityCheck()
 		FalloffCurve);
 	
 	CurrentVisibilityTask->StartBackgroundTask();
+}
+
+UAbilitySystemComponent* UStealthComponent::GetOwnerASC()
+{
+	if (OwnerASC.IsValid())
+	{
+		return OwnerASC.Get();
+	}
+
+	if (!GetOwner())
+	{
+		UE_LOG(UmbraStealthComponentLog, Error, TEXT("Owner is nullptr in [%s]"), *GetNameSafe(this));
+		return nullptr;
+	}
+
+	if (UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetOwner()))
+	{
+		OwnerASC = ASC;
+		return ASC;
+	}
+
+	UE_LOG(UmbraStealthComponentLog, Error, TEXT("[%s] owner does not have ASC"), *GetNameSafe(this));
+	return nullptr;
 }
 

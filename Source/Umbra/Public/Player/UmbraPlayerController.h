@@ -58,9 +58,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<UInputMappingContext> CameraOnlyInputContext;
-	
-	UPROPERTY(EditAnywhere, Category = "Input|Basic")
-	TObjectPtr<UInputAction> InteractAction;
 
 	UPROPERTY(EditAnywhere, Category = "Input|Basic")
 	TObjectPtr<UInputAction> MoveAction;
@@ -68,20 +65,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Input|Basic")
 	TObjectPtr<UInputAction> LookAction;
 
-	// UPROPERTY(EditAnywhere, Category = "Input|Basic")
-	// TObjectPtr<UInputAction> JumpAction;
-
-	UPROPERTY(EditAnywhere, Category = "Input|Basic")
-	TObjectPtr<UInputAction> WalkAction;
-
-	// UPROPERTY(EditAnywhere, Category = "Input|Basic")
-	// TObjectPtr<UInputAction> CrouchAction;
-
 	UPROPERTY(EditAnywhere, Category = "Input|Basic")
 	TObjectPtr<UInputAction> DropAction;
-
-	UPROPERTY(EditAnywhere, Category = "Input|Basic")
-	TObjectPtr<UInputAction> PauseAction;
 	
 	UPROPERTY(EditAnywhere, Category = "Input|Camera")
 	TObjectPtr<UInputAction> CameraZoomAction;
@@ -100,56 +85,28 @@ protected:
 	
 private:
 	
-	UPROPERTY()
 	TObjectPtr<AUmbraBaseCharacter> ControlledCharacter;
-	UPROPERTY()
 	TObjectPtr<UUmbraAbilitySystemComponent> AbilitySystemComponent;
-	UPROPERTY()
 	TObjectPtr<UTraversalComponent> TraversalComponent;
-	UPROPERTY()
 	TObjectPtr<UAnimInstance> AnimInstance;
-	UPROPERTY()
-	TObjectPtr<UTagManager> TagManager;
-	UPROPERTY()
 	TObjectPtr<UInteractionComponent> InteractionComponent;
-	UPROPERTY()
 	TObjectPtr<USpringArmComponent> SpringArmComponent;
 
 	UUmbraAbilitySystemComponent* GetAbilitySystemComponent();
 	UTraversalComponent* GetTraversalComponent();
 	UAnimInstance* GetAnimInstance();
-	UTagManager* GetTagManager();
 	AUmbraBaseCharacter* GetControlledCharacter();
 	UInteractionComponent* GetInteractionComponent();
 	USpringArmComponent* GetSpingArmComponent();
-	
-	void OnInteract();
-	void Interact(AActor* InteractionTarget);
-	UFUNCTION(Server, Reliable)
-	void ServerInteract(AActor* InteractionTarget);
 	
 	void Move(const FInputActionValue& InputActionValue);
 	void Look(const FInputActionValue& InputActionValue);
 	void CameraZoom(const FInputActionValue& InputActionValue);
 	
 	void OnStopMoving();
-	
-	void OnStartWalking();
-	void OnStopWalking();
-
-	// void OnStartJumping();
-	// void OnStopJumping();
-	//
-	// void OnStartCrouch();
-	// void OnStopCrouch();
-
 	void OnStartDrop();
 	
 	void AbilityInputTagPressed(FGameplayTag InputTag);
 	void AbilityInputTagReleased(FGameplayTag InputTag);
 	void AbilityInputTagHeld(FGameplayTag InputTag);
-
-	void SetWalking(bool bWalking);
-	UFUNCTION(Server, Reliable)
-	void ServerSetWalking(bool bWalking);
 };
