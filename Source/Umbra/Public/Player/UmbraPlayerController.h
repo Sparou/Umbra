@@ -32,15 +32,6 @@ class UMBRA_API AUmbraPlayerController : public APlayerController
 
 public:
 
-	UPROPERTY(BlueprintReadOnly)
-	bool bWantsToWalk;
-
-	UPROPERTY(BlueprintReadOnly)
-	bool bWantsToJump;
-
-	UPROPERTY(BlueprintReadOnly)
-	bool bWantsToCrouch;
-
 	UFUNCTION(BlueprintCallable)
 	void SwitchToDefaultContext();
 	
@@ -85,18 +76,16 @@ protected:
 	
 private:
 	
-	TObjectPtr<AUmbraBaseCharacter> ControlledCharacter;
-	TObjectPtr<UUmbraAbilitySystemComponent> AbilitySystemComponent;
-	TObjectPtr<UTraversalComponent> TraversalComponent;
-	TObjectPtr<UAnimInstance> AnimInstance;
-	TObjectPtr<UInteractionComponent> InteractionComponent;
-	TObjectPtr<USpringArmComponent> SpringArmComponent;
+	TWeakObjectPtr<AUmbraBaseCharacter> UmbraCharacter;
+	TWeakObjectPtr<UUmbraAbilitySystemComponent> AbilitySystemComponent;
+	TWeakObjectPtr<UTraversalComponent> TraversalComponent;
+	TWeakObjectPtr<UAnimInstance> AnimInstance;
+	TWeakObjectPtr<USpringArmComponent> SpringArmComponent;
 
 	UUmbraAbilitySystemComponent* GetAbilitySystemComponent();
 	UTraversalComponent* GetTraversalComponent();
 	UAnimInstance* GetAnimInstance();
-	AUmbraBaseCharacter* GetControlledCharacter();
-	UInteractionComponent* GetInteractionComponent();
+	AUmbraBaseCharacter* GetUmbraCharacter();
 	USpringArmComponent* GetSpingArmComponent();
 	
 	void Move(const FInputActionValue& InputActionValue);

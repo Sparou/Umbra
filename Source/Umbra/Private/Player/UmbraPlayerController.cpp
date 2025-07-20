@@ -17,9 +17,7 @@
 
 void AUmbraPlayerController::SwitchToDefaultContext()
 {
-	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
-		GetLocalPlayer());
-	if (Subsystem)
+	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
 	{
 		Subsystem->ClearAllMappings();
 		Subsystem->AddMappingContext(InputContext, 0);
@@ -28,9 +26,7 @@ void AUmbraPlayerController::SwitchToDefaultContext()
 
 void AUmbraPlayerController::SwitchToCameraOnlyContext()
 {
-	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
-		GetLocalPlayer());
-	if (Subsystem)
+	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
 	{
 		Subsystem->ClearAllMappings();
 		Subsystem->AddMappingContext(CameraOnlyInputContext, 0);
@@ -74,63 +70,106 @@ void AUmbraPlayerController::SetupInputComponent()
 
 UUmbraAbilitySystemComponent* AUmbraPlayerController::GetAbilitySystemComponent()
 {
-	if (AbilitySystemComponent == nullptr)
+	if (AbilitySystemComponent.IsValid())
 	{
-		AbilitySystemComponent = Cast<UUmbraAbilitySystemComponent>(
-			UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn<APawn>()));
+		return AbilitySystemComponent.Get();
 	}
 
-	return AbilitySystemComponent;
+	if (GetPawn() == nullptr)
+	{
+		return nullptr;
+	}
+	
+	if (UUmbraAbilitySystemComponent* ASC = Cast<UUmbraAbilitySystemComponent>(UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn<APawn>())))
+	{
+		AbilitySystemComponent = ASC;
+		return ASC;
+	}
+
+	return nullptr;
 }
 
 UTraversalComponent* AUmbraPlayerController::GetTraversalComponent()
 {
-	if (TraversalComponent == nullptr)
+	if (TraversalComponent.IsValid())
 	{
-		TraversalComponent = GetCharacter()->GetComponentByClass<UTraversalComponent>();
+		return TraversalComponent.Get();
 	}
 
-	return TraversalComponent;
+	if (GetPawn() == nullptr)
+	{
+		return nullptr;
+	}
+	
+	if (UTraversalComponent* TC = GetCharacter()->FindComponentByClass<UTraversalComponent>())
+	{
+		TraversalComponent = TC;
+		return TC;
+	}
+
+	return nullptr;
 }
 
 UAnimInstance* AUmbraPlayerController::GetAnimInstance()
 {
-	if (AnimInstance == nullptr)
+	if (AnimInstance.IsValid())
 	{
-		AnimInstance = GetCharacter()->GetMesh()->GetAnimInstance();
+		return AnimInstance.Get();
+	}
+	
+	if (GetPawn() == nullptr)
+	{
+		return nullptr;
 	}
 
-	return AnimInstance;
+	if (UAnimInstance* AI = GetCharacter()->GetMesh()->GetAnimInstance())
+	{
+		AnimInstance = AI;
+	}
+
+	return nullptr;
 }
 
-AUmbraBaseCharacter* AUmbraPlayerController::GetControlledCharacter()
+AUmbraBaseCharacter* AUmbraPlayerController::GetUmbraCharacter()
 {
-	if (!ControlledCharacter)
+	if (UmbraCharacter.IsValid())
 	{
-		ControlledCharacter = Cast<AUmbraBaseCharacter>(GetCharacter());
+		return UmbraCharacter.Get();
+	}
+	
+	if (GetCharacter() == nullptr)
+	{
+		return nullptr;
 	}
 
-	return ControlledCharacter;
-}
-
-UInteractionComponent* AUmbraPlayerController::GetInteractionComponent()
-{
-	if (!InteractionComponent)
+	if (AUmbraBaseCharacter* UC = Cast<AUmbraBaseCharacter>(GetCharacter()))
 	{
-		InteractionComponent = GetCharacter()->GetComponentByClass<UInteractionComponent>();
+		UmbraCharacter = UC;
+		return UC;
 	}
 
-	return InteractionComponent;
+	return nullptr;
 }
 
 USpringArmComponent* AUmbraPlayerController::GetSpingArmComponent()
 {
-	if (!SpringArmComponent)
+	if (SpringArmComponent.IsValid())
 	{
-		SpringArmComponent = GetCharacter()->GetComponentByClass<USpringArmComponent>();
+		return SpringArmComponent.Get();
 	}
 
-	return SpringArmComponent;
+	if (GetPawn() == nullptr)
+	{
+		return nullptr;
+	}
+	
+	if (USpringArmComponent* SAC = GetPawn->FindComponentByClass<USpringArmComponent>())
+	{
+		SpringArmComponent = SAC;
+		return SAC;
+	}
+
+	return nullptr;
 }
 
 void AUmbraPlayerController::Move(const FInputActionValue& InputActionValue)
