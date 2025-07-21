@@ -2,9 +2,8 @@
 
 
 #include "AI/BehaviorTree/Task/BTTask_SwitchGameplayTag.h"
-
 #include "AIController.h"
-#include "Character/Component/TagManager.h"
+
 
 UBTTask_SwitchGameplayTag::UBTTask_SwitchGameplayTag()
 {
@@ -26,11 +25,11 @@ EBTNodeResult::Type UBTTask_SwitchGameplayTag::ExecuteTask(UBehaviorTreeComponen
 	APawn* AIPawn = AIController->GetPawn();
 	if(!AIPawn) return EBTNodeResult::Failed;
 
-	UTagManager* TagManager = AIPawn->FindComponentByClass<UTagManager>();
-	if(!TagManager) return EBTNodeResult::Failed;
-	
-	if(ToggleTag) TagManager->AddTag(TagToToggle);
-	else TagManager->RemoveTag(TagToToggle);
+	// UTagManager* TagManager = AIPawn->FindComponentByClass<UTagManager>();
+	// if(!TagManager) return EBTNodeResult::Failed;
+	//
+	// if(ToggleTag) TagManager->AddTag(TagToToggle);
+	// else TagManager->RemoveTag(TagToToggle);
 	
 	return EBTNodeResult::Succeeded;
 }

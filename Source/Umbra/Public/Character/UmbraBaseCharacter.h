@@ -12,7 +12,6 @@
 class UUmbraAbilitySystemComponent;
 class UCombatData;
 class UWeaponComponent;
-class UTagManager;
 class UMeshComponent;
 class UMaterialInterface;
 class UTraversalComponent;

@@ -111,3 +111,49 @@ void AUmbraPlayerCharacter::InitAbilityActorInfo()
 	
 	ApplyStartingEffects();
 }
+
+void AUmbraPlayerCharacter::ApplyMaterialForAllMeshes(UMaterialInterface* MaterialToApply)
+{
+	if (!MaterialToApply)
+	{
+		return;
+	}
+
+	MeshComponentsToOriginalMaterials.Empty();
+	TArray<UMeshComponent*> MeshComponents;
+	this->GetComponents<UMeshComponent>(MeshComponents);
+
+	for (UMeshComponent* MeshComponent : MeshComponents)
+	{
+		if (MeshComponent)
+		{
+			MeshComponentsToOriginalMaterials.Add(MeshComponent, MeshComponent->GetMaterials());
+
+			for (int32 i = 0; i < MeshComponent->GetNumMaterials(); i++)
+			{
+				MeshComponent->SetMaterial(i, MaterialToApply);
+			}
+		}
+	}
+}
+
+void AUmbraPlayerCharacter::RestoreOriginalMaterials()
+{
+	for (const auto Pair : MeshComponentsToOriginalMaterials)
+	{
+		if (!Pair.Key.IsValid())
+		{
+			return;
+		}
+		
+		const auto& OriginalMaterials = Pair.Value;
+		for (int32 i = 0; i < OriginalMaterials.Num(); i++)
+		{
+			if (OriginalMaterials.IsValidIndex(i))
+			{
+				Pair.Key->SetMaterial(i, OriginalMaterials[i]);
+			}
+		}
+	}
+	MeshComponentsToOriginalMaterials.Empty();
+}

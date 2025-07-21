@@ -56,6 +56,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Input|Basic")
 	TObjectPtr<UInputAction> LookAction;
 
+	UPROPERTY(EditAnywhere, Category = "Input|Abilities")
+	TObjectPtr<UInputAction> ConfirmAction;
+	
+	UPROPERTY(EditAnywhere, Category = "Input|Abilities")
+	TObjectPtr<UInputAction> CancelAction;
+
 	UPROPERTY(EditAnywhere, Category = "Input|Basic")
 	TObjectPtr<UInputAction> DropAction;
 	
@@ -94,6 +100,9 @@ private:
 	
 	void OnStopMoving();
 	void OnStartDrop();
+
+	void ConfirmAbilityTargeting();
+	void CancelAbilityTargeting();
 	
 	void AbilityInputTagPressed(FGameplayTag InputTag);
 	void AbilityInputTagReleased(FGameplayTag InputTag);

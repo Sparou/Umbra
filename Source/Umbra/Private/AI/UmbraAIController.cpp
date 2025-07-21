@@ -11,7 +11,6 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Character/UmbraEnemyCharacter.h"
 #include "Character/UmbraPlayerCharacter.h"
-#include "Character/Component/TagManager.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Perception/AISense_Hearing.h"
 #include "Perception/AISense_Sight.h"

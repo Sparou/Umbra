@@ -5,13 +5,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "AbilitySystem/UmbraAbilitySystemComponent.h"
-#include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Character/UmbraPlayerCharacter.h"
-#include "Character/Component/InteractionComponent.h"
-#include "Character/Component/TagManager.h"
 #include "Character/Component/TraversalComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
-#include "GameFramework/ProjectileMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Input/UmbraInputComponent.h"
 
@@ -61,6 +56,8 @@ void AUmbraPlayerController::SetupInputComponent()
 	UmbraInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::OnStopMoving);
 	UmbraInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::Look);
 	UmbraInputComponent->BindAction(CameraZoomAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::CameraZoom);
+	UmbraInputComponent->BindAction(ConfirmAction, ETriggerEvent::Started, this, &AUmbraPlayerController::ConfirmAbilityTargeting);
+	UmbraInputComponent->BindAction(CancelAction, ETriggerEvent::Started, this, &AUmbraPlayerController::CancelAbilityTargeting);
 
 	UmbraInputComponent->BindAbilityActions(InputConfig, this,
 											&AUmbraPlayerController::AbilityInputTagPressed,
@@ -163,7 +160,7 @@ USpringArmComponent* AUmbraPlayerController::GetSpingArmComponent()
 		return nullptr;
 	}
 	
-	if (USpringArmComponent* SAC = GetPawn->FindComponentByClass<USpringArmComponent>())
+	if (USpringArmComponent* SAC = GetPawn()->FindComponentByClass<USpringArmComponent>())
 	{
 		SpringArmComponent = SAC;
 		return SAC;
@@ -231,6 +228,22 @@ void AUmbraPlayerController::OnStartDrop()
 	if (GetTraversalComponent())
 	{
 		HasAuthority() ? TraversalComponent->DropFromClimb() : TraversalComponent->ServerDropFromClimb();
+	}
+}
+
+void AUmbraPlayerController::ConfirmAbilityTargeting()
+{
+	if (GetAbilitySystemComponent())
+	{
+		AbilitySystemComponent->LocalInputConfirm();
+	}
+}
+
+void AUmbraPlayerController::CancelAbilityTargeting()
+{
+	if (GetAbilitySystemComponent())
+	{
+		AbilitySystemComponent->LocalInputCancel();
 	}
 }
 

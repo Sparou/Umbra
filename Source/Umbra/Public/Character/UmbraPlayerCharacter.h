@@ -32,8 +32,17 @@ protected:
 	virtual void InitAbilityActorInfo() override;
 	
 public:
-	
+
 	UFUNCTION(BlueprintCallable)
+	void ApplyMaterialForAllMeshes(UMaterialInterface* MaterialToApply);
+
+	UFUNCTION(BlueprintCallable)
+	void RestoreOriginalMaterials();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	UMaterialInterface* GetInvisibilityMaterial() { return InvisibilityMaterial; }
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure)
 	UAssassinationsData* GetAssassinationsData();
 	
 	/** IAISightTargetInterface implementation */
@@ -49,13 +58,19 @@ protected:
 
 	// UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	// TObjectPtr<UTraversalComponent> TraversalComponent;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<UStealthComponent> StealthComponent;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Abilities|Data")
 	TObjectPtr<UAssassinationsData> AssassinationsData;
-
-	TObjectPtr<UStealthAttributeSet> StealthAttributeSet;
 	
+	TObjectPtr<UStealthAttributeSet> StealthAttributeSet;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stealth")
+	TObjectPtr<UStealthComponent> StealthComponent;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stealth")
+	TObjectPtr<UMaterialInterface> InvisibilityMaterial;
+
+private:
+	
+	TMap<TWeakObjectPtr<UMeshComponent>, TArray<UMaterialInterface*>> MeshComponentsToOriginalMaterials;
 };

@@ -1,19 +1,15 @@
 // Copyrighted by Vorona Games
 
 #include "Character/UmbraBaseCharacter.h"
-
 #include "AbilitySystemBlueprintLibrary.h"
 #include "MotionWarpingComponent.h"
 #include "AbilitySystem/UmbraAbilitySystemComponent.h"
 #include "AbilitySystem/Abilities/Projectile/UmbraProjectileGameplayAbility.h"
-#include "Character/Component/TagManager.h"
-#include "Character/Component/TraversalComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameplayAbilitySpec.h"
 #include "Character/Component/WeaponComponent.h"
 #include "Character/Data/CombatData.h"
-#include "Net/UnrealNetwork.h"
 #include "Umbra/Umbra.h"
 
 AUmbraBaseCharacter::AUmbraBaseCharacter()

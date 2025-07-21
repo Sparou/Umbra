@@ -21,8 +21,12 @@ void FUmbraGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Input_2 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.2"));
 	GameplayTags.Input_3 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.3"));
 	GameplayTags.Input_4 = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.4"));
+	GameplayTags.Input_Q = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.Q"));
+	GameplayTags.Input_E = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.E"));
+	GameplayTags.Input_R = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.R"));
 	GameplayTags.Input_T = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.T"));
 	GameplayTags.Input_F = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.F"));
+	GameplayTags.Input_Shift = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.Shift"));
 	GameplayTags.Input_Space = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.Space"));
 	GameplayTags.Input_Ctrl = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Input.Ctrl"));
 
@@ -40,17 +44,27 @@ void FUmbraGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Ability_Distant = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Distant"));
 	GameplayTags.Ability_Stealth_Kill = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Stealth.Kill"));
 	GameplayTags.Ability_Stealth_Victim = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Stealth.Victim"));
-	GameplayTags.Ability_Through = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Through"));
-	GameplayTags.Ability_DomeSound = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.DomeSound"));
-	GameplayTags.Ability_Invisibility = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Invisibility"));
-	GameplayTags.Ability_Invisibility = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Trap.Block"));
-	GameplayTags.Ability_Invisibility = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Trap.Kill"));
-	GameplayTags.Ability_Invisibility = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Trap.Teleport"));
 	GameplayTags.Ability_Interact = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Interact"));
 
+	// ~ Combat
+	GameplayTags.Ability_Combat_Attack_Melee = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Combat.Attack.Melee"));
+	GameplayTags.Ability_Combat_Attack_Distant = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Combat.Attack.Distant"));
+
+	// ~ Stealth
+	GameplayTags.Ability_Stealth_Assassination_Instigator = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Stealth.Assassination.Instigator"));
+	GameplayTags.Ability_Stealth_Assassination_Target = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Stealth.Assassination.Target"));
+	GameplayTags.Ability_Stealth_Invisibility = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Stealth.Invisibility"));
+
+	// ~ Movement
 	GameplayTags.Ability_Movement_Jump = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Movement.Jump"));
 	GameplayTags.Ability_Movement_Crouch = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Movement.Crouch"));
+	GameplayTags.Ability_Movement_Walk = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Movement.Walk"));
+	GameplayTags.Ability_Movement_Dash = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Movement.Dash"));
+	GameplayTags.Ability_Movement_Teleport = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Movement.Teleport"));
 
+	/** Gameplay Cues Tag */
+	GameplayTags.GameplayCue_Invisibility = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("GameplayCue.Invisibility"));
+	
 	/** Effects Tags */
 	GameplayTags.Effect_Attribute_Visibility = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Effect.Attribute.Visibility"));
 	

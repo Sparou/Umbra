@@ -28,8 +28,12 @@ public:
 	FGameplayTag Input_2;
 	FGameplayTag Input_3;
 	FGameplayTag Input_4;
+	FGameplayTag Input_Q;
+	FGameplayTag Input_E;
+	FGameplayTag Input_R;
 	FGameplayTag Input_T;
 	FGameplayTag Input_F;
+	FGameplayTag Input_Shift;
 	FGameplayTag Input_Space;
 	FGameplayTag Input_Ctrl;
 
@@ -48,23 +52,33 @@ public:
 	FGameplayTag Ability_Distant;
 	FGameplayTag Ability_Stealth_Kill;
 	FGameplayTag Ability_Stealth_Victim;
-	FGameplayTag Ability_Through;
-	FGameplayTag Ability_Invisibility;
-	FGameplayTag Ability_DomeSound;
-	FGameplayTag Ability_TrapBlock;
-	FGameplayTag Ability_TrapTeleport;
-	FGameplayTag Ability_TrapKill;
 	FGameplayTag Ability_Interact;
 
+	FGameplayTag Ability_Combat_Attack_Melee;
+	FGameplayTag Ability_Combat_Attack_Distant;
+	
+	FGameplayTag Ability_Stealth_Invisibility;
+	FGameplayTag Ability_Stealth_Assassination_Instigator;
+	FGameplayTag Ability_Stealth_Assassination_Target;
+	
 	FGameplayTag Ability_Movement_Jump;
 	FGameplayTag Ability_Movement_Crouch;
+	FGameplayTag Ability_Movement_Walk;
+	FGameplayTag Ability_Movement_Dash;
+	FGameplayTag Ability_Movement_Teleport;
 
 	/** Effects Tags */
 
 	FGameplayTag Effect_Attribute_Visibility;
 
+	/** GameplayCues */
+
+	FGameplayTag GameplayCue_Invisibility;
+	
 	/** Event Tags */
+	// Event_[Source]_[Name]
 	FGameplayTag Event_OnCharacterLanded;
+	FGameplayTag Event_Ability_Assassination;
 	
 	/** Position Tags */ 
 	FGameplayTag Position_Front;
