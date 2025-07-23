@@ -38,8 +38,9 @@ FHitResult AGameplayAbilityTargetActor_Teleport::PerformTrace(AActor* InSourceAc
 	
 	if (InitialHitResult.ImpactNormal.Z >= WalkableFloorZ)
 	{
-		
-		if (HasEnoughSpace(InitialHitResult.Location, InSourceActor))
+
+		// Слегка поднимаем капсулу. В случае, если имеем наклонную поверхность это исключает возможность некорректной коллизии.
+		if (HasEnoughSpace(InitialHitResult.Location + FVector(0,0,15), InSourceActor))
 		{
 			ShowReticle(InitialHitResult.Location);
 			return InitialHitResult;
@@ -86,6 +87,8 @@ FHitResult AGameplayAbilityTargetActor_Teleport::PerformTrace(AActor* InSourceAc
 			return SecondaryHitResult;
 		}
 	}
+	HideReticle();
+	InitialHitResult.bBlockingHit = false;
 	return InitialHitResult;
 }
 

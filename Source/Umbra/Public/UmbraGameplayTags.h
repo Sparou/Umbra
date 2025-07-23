@@ -16,6 +16,10 @@ public:
 	static void InitializeNativeGameplayTags();
 
 	/** Character Tags */
+
+	FGameplayTag Character_Player;
+	FGameplayTag Character_Enemy;
+	
 	FGameplayTag Character_Assassin;
 	FGameplayTag Character_Trapper;
 	FGameplayTag Character_Sniper;

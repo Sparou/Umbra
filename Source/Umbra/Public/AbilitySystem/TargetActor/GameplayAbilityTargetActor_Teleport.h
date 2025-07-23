@@ -33,7 +33,7 @@ protected:
 	 * Проверяет, достаточно ли места для капсулы персонажа в указанной точке.
 	 * @param TargetLocation Центр предполагаемого места для телепортации.
 	 * @param InSourceActor Персонаж, для которого выполняется проверка.
-	 * @return true, если место свободно.
+	 * @return True, если место свободно.
 	 */
 	bool HasEnoughSpace(const FVector& TargetLocation, AActor* InSourceActor) const;
 
@@ -44,7 +44,7 @@ protected:
 	 */
 	void PerformPrimaryTrace(FHitResult& OutHitResult, AActor* InSourceActor) const;
 
-	/** Количество итераций цикла поиска горизонатльной поверхности, в случае попадания в стену. */
+	/** Количество итераций цикла поиска горизонтальной поверхности, в случае попадания в стену. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn = true), Category = Targeting)
 	int32 WallHorizontalOffsetIterations;
 

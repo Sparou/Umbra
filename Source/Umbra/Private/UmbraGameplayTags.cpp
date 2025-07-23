@@ -9,6 +9,8 @@ FUmbraGameplayTags FUmbraGameplayTags::GameplayTags;
 void FUmbraGameplayTags::InitializeNativeGameplayTags()
 {
 	/** Сharacter Tags */
+	GameplayTags.Character_Player = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Character.Player"));
+	GameplayTags.Character_Enemy = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Character.Enemy"));
 	GameplayTags.Character_Assassin = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Character.Assassin"));
 	GameplayTags.Character_Trapper = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Character.Trapper"));
 	GameplayTags.Character_Sniper = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Character.Sniper"));

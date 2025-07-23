@@ -104,7 +104,7 @@ void AUmbraPlayerCharacter::InitAbilityActorInfo()
 	checkf(UmbraPlayerState, TEXT("Player State is invalid in [%s]"), *GetNameSafe(this));
 	UmbraPlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(UmbraPlayerState, this);
 	AbilitySystemComponent = Cast<UUmbraAbilitySystemComponent>(UmbraPlayerState->GetAbilitySystemComponent());
-
+	AbilitySystemComponent->AddLooseGameplayTag(FUmbraGameplayTags::Get().Character_Player);
 	VitalAttributeSet = UmbraPlayerState->GetVitalAttributeSet();
 	MovementAttributeSet = UmbraPlayerState->GetMovementAttributeSet();
 	StealthAttributeSet = UmbraPlayerState->GetStealthAttributeSet();

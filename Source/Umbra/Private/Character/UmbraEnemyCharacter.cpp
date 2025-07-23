@@ -3,6 +3,7 @@
 
 #include "Character/UmbraEnemyCharacter.h"
 #include "UmbraCollisionChannels.h"
+#include "UmbraGameplayTags.h"
 #include "AbilitySystem/UmbraAbilitySystemComponent.h"
 #include "AbilitySystem/AttributeSet/MovementAttributeSet.h"
 #include "AbilitySystem/AttributeSet/UmbraEnemyAttributeSet.h"
@@ -138,6 +139,7 @@ void AUmbraEnemyCharacter::BeginPlay()
 void AUmbraEnemyCharacter::InitAbilityActorInfo()
 {
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
+	AbilitySystemComponent->AddLooseGameplayTag(FUmbraGameplayTags::Get().Character_Enemy);
 
 	if(HasAuthority())
 	{
