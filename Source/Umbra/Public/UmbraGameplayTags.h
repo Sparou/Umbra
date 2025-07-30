@@ -71,6 +71,10 @@ public:
 	FGameplayTag Ability_Movement_Dash;
 	FGameplayTag Ability_Movement_Teleport;
 
+	FGameplayTag Ability_Movement_Traversal_Climb;
+	FGameplayTag Ability_Movement_Traversal_Mantle;
+	FGameplayTag Ability_Movement_Traversal_Vault;
+
 	/** Effects Tags */
 
 	FGameplayTag Effect_Attribute_Visibility;
@@ -83,6 +87,8 @@ public:
 	// Event_[Source]_[Name]
 	FGameplayTag Event_OnCharacterLanded;
 	FGameplayTag Event_Ability_Assassination;
+	FGameplayTag Event_Ability_Traversal_Climb_Move;
+	FGameplayTag Event_Ability_Traversal_Climb_Drop;
 	
 	/** Position Tags */ 
 	FGameplayTag Position_Front;
@@ -108,6 +114,28 @@ public:
 	FGameplayTag AI_Event_SeeAlly;
 	FGameplayTag AI_Event_SeeEnemy;
 	FGameplayTag AI_Event_TakeDamage;
+
+	FGameplayTag Direction_X_Forward;
+	FGameplayTag Direction_X_Backward;
+	FGameplayTag Direction_Y_Right;
+	FGameplayTag Direction_Y_Left;
+	FGameplayTag Direction_Z_Up;
+	FGameplayTag Direction_Z_Down;
+
+	FGameplayTag Traversal_Climb;
+	
+	FGameplayTag Traversal_Vault;
+	FGameplayTag Traversal_Vault_Low_Slow;
+	FGameplayTag Traversal_Vault_Low_Fast;
+	FGameplayTag Traversal_Vault_Medium_Slow;
+	FGameplayTag Traversal_Vault_Medium_Fast;
+	FGameplayTag Traversal_Vault_High_Slow;
+	FGameplayTag Traversal_Vault_High_Fast;
+
+	FGameplayTag Traversal_Mantle;
+	FGameplayTag Traversal_Mantle_Low;
+	FGameplayTag Traversal_Mantle_Medium;
+	FGameplayTag Traversal_Mantle_High;
 	
 	/** Traversal Tags */
 	FGameplayTag Traversal_State_FreeRoam;

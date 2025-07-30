@@ -1,7 +1,8 @@
 // Copyrighted by Vorona Games
 
 #include "Character/UmbraPlayerCharacter.h"
-#include "Character/Component/TraversalComponent.h"
+
+#include "UmbraGameplayTags.h"
 #include "AbilitySystem/UmbraAbilitySystemComponent.h"
 #include "AbilitySystem/AttributeSet/UmbraAttributeSet.h"
 #include "Character/Component/StealthComponent.h"

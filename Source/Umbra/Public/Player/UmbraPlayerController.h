@@ -37,6 +37,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void SwitchToCameraOnlyContext();
+
+	UFUNCTION(BlueprintCallable)
+	void SwitchToClimbContext();
 	
 protected:
 
@@ -76,20 +79,30 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Input|Camera")
 	float MaxCameraZoom = 1000.f;
-
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Input|Abilities")
 	TObjectPtr<UUmbraInputConfig> InputConfig;
+
+
+	UPROPERTY(EditAnywhere, Category = "Input|Climb")
+	TObjectPtr<UInputMappingContext> ClimbContext;
+	
+	UPROPERTY(EditAnywhere, Category = "Input|Climb")
+	TObjectPtr<UInputAction> ClimbMoveAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input|Climb")
+	TObjectPtr<UInputAction> ClimbDropAction;
 	
 private:
 	
 	TWeakObjectPtr<AUmbraBaseCharacter> UmbraCharacter;
 	TWeakObjectPtr<UUmbraAbilitySystemComponent> AbilitySystemComponent;
-	TWeakObjectPtr<UTraversalComponent> TraversalComponent;
+	//TWeakObjectPtr<UTraversalComponent> TraversalComponent;
 	TWeakObjectPtr<UAnimInstance> AnimInstance;
 	TWeakObjectPtr<USpringArmComponent> SpringArmComponent;
 
 	UUmbraAbilitySystemComponent* GetAbilitySystemComponent();
-	UTraversalComponent* GetTraversalComponent();
+	//UTraversalComponent* GetTraversalComponent();
 	UAnimInstance* GetAnimInstance();
 	AUmbraBaseCharacter* GetUmbraCharacter();
 	USpringArmComponent* GetSpingArmComponent();
@@ -97,9 +110,12 @@ private:
 	void Move(const FInputActionValue& InputActionValue);
 	void Look(const FInputActionValue& InputActionValue);
 	void CameraZoom(const FInputActionValue& InputActionValue);
+
+	void ClimbMove(const FInputActionValue& InputActionValue);
+	void ClimbDrop();
 	
-	void OnStopMoving();
-	void OnStartDrop();
+	// void OnStopMoving();
+	// void OnStartDrop();
 
 	void ConfirmAbilityTargeting();
 	void CancelAbilityTargeting();

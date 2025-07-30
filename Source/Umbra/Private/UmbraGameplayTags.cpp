@@ -64,6 +64,10 @@ void FUmbraGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Ability_Movement_Dash = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Movement.Dash"));
 	GameplayTags.Ability_Movement_Teleport = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Movement.Teleport"));
 
+	GameplayTags.Ability_Movement_Traversal_Climb = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Movement.Traversal.Climb"));
+	GameplayTags.Ability_Movement_Traversal_Mantle = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Movement.Traversal.Mantle"));
+	GameplayTags.Ability_Movement_Traversal_Vault = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Ability.Movement.Traversal.Vault"));
+
 	/** Gameplay Cues Tag */
 	GameplayTags.GameplayCue_Invisibility = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("GameplayCue.Invisibility"));
 	
@@ -78,7 +82,8 @@ void FUmbraGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.State_Stance_Standing = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.Stance.Standing"));
 	GameplayTags.State_Stance_Crouching = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("State.Stance.Crouching"));
 
-	GameplayTags.Event_OnCharacterLanded = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.OnCharacterLanded"));
+	GameplayTags.Event_Ability_Traversal_Climb_Move = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Ability.Traversal.Climb.Move"));
+	GameplayTags.Event_Ability_Traversal_Climb_Drop = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Event.Ability.Traversal.Climb.Drop"));
 	
 	/** Position Tags */
 	GameplayTags.Position_Front = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Position.Front"));
@@ -89,13 +94,38 @@ void FUmbraGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Position_BehindLeft = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Position.BehindLeft"));
 	GameplayTags.Position_Left = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Position.Left"));
 	GameplayTags.Position_FrontLeft = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Position.FrontLeft"));
+
+	GameplayTags.Direction_X_Forward = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Direction.X.Forward"));
+	GameplayTags.Direction_X_Backward = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Direction.X.Backward"));
+	GameplayTags.Direction_Y_Right = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Direction.Y.Right"));
+	GameplayTags.Direction_Y_Left = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Direction.Y.Left"));
+	GameplayTags.Direction_Z_Up = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Direction.Z.Up"));
+	GameplayTags.Direction_Z_Down = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Direction.Z.Down"));
+
+
+	GameplayTags.Traversal_State_Climb = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.State.Climb"));
+	GameplayTags.Traversal_State_Mantle = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.State.Mantle"));
+	GameplayTags.Traversal_State_Vault = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.State.Vault"));
+
+	GameplayTags.Traversal_Climb = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Climb"));
+	
+	GameplayTags.Traversal_Vault = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Vault"));
+	GameplayTags.Traversal_Vault_Low_Slow = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Vault.Low.Slow"));
+	GameplayTags.Traversal_Vault_Low_Fast = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Vault.Low.Fast"));
+	GameplayTags.Traversal_Vault_Medium_Slow = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Vault.Medium.Slow"));
+	GameplayTags.Traversal_Vault_Medium_Fast = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Vault.Medium.Fast"));
+	GameplayTags.Traversal_Vault_High_Slow = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Vault.High.Slow"));
+	GameplayTags.Traversal_Vault_High_Fast = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Vault.High.Fast"));
+
+	GameplayTags.Traversal_Mantle = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Mantle"));
+	GameplayTags.Traversal_Mantle_Low = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Mantle.Low"));
+	GameplayTags.Traversal_Mantle_Medium = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Mantle.Medium"));
+	GameplayTags.Traversal_Mantle_High = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Mantle.High"));
 	
 	/** Traversal Tags */
 	GameplayTags.Traversal_State_FreeRoam = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.State.FreeRoam"));
 	GameplayTags.Traversal_State_ReadyToClimb = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.State.ReadyToClimb"));
-	GameplayTags.Traversal_State_Climb = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.State.Climb"));
-	GameplayTags.Traversal_State_Mantle = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.State.Mantle"));
-	GameplayTags.Traversal_State_Vault = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.State.Vault"));
+
 	GameplayTags.Traversal_Action_NoAction = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Action.NoAction"));
 	GameplayTags.Traversal_Action_BracedClimb = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Action.BracedClimb"));
 	GameplayTags.Traversal_Action_BracedClimb_FallingClimb = UGameplayTagsManager::Get().AddNativeGameplayTag(FName("Traversal.Action.BracedClimb.FallingClimb"));

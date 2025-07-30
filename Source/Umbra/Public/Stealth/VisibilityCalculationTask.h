@@ -7,18 +7,20 @@
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
 
+struct FVisibilityDetector;
+
 class FVisibilityCalculationTask : public FNonAbandonableTask
 {
 public:
 
 	FVisibilityCalculationTask(
 		UWorld* InWorld,
-		const TArray<FVector>& InSampleLocations,
+		const TArray<FVisibilityDetector>& InVisibilityDetectors,
 		const TArray<TWeakObjectPtr<AActor>>& InLightSources,
 		float InMinAmbientVisibility,
 		const TObjectPtr<UCurveFloat>& InFalloffCurve)
 		: World(InWorld)
-		, SampleLocations(InSampleLocations)
+		, VisibilityDetectors(InVisibilityDetectors)
 		, LightSources(InLightSources)
 		, MinAmbientVisibility(InMinAmbientVisibility)
 		, FalloffCurve(InFalloffCurve) {}
@@ -34,10 +36,10 @@ public:
 
 private:
 	UWorld* World;
-	TArray<FVector> SampleLocations;
+	TArray<FVisibilityDetector> VisibilityDetectors;
 	TArray<TWeakObjectPtr<AActor>> LightSources;
 	float MinAmbientVisibility;
 	UCurveFloat* FalloffCurve;
 
-	float CalculateLightContribution(const ULightComponent* LightComponent, const FVector& SampleLocation);
+	float CalculateLightContribution(const ULightComponent* LightComponent, const FVisibilityDetector& Detector);
 };

@@ -1,25 +1,25 @@
-
-
+// Copyrighted by Vorona Games
 
 #include "Stealth/VisibilityCalculationTask.h"
+#include "Character/Component/StealthComponent.h"
 #include "Components/PointLightComponent.h"
 #include "Components/SpotLightComponent.h"
 #include "Components/DirectionalLightComponent.h"
 
 void FVisibilityCalculationTask::DoWork()
 {
-	if (SampleLocations.IsEmpty())
+	if (VisibilityDetectors.IsEmpty())
 	{
 		ResultVisibility = MinAmbientVisibility;
 		return;
 	}
 
 	TArray<float> PointVisibilities;
-	PointVisibilities.Reserve(SampleLocations.Num());
+	PointVisibilities.Reserve(VisibilityDetectors.Num());
 
 	//ParallelFor()??
 	
-	for (const FVector& SampleLocation : SampleLocations)
+	for (const FVisibilityDetector& Detector : VisibilityDetectors)
 	{
 		float TotalPointVisibility = MinAmbientVisibility;
 
@@ -35,7 +35,7 @@ void FVisibilityCalculationTask::DoWork()
 			FHitResult HitResult;
 			const bool bTraceHit = World->LineTraceSingleByChannel(
 				HitResult,
-				SampleLocation,
+				Detector.Location,
 				LightActor->GetActorLocation(),
 				ECollisionChannel::ECC_Visibility
 				);
@@ -47,7 +47,7 @@ void FVisibilityCalculationTask::DoWork()
 
 			if (ULightComponent* LightComponent = LightActor->FindComponentByClass<ULightComponent>())
 			{
-				TotalPointVisibility += CalculateLightContribution(LightComponent, SampleLocation);
+				TotalPointVisibility += CalculateLightContribution(LightComponent, Detector);
 			}
 		}
 
@@ -64,21 +64,20 @@ void FVisibilityCalculationTask::DoWork()
 	}
 }
 
-float FVisibilityCalculationTask::CalculateLightContribution(const ULightComponent* LightComponent, const FVector& SampleLocation)
+float FVisibilityCalculationTask::CalculateLightContribution(const ULightComponent* LightComponent, const FVisibilityDetector& Detector)
 {
 	float Contribution = 0.0f;
 	float Divider = GetDefault<UPointLightComponent>()->Intensity;
 	const float BaseFactor = LightComponent->Intensity / Divider;
-
-
+	
 	if (const USpotLightComponent* SpotLight = Cast<USpotLightComponent>(LightComponent))
 	{
-		const float Distance = FVector::Dist(SampleLocation, SpotLight->GetComponentLocation());
+		const float Distance = FVector::Dist(Detector.Location, SpotLight->GetComponentLocation());
 		const float AttenuationRadius = SpotLight->AttenuationRadius;
 
 		if (Distance < AttenuationRadius)
 		{
-			const FVector DirectionToSample = (SampleLocation - SpotLight->GetComponentLocation()).GetSafeNormal();
+			const FVector DirectionToSample = (Detector.Location - SpotLight->GetComponentLocation()).GetSafeNormal();
 			const FVector LightForward = SpotLight->GetForwardVector();
 
 			// Вычисляем, насколько похоже направление от PC к источнику света и от источника света к свету
@@ -118,7 +117,7 @@ float FVisibilityCalculationTask::CalculateLightContribution(const ULightCompone
 	
 	else if (const UPointLightComponent* PointLight = Cast<UPointLightComponent>(LightComponent))
 	{
-		const float Distance = FVector::Dist(SampleLocation, PointLight->GetComponentLocation());
+		const float Distance = FVector::Dist(Detector.Location, PointLight->GetComponentLocation());
 		const float AttenuationRadius = PointLight->AttenuationRadius;
 
 		if (Distance < AttenuationRadius)
@@ -146,6 +145,15 @@ float FVisibilityCalculationTask::CalculateLightContribution(const ULightCompone
 	{
 		Contribution = BaseFactor;
 	}
+
+	Contribution *= Detector.ContributionMultiplier;
+	
+	// UE_LOG(UmbraStealthComponentLog,
+	// 	Log,
+	// 	TEXT("Visibility Contribution = [%f] for [%s] Detector and [%s] light source"),
+	// 	Contribution,
+	// 	*Detector.SocketName.ToString(),
+	// 	*GetNameSafe(LightComponent->GetOwner()))
 	
 	return Contribution;
 }

@@ -5,8 +5,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "AbilitySystem/UmbraAbilitySystemComponent.h"
+#include "AbilitySystem/Abilities/GameplayAbilitiesFunctionLibrary.h"
 #include "Character/UmbraPlayerCharacter.h"
-#include "Character/Component/TraversalComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Input/UmbraInputComponent.h"
 
@@ -25,6 +25,15 @@ void AUmbraPlayerController::SwitchToCameraOnlyContext()
 	{
 		Subsystem->ClearAllMappings();
 		Subsystem->AddMappingContext(CameraOnlyInputContext, 0);
+	}
+}
+
+void AUmbraPlayerController::SwitchToClimbContext()
+{
+	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+	{
+		Subsystem->RemoveMappingContext(InputContext);
+		Subsystem->AddMappingContext(ClimbContext, 0);
 	}
 }
 
@@ -53,12 +62,14 @@ void AUmbraPlayerController::SetupInputComponent()
 	UUmbraInputComponent* UmbraInputComponent = CastChecked<UUmbraInputComponent>(InputComponent);
 	
 	UmbraInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::Move);
-	UmbraInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &AUmbraPlayerController::OnStopMoving);
 	UmbraInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::Look);
 	UmbraInputComponent->BindAction(CameraZoomAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::CameraZoom);
 	UmbraInputComponent->BindAction(ConfirmAction, ETriggerEvent::Started, this, &AUmbraPlayerController::ConfirmAbilityTargeting);
 	UmbraInputComponent->BindAction(CancelAction, ETriggerEvent::Started, this, &AUmbraPlayerController::CancelAbilityTargeting);
 
+	UmbraInputComponent->BindAction(ClimbMoveAction, ETriggerEvent::Triggered, this, &AUmbraPlayerController::ClimbMove);
+	UmbraInputComponent->BindAction(ClimbDropAction, ETriggerEvent::Started, this, &AUmbraPlayerController::ClimbDrop);
+	
 	UmbraInputComponent->BindAbilityActions(InputConfig, this,
 											&AUmbraPlayerController::AbilityInputTagPressed,
 	                                        &AUmbraPlayerController::AbilityInputTagReleased,
@@ -81,27 +92,6 @@ UUmbraAbilitySystemComponent* AUmbraPlayerController::GetAbilitySystemComponent(
 	{
 		AbilitySystemComponent = ASC;
 		return ASC;
-	}
-
-	return nullptr;
-}
-
-UTraversalComponent* AUmbraPlayerController::GetTraversalComponent()
-{
-	if (TraversalComponent.IsValid())
-	{
-		return TraversalComponent.Get();
-	}
-
-	if (GetPawn() == nullptr)
-	{
-		return nullptr;
-	}
-	
-	if (UTraversalComponent* TC = GetCharacter()->FindComponentByClass<UTraversalComponent>())
-	{
-		TraversalComponent = TC;
-		return TC;
 	}
 
 	return nullptr;
@@ -176,13 +166,8 @@ void AUmbraPlayerController::Move(const FInputActionValue& InputActionValue)
 
 	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-
-	if (GetTraversalComponent())
-	{
-		TraversalComponent->AddMovementInput(InputAxisVector.Y, true);
-		TraversalComponent->AddMovementInput(InputAxisVector.X, false);
-	}
-	else if (APawn* ControlledPawn = GetPawn<APawn>())
+	
+	if (APawn* ControlledPawn = GetPawn<APawn>())
 	{
 		ControlledPawn->AddMovementInput(ForwardDirection, InputAxisVector.Y);
 		ControlledPawn->AddMovementInput(RightDirection, InputAxisVector.X);
@@ -208,26 +193,22 @@ void AUmbraPlayerController::CameraZoom(const FInputActionValue& InputActionValu
 	}
 }
 
-void AUmbraPlayerController::OnStopMoving()
+void AUmbraPlayerController::ClimbMove(const FInputActionValue& InputActionValue)
 {
-	if (GetTraversalComponent())
+	const float Direction = InputActionValue.Get<float>();
+	if (APawn* CurrentPawn = GetPawn())
 	{
-		if (HasAuthority())
-		{
-			TraversalComponent->ResetMovement();
-		}
-		else
-		{
-			TraversalComponent->ServerResetMovement();
-		}
+		FGameplayEventData EventData;
+		EventData.EventMagnitude = Direction;
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(CurrentPawn, FUmbraGameplayTags::Get().Event_Ability_Traversal_Climb_Move, EventData);
 	}
 }
 
-void AUmbraPlayerController::OnStartDrop()
+void AUmbraPlayerController::ClimbDrop()
 {
-	if (GetTraversalComponent())
+	if (APawn* CurrentPawn = GetPawn())
 	{
-		HasAuthority() ? TraversalComponent->DropFromClimb() : TraversalComponent->ServerDropFromClimb();
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(CurrentPawn, FUmbraGameplayTags::Get().Event_Ability_Traversal_Climb_Drop, FGameplayEventData());
 	}
 }
 

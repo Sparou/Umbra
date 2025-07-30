@@ -82,19 +82,22 @@ void UStealthComponent::TriggerVisibilityCheck()
 	{
 		return;
 	}
-
-	TArray<FVector> WorldSampleLocations;
+	
 	if (const USkeletalMeshComponent* SkeletalMesh = Owner->FindComponentByClass<USkeletalMeshComponent>())
 	{
-		for (const FName& SocketName : SampleSocketNames)
+		for (FVisibilityDetector& Detector : VisibilityDetectors)
 		{
-			WorldSampleLocations.Add(SkeletalMesh->GetSocketLocation(SocketName));
+			Detector.Location = SkeletalMesh->GetSocketLocation(Detector.SocketName);
 		}
 	}
 
-	if (WorldSampleLocations.IsEmpty())
+	if (VisibilityDetectors.IsEmpty())
 	{
-		WorldSampleLocations.Add(GetOwner()->GetActorLocation());
+		FVisibilityDetector Detector;
+		Detector.SocketName = FName("spine_01");
+		Detector.ContributionMultiplier = 1.0f;
+		Detector.Location = GetOwner()->GetActorLocation();
+		VisibilityDetectors.Add(Detector);
 	}
 
 	ULightSubsystem* LightSubsystem = World->GetSubsystem<ULightSubsystem>();
@@ -105,7 +108,7 @@ void UStealthComponent::TriggerVisibilityCheck()
 
 	CurrentVisibilityTask = new FAsyncTask<FVisibilityCalculationTask>(
 		World,
-		WorldSampleLocations,
+		VisibilityDetectors,
 		LightSubsystem->GetLightSourcesInRadius(GetOwner()->GetActorLocation(), LightSearchRadius),
 		MinAmbientVisibility,
 		FalloffCurve);

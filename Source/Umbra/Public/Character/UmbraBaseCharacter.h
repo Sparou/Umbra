@@ -9,12 +9,12 @@
 #include "Interface/OutlineInterface.h"
 #include "UmbraBaseCharacter.generated.h"
 
+class UTraversalActionsData;
 class UUmbraAbilitySystemComponent;
 class UCombatData;
 class UWeaponComponent;
 class UMeshComponent;
 class UMaterialInterface;
-class UTraversalComponent;
 class UCharacterTrajectoryComponent;
 class UMotionWarpingComponent;
 class UGameplayEffect;
@@ -56,10 +56,14 @@ public:
 	/** AbilitySystem Interface */
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	UMotionWarpingComponent* GetMotionWarpingComponent() const { return MotionWarpingComponent; };
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	UTraversalActionsData* GetTraversalActionsData() const { return TraversalActionsData; };
 	UFUNCTION(BlueprintCallable, Category = "Ability System")
-	UVitalAttributeSet* GetVitalAttributeSet() { return VitalAttributeSet; }
+	UVitalAttributeSet* GetVitalAttributeSet() const { return VitalAttributeSet; }
 	UFUNCTION(BlueprintCallable, Category = "Ability System")
-	UMovementAttributeSet* GetMovementAttributeSet() { return MovementAttributeSet; }
+	UMovementAttributeSet* GetMovementAttributeSet() const { return MovementAttributeSet; }
 
 	UFUNCTION(BlueprintCallable)
 	void StartDissolve();
@@ -74,6 +78,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
 	TObjectPtr<UCombatData> CombatData;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
+	TObjectPtr<UTraversalActionsData> TraversalActionsData;
 	
 	TObjectPtr<UUmbraAbilitySystemComponent> AbilitySystemComponent;
 	

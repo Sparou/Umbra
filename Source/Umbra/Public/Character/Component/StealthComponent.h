@@ -12,6 +12,20 @@ class FVisibilityCalculationTask;
 
 DECLARE_LOG_CATEGORY_EXTERN(UmbraStealthComponentLog, Log, All);
 
+USTRUCT(BlueprintType)
+struct FVisibilityDetector
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName SocketName = NAME_None;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float ContributionMultiplier = 1.0f;
+
+	FVector Location = FVector::ZeroVector;
+};
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class UMBRA_API UStealthComponent : public UActorComponent
 {
@@ -24,7 +38,7 @@ protected:
 
 	/** Имена сокетов на скелете владельца при проверке освещенности */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stealth|LightDetection")
-	TArray<FName> SampleSocketNames;
+	TArray<FVisibilityDetector> VisibilityDetectors;
 
 	/** Как часто (в секундах) проводить проверку уровня освещенности */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stealth|LightDetection", meta = (ClampMin = "0.0"))
