@@ -3,6 +3,7 @@
 
 #include "AbilitySystem/Abilities/Traversal/UmbraTraversalAbility.h"
 
+#include "AbilitySystemComponent.h"
 #include "UmbraGameplayTags.h"
 #include "Character/UmbraBaseCharacter.h"
 #include "Engine/OverlapResult.h"
@@ -123,7 +124,7 @@ bool UUmbraTraversalAbility::DetectObstacle(FGameplayTag& ObstacleTag, float Det
 	return false;
 }
 
-bool UUmbraTraversalAbility::FindObstacleHitResult(FHitResult& ObstacleHitResult, float InitialDownOffset, const int32 Iterations, float DetectionDistance, float OffsetStep, bool bDrawDebug)
+bool UUmbraTraversalAbility::FindObstacleHitResult(FHitResult& ObstacleHitResult, float InitialDownOffset, int32 Iterations, float DetectionDistance, float OffsetStep, bool bDrawDebug)
 {
 	ObstacleHitResult = FHitResult();
 	FVector AvatarLocation = GetAvatarActorFromActorInfo()->GetActorLocation();
@@ -159,7 +160,7 @@ bool UUmbraTraversalAbility::FindObstacleHitResult(FHitResult& ObstacleHitResult
 	return false;
 }
 
-bool UUmbraTraversalAbility::FindObstacleEdgeResult(FHitResult& EdgeResult, const FHitResult& ObstacleHitResult, int32 Iterations,  float OffsetStep, float DetectionDistance, float Threshold, bool bDrawDebug)
+bool UUmbraTraversalAbility::FindObstacleEdgeResult(FHitResult& EdgeResult, const FHitResult& ObstacleHitResult, int32 Iterations, float OffsetStep, float DetectionDistance, float Threshold, bool bDrawDebug)
 {
 	EdgeResult = FHitResult();
 	TArray<FHitResult> HitResults;
@@ -258,6 +259,7 @@ bool UUmbraTraversalAbility::FindObstacleTopResult(FHitResult& TopHitResult, con
 
 	return false;
 }
+
 
 bool UUmbraTraversalAbility::FindObstacleDepthResult(FHitResult& DepthHitResult, const FHitResult& TopHitResult, const FVector& Direction, int32 Iterations, float OffsetStep, float Threshold, bool bDrawDebug)
 {
@@ -483,6 +485,13 @@ void UUmbraTraversalAbility::RestoreTraversalSettings()
 	}
 }
 
+void UUmbraTraversalAbility::TryToJump()
+{
+	FGameplayTagContainer ActivationTags;
+	ActivationTags.AddTag(FUmbraGameplayTags::Get().Ability_Movement_Jump);
+	GetAbilitySystemComponentFromActorInfo()->TryActivateAbilitiesByTag(ActivationTags);
+}
+
 void UUmbraTraversalAbility::ReverseNormal(FRotator& ReversedNormal, const FVector& Normal)
 {
 	FRotator Rotator = UKismetMathLibrary::MakeRotFromX(Normal);
@@ -494,8 +503,18 @@ void UUmbraTraversalAbility::OnAvatarSet(const FGameplayAbilityActorInfo* ActorI
 {
 	Super::OnAvatarSet(ActorInfo, Spec);
 
-	UmbraCharacter = Cast<AUmbraBaseCharacter>(ActorInfo->AvatarActor);
-
+	UE_LOG(UmbraAbilitiesLog, Warning, TEXT("Avatar = [%s] | Owner Actor = [%s]"), *GetNameSafe(ActorInfo->AvatarActor.Get()), *GetNameSafe(ActorInfo->OwnerActor.Get()));
+	
+	if (ActorInfo->AvatarActor.IsValid())
+	{
+		UmbraCharacter = Cast<AUmbraBaseCharacter>(ActorInfo->AvatarActor);
+	}
+	else
+	{
+		UE_LOG(UmbraAbilitiesLog, Error, TEXT("Avatar Actor is null at [%s]"), *GetNameSafe(this));
+		return;
+	}
+	
 	if (!UmbraCharacter.IsValid())
 	{
 		UE_LOG(UmbraAbilitiesLog, Error, TEXT("Character is null at [%s]"), *GetNameSafe(this));

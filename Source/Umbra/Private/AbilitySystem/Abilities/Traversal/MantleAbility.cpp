@@ -2,13 +2,52 @@
 
 
 #include "AbilitySystem/Abilities/Traversal/MantleAbility.h"
-
-#include "MotionWarpingComponent.h"
 #include "UmbraGameplayTags.h"
 #include "Character/UmbraBaseCharacter.h"
 #include "Character/Data/TraversalActionsData.h"
+#include "Components/CapsuleComponent.h"
 
-bool UMantleAbility::FindTraversalActionMontage(const FHitResult& TopHitResult)
+bool UMantleAbility::ValidateMantle()
+{
+
+	if (!FindObstacleHitResult(ObstacleHitResult, ObstacleDetectionDownOffset, ObstacleDetectionIterations, ObstacleDetectionDistance, ObstacleDetectionOffsetStep, bObstacleDetectionDebug))
+	{
+		return false;
+	}
+
+	if (!FindObstacleEdgeResult(EdgeHitResult, ObstacleHitResult, EdgeDetectionIterations, EdgeDetectionOffsetStep, EdgeDetectionIterations, EdgeDetectionThreshold, bEdgeDetectionDebug))
+	{
+		return false;
+	}
+
+	if (!FindObstacleTopResult(TopHitResult, EdgeHitResult, TopDetectionIterations, TopDetectionTraceHeight, bTopDetectionDebug, bTopDetectionDebug))
+	{
+		return false;
+	}
+
+	float CapsuleHalfHeight = 0;
+	float CapsuleHalfRadius = 0;
+
+	if (UCapsuleComponent* CapsuleComponent = GetCapsuleComponent())
+	{
+		CapsuleHalfHeight = CapsuleComponent->GetScaledCapsuleHalfHeight();
+		CapsuleHalfRadius = CapsuleComponent->GetScaledCapsuleRadius() / 2.f;
+	}
+
+	const FVector OverlapLocation = TopHitResult.ImpactPoint + GetAvatarActorFromActorInfo()->GetActorForwardVector() * SpaceValidationXOffset + FVector::UpVector * SpaceValidationZOffset;
+
+	TArray<AActor*> ActorsToIgnore;
+	ActorsToIgnore.Add(GetAvatarActorFromActorInfo());
+	
+	if (!HasEnoughSpace(CapsuleHalfHeight, CapsuleHalfRadius, OverlapLocation, ActorsToIgnore, bSpaceValidationDebug))
+	{
+		return false;
+	}
+	
+	return true;
+}
+
+bool UMantleAbility::FindTraversalActionMontage()
 {
 	const float TopZ = TopHitResult.ImpactPoint.Z;
 	const float RootZ = GetUmbraCharacter()->GetMesh()->GetSocketLocation("root").Z;
@@ -44,3 +83,5 @@ bool UMantleAbility::FindTraversalActionMontage(const FHitResult& TopHitResult)
 
 	return false;
 }
+
+

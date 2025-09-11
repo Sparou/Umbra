@@ -17,18 +17,26 @@ class UMBRA_API UUmbraInputComponent : public UEnhancedInputComponent
 	
 public:
 
+	template<class UserClass, typename FuncType>
+	void BindNativeAction(const UUmbraInputConfig* InputConfig, const FGameplayTag& InputTag, ETriggerEvent TriggerEvent, UserClass* Object, FuncType Func, bool bLogIfNotFound);
+
 	template<class UserClass, typename PressedFuncType, typename ReleasedFuncType, typename HeldFuncType>
-	void BindAbilityActions(
-		UUmbraInputConfig* InputConfig,
-		UserClass* Object,
-		PressedFuncType PressedFunc,
-		ReleasedFuncType ReleasedFunc,
-		HeldFuncType HeldFunc);
+	void BindAbilityActions(const UUmbraInputConfig* InputConfig, UserClass* Object, PressedFuncType PressedFunc, ReleasedFuncType ReleasedFunc, HeldFuncType HeldFunc);
 };
 
+template <class UserClass, typename FuncType>
+void UUmbraInputComponent::BindNativeAction(const UUmbraInputConfig* InputConfig, const FGameplayTag& InputTag,
+	ETriggerEvent TriggerEvent, UserClass* Object, FuncType Func, bool bLogIfNotFound)
+{
+	check(InputConfig);
+	if (const UInputAction* Action = InputConfig->FindNativeInputActionForTag(InputTag, bLogIfNotFound))
+	{
+		BindAction(Action, TriggerEvent, Object, Func);
+	}
+}
+
 template <class UserClass, typename PressedFuncType, typename ReleasedFuncType, typename HeldFuncType>
-void UUmbraInputComponent::BindAbilityActions(UUmbraInputConfig* InputConfig, UserClass* Object,
-	PressedFuncType PressedFunc, ReleasedFuncType ReleasedFunc, HeldFuncType HeldFunc)
+void UUmbraInputComponent::BindAbilityActions(const UUmbraInputConfig* InputConfig, UserClass* Object, PressedFuncType PressedFunc, ReleasedFuncType ReleasedFunc, HeldFuncType HeldFunc)
 {
 	check(InputConfig);
 	

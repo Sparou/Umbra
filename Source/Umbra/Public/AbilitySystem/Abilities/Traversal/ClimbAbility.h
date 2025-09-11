@@ -58,6 +58,8 @@ protected:
 	bool TopDetectionDebug = false;
 	UPROPERTY(BlueprintReadOnly, Category = "Hits")
 	FHitResult TopHitResult = FHitResult();
+	UPROPERTY(BlueprintReadOnly, Category = "Hits")
+	FHitResult NextTopHitResult = FHitResult();
 
 	/** Surface Validation */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Detection|Surface")
@@ -67,7 +69,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Detection|Surface")
 	bool SurfaceValidationDebug = false;
 
-
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UGameplayEffect> ClimbEffectClass;
+	
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Accessors")
 	AUmbraPlayerController* GetUmbraPlayerController();
 	
@@ -79,6 +83,8 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	bool FindTraversalActionMontage();
 
+	UFUNCTION(BlueprintCallable)
+	FActiveGameplayEffectHandle ApplyClimbEffectToOwner();
 
 private:
 

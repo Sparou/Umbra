@@ -10,7 +10,7 @@ public class Umbra : ModuleRules
 	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "GameplayAbilities", "MotionWarping", "MotionTrajectory", "Niagara", "AIModule", "UMG", "Slate", "SlateCore" });
 		
-		PrivateDependencyModuleNames.AddRange(new string[] { "GameplayTags", "GameplayTasks", "AITestSuite", "NetCore" });
+		PrivateDependencyModuleNames.AddRange(new string[] { "GameplayTags", "GameplayTasks", "AITestSuite", "NetCore", "ModularGameplay" });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

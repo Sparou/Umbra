@@ -5,7 +5,6 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "AbilitySystem/UmbraAbilitySystemComponent.h"
-#include "AbilitySystem/Abilities/GameplayAbilitiesFunctionLibrary.h"
 #include "Character/UmbraPlayerCharacter.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Input/UmbraInputComponent.h"
@@ -16,6 +15,7 @@ void AUmbraPlayerController::SwitchToDefaultContext()
 	{
 		Subsystem->ClearAllMappings();
 		Subsystem->AddMappingContext(InputContext, 0);
+		Subsystem->AddMappingContext(CameraContext, 1);
 	}
 }
 
@@ -23,8 +23,8 @@ void AUmbraPlayerController::SwitchToCameraOnlyContext()
 {
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
 	{
-		Subsystem->ClearAllMappings();
-		Subsystem->AddMappingContext(CameraOnlyInputContext, 0);
+		Subsystem->RemoveMappingContext(InputContext);
+		Subsystem->RemoveMappingContext(ClimbContext);
 	}
 }
 
@@ -41,7 +41,8 @@ void AUmbraPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 	check(InputContext);
-	check(CameraOnlyInputContext);
+	check(CameraContext);
+	check(ClimbContext);
 	SwitchToDefaultContext();
 }
 

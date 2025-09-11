@@ -4,8 +4,60 @@
 #include "AbilitySystem/Abilities/Traversal/VaultAbility.h"
 #include "UmbraGameplayTags.h"
 #include "Character/UmbraBaseCharacter.h"
+#include "Components/CapsuleComponent.h"
 
-bool UVaultAbility::FindTraversalActionMontage(const FHitResult& TopHitResult, const FHitResult& DepthHitResult, const FHitResult& VaultHitResult)
+bool UVaultAbility::ValidateVault()
+{
+	if (!FindObstacleHitResult(ObstacleHitResult, ObstacleDetectionDownOffset, ObstacleDetectionIterations, ObstacleDetectionDistance, ObstacleDetectionOffsetStep, bObstacleDetectionDebug))
+	{
+		return false;
+	}
+
+	if (!FindObstacleEdgeResult(EdgeHitResult, ObstacleHitResult, EdgeDetectionIterations, EdgeDetectionOffsetStep, EdgeDetectionIterations, EdgeDetectionThreshold, bEdgeDetectionDebug))
+	{
+		return false;
+	}
+
+	if (!FindObstacleTopResult(TopHitResult, EdgeHitResult, TopDetectionIterations, TopDetectionTraceHeight, bTopDetectionDebug, bTopDetectionDebug))
+	{
+		return false;
+	}
+
+	const FVector DepthDetectionDirection = GetAvatarActorFromActorInfo()->GetActorForwardVector();
+	
+	if (!FindObstacleDepthResult(DepthHitResult, TopHitResult, DepthDetectionDirection, DepthDetectionIterations, DepthDetectionOffsetStep, DepthDetectionThreshold, bDepthDetectionDebug))
+	{
+		return false;
+	}
+
+	if (!FindVaultResult(VaultHitResult, DepthHitResult, VaultDetectionDistance, VaultDetectionMaxHeight, bVaultDetectionDebug))
+	{
+		return false;
+	}
+	
+	float CapsuleHalfHeight = 0;
+	float CapsuleHalfRadius = 0;
+	
+	if (UCapsuleComponent* CapsuleComponent = GetCapsuleComponent())
+	{
+		CapsuleHalfHeight = CapsuleComponent->GetScaledCapsuleHalfHeight();
+		CapsuleHalfRadius = CapsuleComponent->GetScaledCapsuleRadius() / 2.f;
+	}
+
+	const FVector OverlapLocation = VaultHitResult.ImpactPoint + FVector::UpVector * SpaceValidationZOffset;
+
+	TArray<AActor*> ActorsToIgnore;
+	ActorsToIgnore.Add(GetAvatarActorFromActorInfo());
+	
+	if (!HasEnoughSpace(CapsuleHalfHeight, CapsuleHalfRadius, OverlapLocation, ActorsToIgnore, bSpaceValidationDebug))
+	{
+		return false;
+	}
+	
+	return true;
+}
+
+bool UVaultAbility::FindTraversalActionMontage()
 {
 	const float ObstacleHeight = TopHitResult.ImpactPoint.Z - GetUmbraCharacter()->GetMesh()->GetSocketLocation("root").Z;
 	const float ObstacleDepth = TopHitResult.bBlockingHit && DepthHitResult.bBlockingHit ? FVector::Dist(TopHitResult.ImpactPoint, DepthHitResult.ImpactPoint) : 0.f;

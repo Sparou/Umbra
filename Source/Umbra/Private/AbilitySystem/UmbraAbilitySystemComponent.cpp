@@ -2,6 +2,7 @@
 
 #include "AbilitySystem/UmbraAbilitySystemComponent.h"
 #include "AbilitySystem/Abilities/UmbraBaseGameplayAbility.h"
+#include "AbilitySystem/GameplayEffect/UmbraGameplayEffectContext.h"
 
 DEFINE_LOG_CATEGORY(UmbraAbilitySystemLog)
 
@@ -135,3 +136,4 @@ void UUmbraAbilitySystemComponent::ProcessAbilityInput(float DeltaTime, bool bGa
 	InputPressedHandles.Reset();
 	InputReleasedHandles.Reset();
 }
+

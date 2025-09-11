@@ -17,6 +17,7 @@ class UMBRA_API UUmbraAbilitySystemComponent : public UAbilitySystemComponent
 	GENERATED_BODY()
 
 public:
+	
 	void AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& Abilities);
 
 	virtual void AbilitySpecInputPressed(FGameplayAbilitySpec& Spec) override;
@@ -33,4 +34,6 @@ public:
 	TArray<FGameplayAbilitySpecHandle> InputReleasedHandles;
 	// Handles to abilities that have their input held.
 	TArray<FGameplayAbilitySpecHandle> InputHeldHandles;
+	
+	
 };

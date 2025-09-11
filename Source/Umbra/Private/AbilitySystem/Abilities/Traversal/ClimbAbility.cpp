@@ -2,7 +2,10 @@
 
 
 #include "AbilitySystem/Abilities/Traversal/ClimbAbility.h"
+
+#include "AbilitySystemComponent.h"
 #include "UmbraGameplayTags.h"
+#include "AbilitySystem/GameplayEffect/UmbraGameplayEffectContext.h"
 #include "Character/UmbraBaseCharacter.h"
 #include "Components/CapsuleComponent.h"
 #include "Player/UmbraPlayerController.h"
@@ -78,6 +81,30 @@ bool UClimbAbility::FindTraversalActionMontage()
 	}
 
 	return false;
+}
+
+FActiveGameplayEffectHandle UClimbAbility::ApplyClimbEffectToOwner()
+{
+	FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(ClimbEffectClass);
+
+	if (!SpecHandle.IsValid())
+	{
+		UE_LOG(UmbraAbilitiesLog, Error, TEXT("Failed to apply climb effect in [%s]"), *GetNameSafe(this));
+		return FActiveGameplayEffectHandle(); 
+	}
+	
+	FGameplayEffectContext* BaseContext = SpecHandle.Data.Get()->GetContext().Get();
+	FUmbraGameplayEffectContext* UmbraContext = static_cast<FUmbraGameplayEffectContext*>(BaseContext);
+
+	if (!UmbraContext)
+	{
+		UE_LOG(UmbraAbilitiesLog, Error, TEXT("Failed to apply climb effect in [%s] 2"), *GetNameSafe(this));
+		return FActiveGameplayEffectHandle();
+	}
+	UE_LOG(LogTemp, Warning, TEXT("Top Hit Result = [%s]"), *TopHitResult.ToString());
+	UE_LOG(LogTemp, Warning, TEXT("Server: UmbraContext pointer is: %p"), UmbraContext);
+	UmbraContext->SetTopHitResult(TopHitResult);
+	return GetAbilitySystemComponentFromActorInfo()->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 }
 
 AUmbraPlayerController* UClimbAbility::GetUmbraPlayerController()

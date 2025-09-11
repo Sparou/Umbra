@@ -3,13 +3,13 @@
 
 #include "Input/UmbraInputConfig.h"
 
-const FUmbraInputAction* UUmbraInputConfig::GetInputActionByTag(const FGameplayTag& InputTag, bool bLogNotFound) const
+const UInputAction* UUmbraInputConfig::FindNativeInputActionForTag(const FGameplayTag& InputTag, bool bLogNotFound) const
 {
-	for (const FUmbraInputAction& InputAction : AbilitiesInputActions)
+	for (const FUmbraInputAction& Action : NativeInputActions)
 	{
-		if (InputAction.InputTag.MatchesTagExact(InputTag))
+		if (Action.InputAction && Action.InputTag == InputTag)
 		{
-			return &InputAction;
+			return Action.InputAction;
 		}
 	}
 
@@ -18,7 +18,30 @@ const FUmbraInputAction* UUmbraInputConfig::GetInputActionByTag(const FGameplayT
 		UE_LOG(
 			LogTemp,
 			Error,
-			TEXT("Input action with tag [%s] not found in [%s]"),
+			TEXT("Native input action with tag [%s] not found in [%s]"),
+			*InputTag.ToString(),
+			*GetNameSafe(this));
+	}
+
+	return nullptr;
+}
+
+const UInputAction* UUmbraInputConfig::FindAbilityInputActionForTag(const FGameplayTag& InputTag, bool bLogNotFound) const
+{
+	for (const FUmbraInputAction& Action : AbilitiesInputActions)
+	{
+		if (Action.InputAction && Action.InputTag == InputTag)
+		{
+			return Action.InputAction;
+		}
+	}
+
+	if (bLogNotFound)
+	{
+		UE_LOG(
+			LogTemp,
+			Error,
+			TEXT("Ability input action with tag [%s] not found in [%s]"),
 			*InputTag.ToString(),
 			*GetNameSafe(this));
 	}

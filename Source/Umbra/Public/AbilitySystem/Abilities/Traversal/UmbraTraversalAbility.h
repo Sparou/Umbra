@@ -53,6 +53,8 @@ protected:
 	FGameplayTag TraversalActionTag;
 	UPROPERTY(BlueprintReadWrite)
 	FTraversalActionMontage TraversalActionMontage;
+
+protected:
 	
 	/**
 	 * Поиск препятствия с помощью Box Overlap.
@@ -76,7 +78,7 @@ protected:
 	 * @return True, если препятствие было найдено, иначе - false.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Obstacle|Detection")
-	bool FindObstacleHitResult(FHitResult& ObstacleHitResult, float InitialDownOffset, const int32 Iterations, float DetectionDistance, float OffsetStep,  bool bDrawDebug = false);
+	bool FindObstacleHitResult(FHitResult& ObstacleHitResult, float InitialDownOffset, int32 Iterations, float DetectionDistance, float OffsetStep,  bool bDrawDebug = false);
 
 	/**
 	 * Поиск точки края препятствия с помощью цикла линейных трассировок.
@@ -104,7 +106,7 @@ protected:
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Obstacle|Detection")
 	bool FindObstacleTopResult(FHitResult& TopHitResult, const FHitResult& EdgeHitResult, int32 Iterations, float TraceHeight, float OffsetStep, bool bDrawDebug = false);
-
+	
 	/**
 	 * Поиск глубины препятствия с помощью цикла трассировок.
 	 * @param DepthHitResult HitResult, в который сохранится информация о глубине препятствия.
@@ -153,6 +155,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Utility")
 	void RestoreTraversalSettings();
+
+	UFUNCTION(BlueprintCallable, Category = "Utility")
+	void TryToJump();
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Utility")
 	void ReverseNormal(FRotator& ReversedNormal, const FVector& Normal);

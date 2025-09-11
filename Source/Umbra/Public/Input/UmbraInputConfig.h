@@ -30,7 +30,12 @@ class UMBRA_API UUmbraInputConfig : public UDataAsset
 public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TArray<FUmbraInputAction> NativeInputActions;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<FUmbraInputAction> AbilitiesInputActions;
 
+	const UInputAction* FindNativeInputActionForTag(const FGameplayTag& InputTag, bool bLogNotFound = false) const;
+	const UInputAction* FindAbilityInputActionForTag(const FGameplayTag& InputTag, bool bLogNotFound = false) const;
 	const FUmbraInputAction* GetInputActionByTag(const FGameplayTag& InputTag, bool bLogNotFound = false) const;
 };

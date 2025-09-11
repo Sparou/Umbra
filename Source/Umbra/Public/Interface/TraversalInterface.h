@@ -26,7 +26,7 @@ class UMBRA_API ITraversalInterface
 public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Traversal")
-	bool SetTraversalState(const FGameplayTag& NewTraversalState);
+	bool SetTraversalState(const FGameplayTag& NewTraversalState, int32 TagCount);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Traversal")
 	bool SetTraversalAction(const FGameplayTag& NewTraversalAction);

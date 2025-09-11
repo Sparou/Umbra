@@ -47,11 +47,8 @@ protected:
 	virtual void PostProcessInput(const float DeltaTime, const bool bGamePaused) override;
 	virtual void SetupInputComponent() override;
 
-	UPROPERTY(EditAnywhere, Category = "Input")
+	UPROPERTY(EditAnywhere, Category = "Input|Basic")
 	TObjectPtr<UInputMappingContext> InputContext;
-
-	UPROPERTY(EditAnywhere, Category = "Input")
-	TObjectPtr<UInputMappingContext> CameraOnlyInputContext;
 
 	UPROPERTY(EditAnywhere, Category = "Input|Basic")
 	TObjectPtr<UInputAction> MoveAction;
@@ -72,6 +69,9 @@ protected:
 	TObjectPtr<UInputAction> CameraZoomAction;
 
 	UPROPERTY(EditAnywhere, Category = "Input|Camera")
+	TObjectPtr<UInputMappingContext> CameraContext;
+	
+	UPROPERTY(EditAnywhere, Category = "Input|Camera")
 	float CameraZoomStep = 10.f;
 
 	UPROPERTY(EditAnywhere, Category = "Input|Camera")
@@ -82,8 +82,7 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Input|Abilities")
 	TObjectPtr<UUmbraInputConfig> InputConfig;
-
-
+	
 	UPROPERTY(EditAnywhere, Category = "Input|Climb")
 	TObjectPtr<UInputMappingContext> ClimbContext;
 	
@@ -97,12 +96,10 @@ private:
 	
 	TWeakObjectPtr<AUmbraBaseCharacter> UmbraCharacter;
 	TWeakObjectPtr<UUmbraAbilitySystemComponent> AbilitySystemComponent;
-	//TWeakObjectPtr<UTraversalComponent> TraversalComponent;
 	TWeakObjectPtr<UAnimInstance> AnimInstance;
 	TWeakObjectPtr<USpringArmComponent> SpringArmComponent;
 
 	UUmbraAbilitySystemComponent* GetAbilitySystemComponent();
-	//UTraversalComponent* GetTraversalComponent();
 	UAnimInstance* GetAnimInstance();
 	AUmbraBaseCharacter* GetUmbraCharacter();
 	USpringArmComponent* GetSpingArmComponent();
@@ -113,9 +110,6 @@ private:
 
 	void ClimbMove(const FInputActionValue& InputActionValue);
 	void ClimbDrop();
-	
-	// void OnStopMoving();
-	// void OnStartDrop();
 
 	void ConfirmAbilityTargeting();
 	void CancelAbilityTargeting();
